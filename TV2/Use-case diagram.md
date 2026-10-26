@@ -1,35 +1,53 @@
-```plantuml
 @startuml
 left to right direction
 skinparam packageStyle rectangle
 skinparam actorStyle outline
 
 actor "Khách hàng" as Customer
-actor "Nhân viên / Quản lý" as Staff
+actor "Nhân viên pha chế" as Staff
+actor "Quản lý (Manager)" as Manager
+actor "Cổng thanh toán ngoài" as Gateway #lightgreen
 
-rectangle "Hệ thống BrewLite" {
+rectangle "Hệ thống BrewLite (POS & Ordering System)" {
+  usecase "Đăng ký tài khoản" as UC1
+  usecase "Đăng nhập / Xác thực JWT" as UC2
+  usecase "Xem danh mục menu & tìm kiếm" as UC3
+  usecase "Xem chi tiết sản phẩm & Topping" as UC4
+  usecase "Quản lý giỏ hàng (Thêm/Sửa/Xóa)" as UC5
+  usecase "Đặt đơn & Thanh toán trực tuyến" as UC6
+  usecase "Xem lịch sử đơn hàng" as UC7
+  usecase "Hủy đơn hàng (Khi chưa xử lý)" as UC8
   
-  usecase "Đặt & Thanh toán đơn hàng\n(UC-CHECKOUT / FR-05)" as UC_Checkout #LightSkyBlue
-  usecase "Kiểm tra tồn kho" as UC_CheckStock
-  usecase "Đăng ký / Đăng nhập\n(FR-04)" as UC_Auth
+  usecase "Kiểm tra tồn kho" as UC_Stock
+  usecase "Xử lý giao dịch thanh toán" as UC_Pay
   
-  usecase "Xem menu (FR-01)" as UC_Menu
-  usecase "Xem chi tiết sản phẩm (FR-02)" as UC_Detail
-  usecase "Quản lý giỏ hàng (FR-03)" as UC_Cart
-  usecase "Xem lịch sử đơn (FR-06)" as UC_History
-  usecase "Cập nhật trạng thái đơn (FR-07)" as UC_UpdateStatus
+  usecase "Quản lý trạng thái đơn hàng (Chờ/Làm/Xong)" as UC9
+  usecase "Quản lý sản phẩm & Kho hàng" as UC10
+  usecase "Thống kê doanh thu & Báo cáo" as UC11
 }
 
-Customer --> UC_Menu
-Customer --> UC_Detail
-Customer --> UC_Cart
-Customer --> UC_Checkout
-Customer --> UC_History
+' Customer interactions
+Customer --> UC1
+Customer --> UC2
+Customer --> UC3
+Customer --> UC4
+Customer --> UC5
+Customer --> UC6
+Customer --> UC7
+Customer --> UC8
 
-UC_Checkout ..> UC_CheckStock : <<include>>
-UC_Checkout ..> UC_Auth : <<include>>
+' Includes & Extends
+UC6 ..> UC2 : <<include>>
+UC6 ..> UC_Stock : <<include>>
+UC6 ..> UC_Pay : <<include>>
+UC8 ..> UC6 : <<extend>>
 
-Staff --> UC_UpdateStatus
+' External Gateway
+UC_Pay --> Gateway
 
+' Staff & Manager interactions
+Staff --> UC9
+Manager --> UC9
+Manager --> UC10
+Manager --> UC11
 @enduml
-```

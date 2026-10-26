@@ -1,68 +1,67 @@
-```plantuml
 @startuml
-title Sequence Diagram - Đặt và Thanh Toán Đơn Hàng (UC-CHECKOUT)
-
 autonumber
-actor "Khách hàng" as Customer
-participant "UI (Frontend)" as UI
-participant "Order Controller" as Controller
-participant "Product Service" as ProductSvc
-participant "Order Service" as OrderSvc
-database "Database" as DB
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
 
-Customer -> UI: Nhấn "Thanh toán"
+actor "Khách hàng" as Cust
+participant "Client (React/Flutter)" as UI
+participant "API Gateway / AuthFilter" as Auth
+participant "OrderController" as Ctrl
+participant "OrderService" as Svc
+participant "InventoryService" as Inv
+database "MySQL Database" as DB
+
+Cust -> UI: Chọn sản phẩm, nhập thông tin & bấm "Thanh toán"
 activate UI
 
-UI -> Controller: POST /api/checkout/validate (CartItems)
-activate Controller
-Controller -> ProductSvc: checkStock(items)
-activate ProductSvc
-ProductSvc -> DB: Query kho hàng
-activate DB
-DB --> ProductSvc: Kết quả tồn kho
-deactivate DB
+UI -> Auth: POST /api/v1/orders (Bearer Token, CartID, PaymentInfo)
+activate Auth
 
-alt Tồn kho không đủ
-    ProductSvc --> Controller: Kho không đủ
-    Controller --> UI: 400 Bad Request (Hết hàng)
-    UI --> Customer: Hiển thị lỗi hết hàng
-else Tồn kho hợp lệ
-    ProductSvc --> Controller: Hợp lệ
-    deactivate ProductSvc
-    Controller --> UI: 200 OK (Sẵn sàng)
-    deactivate Controller
-
-    Customer -> UI: Nhập thông tin & Nhấn "Xác nhận đặt hàng"
-    UI -> Controller: POST /api/orders (OrderData, PaymentMethod)
-    activate Controller
+Auth -> Auth: Xác thực chữ ký JWT & phân quyền Role=Customer
+alt Token không hợp lệ / Hết hạn
+    Auth --> UI: 401 Unauthorized
+    UI --> Cust: Yêu cầu đăng nhập lại
+else Token hợp lệ
+    Auth -> Ctrl: Chuyển tiếp Request (DTO)
+    deactivate Auth
+    activate Ctrl
     
-    Controller -> OrderSvc: processCheckout(OrderData)
-    activate OrderSvc
+    Ctrl -> Svc: processCheckout(userId, orderRequest)
+    activate Svc
     
-    OrderSvc -> OrderSvc: Xử lý thanh toán mô phỏng
-    alt Thanh toán thất bại
-        OrderSvc --> Controller: Thanh toán thất bại
-        Controller --> UI: 400 Payment Failed
-        UI --> Customer: Hiển thị thông báo thất bại
-    else Thanh toán thành công
-        OrderSvc -> DB: Create Order & OrderDetails
-        activate DB
-        DB --> OrderSvc: Order Created (ID, PENDING)
+    Svc -> Inv: validateAndLockStock(items)
+    activate Inv
+    Inv -> DB: SELECT stock FROM products WHERE id IN (...) FOR UPDATE
+    activate DB
+    DB --> Inv: Trả về danh sách tồn kho
+    deactivate DB
+    
+    alt Tồn kho không đủ cho bất kỳ sản phẩm nào
+        Inv --> Svc: throw OutOfStockException()
+        deactivate Inv
+        Svc --> Ctrl: 400 Bad Request (Thiếu tồn kho)
+        Ctrl --> UI: Error Response (Sản phẩm hết hàng)
+        UI --> Cust: Hiển thị lỗi chi tiết sản phẩm hết hàng
+    else Tồn kho đủ điều kiện
+        Inv --> Svc: Stock Validated & Reserved
+        deactivate Inv
         
-        OrderSvc -> DB: Update Stock (Deduct)
-        DB --> OrderSvc: Stock Updated
+        Svc -> Svc: Tính toán tổng tiền & Tạo mã Order Code
+        
+        Svc -> DB: BEGIN TRANSACTION\n- INSERT INTO orders\n- INSERT INTO order_items\n- UPDATE products SET stock = stock - qty
+        activate DB
+        DB --> Svc: Transaction Committed Successfully
         deactivate DB
         
-        OrderSvc --> Controller: Order Success
-        deactivate OrderSvc
+        Svc --> Ctrl: OrderResponseDTO (OrderID, Status=PENDING)
+        deactivate Svc
         
-        Controller --> UI: 201 Created (Order Info)
-        deactivate Controller
+        Ctrl --> UI: 201 Created (Thông tin đơn hàng)
+        deactivate Ctrl
         
-        UI -> UI: Clear Local Cart
-        UI --> Customer: Hiển thị màn hình Đặt hàng thành công
+        UI -> UI: Xóa giỏ hàng local / Redux store
+        UI --> Cust: Hiển thị màn hình thành công & Mã tra cứu đơn
     end
 end
 deactivate UI
 @enduml
-```
