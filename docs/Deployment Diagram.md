@@ -1,4 +1,46 @@
 @startuml Deployment Diagram - BrewLite Production Environment
+
+skinparam BackgroundColor #FFFFFF
+skinparam Shadowing false
+skinparam DefaultFontName "Arial"
+skinparam DefaultFontSize 12
+skinparam DefaultFontColor #202124
+
+skinparam cloud {
+    BackgroundColor #F8F9FA
+    BorderColor #5F6368
+    FontColor #202124
+}
+
+skinparam node {
+    BackgroundColor #F1F3F4
+    BorderColor #80868B
+    FontColor #202124
+}
+
+skinparam component {
+    BackgroundColor #E8F0FE
+    BorderColor #1A73E8
+    FontColor #174EA6
+}
+
+skinparam database {
+    BackgroundColor #FEF7E0
+    BorderColor #FBBC04
+    FontColor #B06000
+}
+
+skinparam note {
+    BackgroundColor #FFF8E1
+    BorderColor #FFE082
+    FontColor #37474F
+}
+
+skinparam arrow {
+    Color #3C4043
+    FontColor #202124
+}
+
 skinparam componentStyle uml2 
 skinparam nodeNodePadding 18 
 skinparam frameStyle rectangle 
