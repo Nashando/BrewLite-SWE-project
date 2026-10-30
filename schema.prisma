@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  MANAGER
+}
+
+enum OrderStatus {
+  PENDING // đã thanh toán, chờ quầy xử lý ("Mới tạo")
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  WALLET
+  CARD
+}
+
+enum PaymentStatus {
+  SUCCESS
+  REFUNDED
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  name          String
+  role          Role     @default(CUSTOMER)
+  walletBalance Int      @default(500000) // ví mô phỏng (VND)
+  createdAt     DateTime @default(now())
+
+  cart   Cart?
+  orders Order[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  category    String
+  basePrice   Int // VND
+  imageUrl    String?
+  stock       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  sizes      ProductSize[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([category])
+}
+
+model ProductSize {
+  id         Int    @id @default(autoincrement())
+  productId  Int
+  name       String // S / M / L
+  extraPrice Int    @default(0)
+
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+
+  @@unique([productId, name])
+}
+
+model Topping {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  price    Int
+  isActive Boolean @default(true)
+
+  cartItems CartItem[]
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  updatedAt DateTime @updatedAt
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+}
+
+model CartItem {
+  id        Int @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  sizeId    Int?
+  quantity  Int
+
+  cart     Cart         @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product  Product      @relation(fields: [productId], references: [id])
+  size     ProductSize? @relation(fields: [sizeId], references: [id])
+  toppings Topping[]
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  code        String      @unique // mã tra cứu đơn, vd BL-3F9A12CD
+  userId      Int
+  status      OrderStatus @default(PENDING)
+  totalAmount Int
+  note        String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user     User        @relation(fields: [userId], references: [id])
+  items    OrderItem[]
+  payment  Payment?
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id          Int     @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  productName String // snapshot tại thời điểm đặt
+  sizeName    String?
+  toppings    Json    @default("[]") // snapshot [{name, price}]
+  unitPrice   Int
+  quantity    Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement())
+  orderId        Int           @unique
+  userId         Int
+  method         PaymentMethod
+  status         PaymentStatus
+  amount         Int
+  idempotencyKey String
+  transactionRef String        @unique // mã giao dịch ngẫu nhiên của cổng mô phỏng
+  cardLast4      String?
+  createdAt      DateTime      @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@unique([userId, idempotencyKey])
+}
