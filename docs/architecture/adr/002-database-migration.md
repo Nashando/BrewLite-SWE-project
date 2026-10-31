@@ -22,7 +22,7 @@ Sử dụng **Cơ chế Database Migration** (kết hợp với ORM như Prisma/
 2. **Đồng bộ tự động từ Entity (Auto-sync/DB Push)**: Cho phép ORM tự động chỉnh sửa bảng theo code Entity mà không tạo file migration.
 3. **Database Migration có quản lý phiên bản (Version-controlled Migration)**: Sử dụng các tệp script migration được sinh ra theo trình tự thời gian.
 
-## 4\. Hệ quả &amp; Đánh đổi (Consequences)
+## 4\. Hệ quả & Đánh đổi (Consequences)
 
 * **Ưu điểm**:
   * Đảm bảo tính nhất quán và khả năng tái tạo (reproducible) cơ sở dữ liệu trên mọi môi trường phát triển và Production.

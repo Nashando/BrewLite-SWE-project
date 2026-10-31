@@ -21,7 +21,7 @@ Sử dụng cấu trúc **Monorepo** với các thư mục chính:
 1. **Multirepo** (Tách `brewlite-web` và `brewlite-api` thành 2 repository riêng biệt).
 2. **Monorepo** (Gộp tất cả vào 1 repository duy nhất).
 
-## 4\. Hệ quả &amp; Đánh đổi (Consequences)
+## 4\. Hệ quả & Đánh đổi (Consequences)
 
 * **Ưu điểm**:
   * Quản lý tập trung trên một Issue Board và Pull Request.

@@ -31,7 +31,7 @@ Hệ thống được chia thành 3 container chính hoạt động độc lập
    - **Nhiệm vụ**: Render giao diện người dùng di động, quản lý client state (Giỏ hàng, JWT Auth Token), thực hiện validate dữ liệu phía client và giao tiếp với Backend API qua giao thức HTTPS.
 2. **Backend Application Container (`apps/api`)**:
    - **Công nghệ**: NestJS (TypeScript Framework).
-   - **Nhiệm vụ**: Cung cấp RESTful API, thực thi nghiệp vụ đặt hàng (Database Transactions), xác thực người dùng bằng JWT Guard, tích hợp cơ chế Idempotency cho thanh toán và cung cấp endpoint Health Check [1, 5].
+   - **Nhiệm vụ**: Cung cấp RESTful API, thực thi nghiệp vụ đặt hàng (Database Transactions), xác thực người dùng bằng JWT Guard, tích hợp cơ chế Idempotency cho thanh toán và cung cấp endpoint Health Check.
 3. **Database Container (`PostgreSQL Container`)**:
    - **Công nghệ**: PostgreSQL (chạy trên persistent storage).
    - **Nhiệm vụ**: Lưu trữ toàn bộ dữ liệu quan hệ (User, Product, ProductOption, Order, OrderItem, Payment, Promotion, LoyaltyTransaction) và thực thi script migration tự động.

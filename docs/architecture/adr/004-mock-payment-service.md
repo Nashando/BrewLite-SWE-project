@@ -20,7 +20,7 @@ Trong luồng đặt cà phê của BrewLite, bước thanh toán trực tuyến
 1. **Tích hợp Cổng thanh toán Sandbox thật (VNPay/Momo Sandbox)**: Đòi hỏi tài khoản doanh nghiệp/đối tác và phụ thuộc vào kết nối mạng bên ngoài.
 2. **Mock Payment Service nội bộ tích hợp Idempotency Key**: Chủ động hoàn toàn về mã nguồn, đáp ứng đầy đủ yêu cầu kiểm thử và chuẩn kỹ thuật của bài tập lớn.
 
-## 4\. Hệ quả &amp; Đánh đổi (Consequences)
+## 4\. Hệ quả & Đánh đổi (Consequences)
 
 * **Ưu điểm**:
   * Giúp nhóm chủ động kiểm thử mọi kịch bản (Thanh toán thành công, Thất bại, Timeout, Nhấn đúp nút) mà không phát sinh chi phí.
