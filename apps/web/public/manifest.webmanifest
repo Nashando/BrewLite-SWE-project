@@ -1,0 +1,13 @@
+{
+  "name": "BrewLite",
+  "short_name": "BrewLite",
+  "description": "Chọn món, đặt đơn và theo dõi đơn tại quầy.",
+  "lang": "vi",
+  "start_url": "/menu",
+  "display": "standalone",
+  "background_color": "#EDF3F0",
+  "theme_color": "#17443A",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,50 @@
+# Chạy toàn bộ hệ thống ở local:  docker compose up --build
+# Biến môi trường lấy từ file .env ở thư mục gốc (xem .env.example).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-brewlite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-brewlite}
+      POSTGRES_DB: ${POSTGRES_DB:-brewlite}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432" # chỉ mở cho máy local, không public
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-brewlite} -d ${POSTGRES_DB:-brewlite}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Backend NestJS: bạn phụ trách backend sở hữu service này (cần apps/api/Dockerfile).
+  api:
+    build:
+      context: ./apps/api
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-brewlite}:${POSTGRES_PASSWORD:-brewlite}@db:5432/${POSTGRES_DB:-brewlite}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-local-only}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      # Trình duyệt ở http://localhost:3000 gọi API ở :3001 => API phải bật CORS cho origin này
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+
+  web:
+    build:
+      context: ../../Downloads/brewlite-repo/apps/web
+      args:
+        # URL mà TRÌNH DUYỆT dùng để gọi API (không phải tên service "api" trong docker network)
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+        NEXT_PUBLIC_API_MOCKING: disabled
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
