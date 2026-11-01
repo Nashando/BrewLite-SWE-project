@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import type { ComponentProps } from 'react';
-import { buttonClassName } from './Button';
+import { buttonClassName, type ButtonVariant } from './Button';
 
-export function ButtonLink({ className = '', ...props }: ComponentProps<typeof Link>) {
-  return <Link className={`${buttonClassName} ${className}`} {...props} />;
+type ButtonLinkProps = ComponentProps<typeof Link> & { variant?: ButtonVariant };
+
+export function ButtonLink({ variant = 'primary', className = '', ...props }: ButtonLinkProps) {
+  return <Link className={`${buttonClassName(variant)} ${className}`} {...props} />;
 }

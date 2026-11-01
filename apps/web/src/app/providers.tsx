@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/features/auth/store';
 import { useCartStore } from '@/features/cart/store';
 import { API_MOCKING } from '@/lib/env';
 import { shouldRetry } from '@/lib/queryRetry';
@@ -27,9 +28,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // Khi bật mock, chờ worker sẵn sàng rồi mới render để request đầu tiên không lọt ra mạng.
   const [ready, setReady] = useState(!API_MOCKING);
 
-  // Đọc giỏ hàng từ localStorage sau khi mount (store dùng skipHydration).
+  // Đọc giỏ hàng và phiên đăng nhập từ localStorage sau khi mount (các store dùng skipHydration).
   useEffect(() => {
     void useCartStore.persist.rehydrate();
+    void useAuthStore.persist.rehydrate();
   }, []);
 
   useEffect(() => {

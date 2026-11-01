@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { getErrorMessage } from '@/lib/errors';
+import { UserActions } from '@/features/auth/components/UserActions';
 import { CartLink } from '@/features/cart/components/CartLink';
 import { useProducts } from '../hooks/useProducts';
 import { CategoryTabs } from './CategoryTabs';
@@ -53,7 +54,12 @@ export function MenuScreen() {
 
   return (
     <>
-      <AppHeader title="Hôm nay uống gì?" actions={<CartLink />} />
+      <AppHeader title="Hôm nay uống gì?" actions={
+          <div className="flex items-center">
+            <UserActions />
+            <CartLink />
+          </div>
+        } />
       {showTabs && <CategoryTabs categories={categories} active={category} onChange={setSelected} />}
       <main className="px-4 pb-[max(env(safe-area-inset-bottom),2rem)]">{content}</main>
     </>

@@ -43,16 +43,19 @@ export function CartScreen() {
                 <CartItemRow key={item.lineId} item={item} />
               ))}
             </ul>
-            <ButtonLink href="/menu" className="mt-4 bg-transparent text-pine ring-1 ring-pine hover:bg-pine/5">
+            <ButtonLink href="/menu" variant="secondary" className="mt-4">
               Thêm món khác
             </ButtonLink>
           </>
         )}
       </main>
 
-      {/* Sprint 2: truyền checkoutHref="/checkout" khi trang đặt đơn (cần đăng nhập) đã có. */}
       {hydrated && items.length > 0 && (
-        <CartSummary total={calculateTotal(items)} count={countItems(items)} />
+        <CartSummary
+          total={calculateTotal(items)}
+          count={countItems(items)}
+          checkoutHref="/checkout"
+        />
       )}
     </div>
   );

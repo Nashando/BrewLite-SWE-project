@@ -31,3 +31,51 @@ export interface ProductDetail extends Product {
   sizes: ProductSize[];
   toppings: Topping[];
 }
+
+// ---- Auth ----
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface AuthSession {
+  accessToken: string;
+  user: AuthUser;
+}
+
+// ---- Orders & payments (giả định hợp đồng API, cần chốt với backend) ----
+export type OrderStatus =
+  | 'PENDING_PAYMENT'
+  | 'PAID'
+  | 'PREPARING'
+  | 'READY'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export interface OrderItem {
+  productName: string;
+  sizeName: string | null;
+  toppings: string[];
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface Order {
+  id: string;
+  code: string;
+  status: OrderStatus;
+  total: number;
+  createdAt: string;
+  items: OrderItem[];
+}
+
+export type PaymentMethod = 'WALLET' | 'CARD';
+
+export interface Payment {
+  id: string;
+  orderId: string;
+  method: PaymentMethod;
+  status: 'SUCCESS' | 'FAILED';
+  failureReason?: string | null;
+}

@@ -3,10 +3,16 @@ import { ApiError } from './errors';
 
 type TokenGetter = () => string | null;
 let getToken: TokenGetter = () => null;
+let onUnauthorized: () => void = () => {};
 
-/** Store đăng nhập (Task 5.1) gọi hàm này để apiClient tự gắn JWT vào mọi request. */
+/** Store đăng nhập gọi hàm này để apiClient tự gắn JWT vào mọi request. */
 export function setTokenGetter(fn: TokenGetter) {
   getToken = fn;
+}
+
+/** Được gọi khi API trả 401 cho một request có gắn token (token hết hạn hoặc không hợp lệ). */
+export function setUnauthorizedHandler(fn: () => void) {
+  onUnauthorized = fn;
 }
 
 interface RequestOptions extends Omit<RequestInit, 'body' | 'headers'> {
@@ -45,6 +51,7 @@ export async function apiFetch<T>(
     const message = Array.isArray(payload?.message)
       ? payload.message.join(', ')
       : (payload?.message ?? (res.statusText || 'Request failed'));
+    if (res.status === 401 && token) onUnauthorized();
     throw new ApiError(message, res.status, payload?.code);
   }
 
