@@ -1,67 +1,82 @@
+
 @startuml
 autonumber
 skinparam BoxPadding 10
 skinparam ParticipantPadding 10
 
-actor "Khách hàng" as Cust
-participant "Client (React/Flutter)" as UI
-participant "API Gateway / AuthFilter" as Auth
+actor "Customer" as Cust
+participant "Next.js UI (PWA)" as UI
+participant "NestJS AuthGuard" as Auth
 participant "OrderController" as Ctrl
 participant "OrderService" as Svc
-participant "InventoryService" as Inv
-database "MySQL Database" as DB
+participant "Payment Service (Mock)" as Pay
+database "PostgreSQL DB" as DB
 
-Cust -> UI: Chọn sản phẩm, nhập thông tin & bấm "Thanh toán"
+Cust -> UI: Select beverage (size/topping) & click "Checkout"
 activate UI
 
-UI -> Auth: POST /api/v1/orders (Bearer Token, CartID, PaymentInfo)
+UI -> Auth: POST /api/v1/orders/checkout\n(Header: Bearer JWT, Idempotency-Key)\n(Body: CartItems, PaymentInfo)
 activate Auth
 
-Auth -> Auth: Xác thực chữ ký JWT & phân quyền Role=Customer
-alt Token không hợp lệ / Hết hạn
+Auth -> Auth: Verify JWT Token & Validate DTO
+
+alt Invalid / Expired JWT
     Auth --> UI: 401 Unauthorized
-    UI --> Cust: Yêu cầu đăng nhập lại
-else Token hợp lệ
-    Auth -> Ctrl: Chuyển tiếp Request (DTO)
+    UI --> Cust: Please log in again
+else Valid JWT
+    Auth -> Ctrl: Forward Request
     deactivate Auth
     activate Ctrl
-    
-    Ctrl -> Svc: processCheckout(userId, orderRequest)
+
+    Ctrl -> Svc: processCheckout(userId, checkoutDTO, idempotencyKey)
     activate Svc
-    
-    Svc -> Inv: validateAndLockStock(items)
-    activate Inv
-    Inv -> DB: SELECT stock FROM products WHERE id IN (...) FOR UPDATE
+
+    Svc -> DB: Check Idempotency-Key in DB/Cache
     activate DB
-    DB --> Inv: Trả về danh sách tồn kho
+    DB --> Svc: Key does not exist (New Request)
     deactivate DB
-    
-    alt Tồn kho không đủ cho bất kỳ sản phẩm nào
-        Inv --> Svc: throw OutOfStockException()
-        deactivate Inv
-        Svc --> Ctrl: 400 Bad Request (Thiếu tồn kho)
-        Ctrl --> UI: Error Response (Sản phẩm hết hàng)
-        UI --> Cust: Hiển thị lỗi chi tiết sản phẩm hết hàng
-    else Tồn kho đủ điều kiện
-        Inv --> Svc: Stock Validated & Reserved
-        deactivate Inv
-        
-        Svc -> Svc: Tính toán tổng tiền & Tạo mã Order Code
-        
-        Svc -> DB: BEGIN TRANSACTION\n- INSERT INTO orders\n- INSERT INTO order_items\n- UPDATE products SET stock = stock - qty
-        activate DB
-        DB --> Svc: Transaction Committed Successfully
+
+    Svc -> DB: BEGIN TRANSACTION\n- Check inventory (SELECT FOR UPDATE)\n- Create Order (Status=PENDING)\n- Temporarily deduct stock
+    activate DB
+
+    alt Out of Stock / Insufficient Inventory
+        DB --> Svc: Stock Unavailable (Rollback)
+        Svc --> Ctrl: 400 Bad Request (Product Out of Stock)
+        Ctrl --> UI: Error Response
+        UI --> Cust: Display out-of-stock notification
+    else Sufficient Stock & PENDING Order Created
+        DB --> Svc: Transaction Committed (OrderID)
         deactivate DB
-        
-        Svc --> Ctrl: OrderResponseDTO (OrderID, Status=PENDING)
-        deactivate Svc
-        
-        Ctrl --> UI: 201 Created (Thông tin đơn hàng)
-        deactivate Ctrl
-        
-        UI -> UI: Xóa giỏ hàng local / Redux store
-        UI --> Cust: Hiển thị màn hình thành công & Mã tra cứu đơn
+
+        Svc -> Pay: processPayment(OrderID, Amount, PaymentMethod)
+        activate Pay
+
+        alt Payment Failed (Insufficient Wallet Balance / Card Error)
+            Pay --> Svc: Payment Failed (Error Code)
+            Svc -> DB: UPDATE orders SET status = 'CANCELLED'\n& Restore Inventory
+            Svc --> Ctrl: 402 Payment Required / 400 Error
+            Ctrl --> UI: Payment Failed
+            UI --> Cust: Display payment error & allow retry
+        else Payment Successful
+            Pay --> Svc: Payment Success (TransactionRef)
+            deactivate Pay
+
+            Svc -> DB: UPDATE orders SET status = 'PAID'\n- Add Loyalty Points
+            activate DB
+            DB --> Svc: Updated Successfully
+            deactivate DB
+
+            Svc --> Ctrl: OrderResponseDTO (OrderID, Status=PAID)
+            deactivate Svc
+
+            Ctrl --> UI: 201 Created (Paid Order Details)
+            deactivate Ctrl
+
+            UI -> UI: Clear Local Cart
+            UI --> Cust: Display success notification & Pickup QR Code
+        end
     end
 end
+
 deactivate UI
 @enduml
