@@ -2,8 +2,7 @@ name: BrewLite Continuous Integration (CI)
 
 on:
   push:
-    branches: [ "**" ]
-    branches-ignore: [ "main" ]
+    branches: [ "**", "!main" ]
   pull_request:
     branches: [ "main" ]
 
