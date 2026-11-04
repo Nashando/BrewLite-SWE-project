@@ -1,0 +1,62 @@
+name: BrewLite Continuous Integration (CI)
+
+on:
+  push:
+    branches: [ "TV3" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  ci-pipeline:
+    name: Build & Verify (Install -> Lint -> Test -> Build)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      # Step 1: Install Dependencies
+      - name: 1. Install Dependencies
+        run: |
+          echo "=== BƯỚC 1: CÀI ĐẶT DEPENDENCIES ==="
+          npm ci || npm install
+
+      # Step 2: Linting
+      - name: 2. Run Linter (ESLint)
+        run: |
+          echo "=== BƯỚC 2: KIỂM TRA LINT CODE ==="
+          (cd apps/api && npm run lint)
+          (cd apps/web && npm run lint)
+
+      # Step 3: Unit Testing
+      - name: 3. Run Unit Tests
+        run: |
+          echo "=== BƯỚC 3: CHẠY UNIT TEST ==="
+          (cd apps/api && npm run test -- --passWithNoTests)
+          (cd apps/web && npm run test -- --passWithNoTests)
+        env:
+          CI: true
+          NODE_ENV: test
+          JWT_SECRET: "brewlite_ci_test_jwt_secret_key_32bytes_minimum"
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/brewlite_test?schema=public"
+
+      # Step 4: Build Application
+      - name: 4. Build Applications (Next.js & NestJS)
+        run: |
+          echo "=== BƯỚC 4: BIÊN DỊCH ỨNG DỤNG ==="
+          (cd apps/api && npm run build)
+          (cd apps/web && npm run build)
+        env:
+          NEXT_PUBLIC_API_URL: "http://localhost:3000/api/v1"
