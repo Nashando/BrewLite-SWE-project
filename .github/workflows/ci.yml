@@ -2,7 +2,8 @@ name: BrewLite Continuous Integration (CI)
 
 on:
   push:
-    branches: [ "TV3" ]
+    branches: [ "**" ]
+    branches-ignore: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
