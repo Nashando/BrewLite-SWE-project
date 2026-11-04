@@ -20,12 +20,13 @@
 | NFR-02 | Bảo mật | Must | Mật khẩu mã hoá, JWT hết hạn |
 | NFR-03 | Khả dụng | Should | Chạy trên điện thoại, màn hình nhỏ |
 | NFR-04 | Triển khai | Must | Có URL production truy cập được |
+| NFR-05 | Health check | Must | Cung cấp phản hồi trạng thái của máy chủ và kết nối CSDL |
 
 ## 3. Mức ưu tiên MoSCoW
-- **Must:** FR-01, FR-02, FR-03, FR-04, FR-05, NFR-02, NFR-04
+- **Must:** FR-01, FR-02, FR-03, FR-04, FR-05, NFR-02, NFR-04, NFR-05
 - **Should:** FR-06, FR-07, NFR-01, NFR-03
 - **Could:** Tích điểm, khuyến mãi
 - **Won't:** Giao hàng, quản lý nhân sự
 
 ## 4. Sơ đồ use-case tổng quát
-(Sẽ cập nhật sau khi TV2 vẽ xong)
+[Xem chi tiết sơ đồ Use-case tại đây](https://github.com/Nashando/BrewLite-SWE-project/blob/TV2/TV2/Use-case%20diagram.md)
