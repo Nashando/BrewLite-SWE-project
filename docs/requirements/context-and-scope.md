@@ -35,6 +35,7 @@ Khách hàng phải xếp hàng lâu để gọi đồ uống. Nhân viên quầ
 - Thanh toán chỉ mô phỏng, không dùng tiền thật.
 
 ## 1.5 Ràng buộc
+- Kiến trúc: Monorepo (Frontend Next.js và Backend NestJS tách biệt).
 - Frontend: Next.js (mobile-first/PWA).
 - Backend: NestJS.
 - Database: PostgreSQL.
