@@ -5,14 +5,14 @@ name: CI (sequential)
  
 on:
   push:
-    branches: [main, TV3]
+    branches: [main, CI]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
       - 'LICENSE'
       - '.editorconfig'
   pull_request:
-    branches: [main, TV3]
+    branches: [main, CI]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
