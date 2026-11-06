@@ -15,6 +15,37 @@ permissions:
   contents: read
 
 jobs:
+  api:
+    name: api (lint, test, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      # Sinh Prisma Client trước, vì lint và test đều import kiểu từ @prisma/client
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
   web:
     name: web (lint, test, build)
     runs-on: ubuntu-latest

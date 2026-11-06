@@ -36,7 +36,7 @@ services:
 
   web:
     build:
-      context: ../../Downloads/brewlite-repo/apps/web
+      context: ./apps/web
       args:
         # URL mà TRÌNH DUYỆT dùng để gọi API (không phải tên service "api" trong docker network)
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
