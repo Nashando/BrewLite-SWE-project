@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-mist font-body text-ink antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.cherry');
+    outline-offset: 2px;
+  }
+}
