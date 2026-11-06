@@ -1,101 +1,131 @@
-name: BrewLite Continuous Integration (CI)
-
+name: CI (sequential)
+ 
+# Phiên bản B: 1 job duy nhất, chạy TUẦN TỰ api rồi đến web.
+# Chỉ dùng MỘT trong hai: ci.yml (song song) HOẶC file này. Đừng commit cả hai cùng lúc.
+ 
 on:
   push:
-    branches:
-      - "main"
-      - "TV3"
+    branches: [main, TV3]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.editorconfig'
   pull_request:
-    branches:
-      - "main"
-
+    branches: [main, TV3]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.editorconfig'
+ 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+ 
 permissions:
   contents: read
-
+ 
+env:
+  NODE_VERSION: '20'
+  NEXT_TELEMETRY_DISABLED: '1'
+  # Giá trị GIẢ LẬP, chỉ dùng cho CI
+  DATABASE_URL: postgresql://brewlite:brewlite@localhost:5432/brewlite
+  JWT_SECRET: ci-only-secret-not-for-production
+  JWT_EXPIRES_IN: 1d
+ 
 jobs:
-  ci-pipeline:
-    name: Build & Verify Monorepo (Install -> Lint -> Test -> Build)
+  ci:
+    name: ci (api -> web)
     runs-on: ubuntu-latest
-
+    timeout-minutes: 25
     steps:
-      - name: 1. Checkout repository code
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: 2. Setup Node.js environment
+ 
+      - name: Kiểm tra apps/api và apps/web
+        id: detect
+        run: |
+          [ -f apps/api/package.json ] && echo "api=true" >> "$GITHUB_OUTPUT" || { echo "api=false" >> "$GITHUB_OUTPUT"; echo "::warning::Không có apps/api/package.json, bỏ qua api."; }
+          [ -f apps/web/package.json ] && echo "web=true" >> "$GITHUB_OUTPUT" || { echo "web=false" >> "$GITHUB_OUTPUT"; echo "::warning::Không có apps/web/package.json, bỏ qua web."; }
+ 
+      - name: Setup Node.js
+        if: steps.detect.outputs.api == 'true' || steps.detect.outputs.web == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      # Step 1: Install Dependencies (An toàn)
-      - name: 3. Install Dependencies
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            apps/api/package-lock.json
+            apps/web/package-lock.json
+ 
+      # ---------- API ----------
+      - name: "[api] Install dependencies"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
         run: |
-          echo "=== BƯỚC 1: CÀI ĐẶT DEPENDENCIES ==="
-          
-          if [ -f "apps/api/package.json" ]; then
-            echo "--> Cài đặt dependencies cho apps/api..."
-            (cd apps/api && (npm ci || npm install))
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+ 
+      - name: "[api] Generate Prisma Client"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: |
+          if [ -f prisma/schema.prisma ]; then
+            npx prisma generate
           else
-            echo "--> [BỎ QUA] apps/api chưa có package.json"
+            echo "Không có prisma/schema.prisma, bỏ qua prisma generate."
           fi
-
-          if [ -f "apps/web/package.json" ]; then
-            echo "--> Cài đặt dependencies cho apps/web..."
-            (cd apps/web && (npm ci || npm install))
-          else
-            echo "--> [BỎ QUA] apps/web chưa có package.json"
-          fi
-
-      # Step 1.5: Tự động sinh Prisma Client khi có file schema
-      - name: 3.5. Generate Prisma Client (If Schema Exists)
+ 
+      - name: "[api] Lint"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: npm run lint
+ 
+      - name: "[api] Unit test"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: npm test -- --passWithNoTests
+ 
+      - name: "[api] Build"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: npm run build
+ 
+      # ---------- WEB ----------
+      - name: "[web] Install dependencies"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
         run: |
-          if [ -f "apps/api/prisma/schema.prisma" ]; then
-            echo "--> Tự động sinh Prisma Client..."
-            (cd apps/api && npx prisma generate)
-          else
-            echo "--> [BỎ QUA] Chưa có schema.prisma, bỏ qua bước sinh Prisma"
-          fi
-
-      # Step 2: Linting
-      - name: 4. Run Linter (ESLint)
-        run: |
-          echo "=== BƯỚC 2: KIỂM TRA LINT CODE ==="
-          if [ -f "apps/api/package.json" ]; then
-            echo "--> Running Lint for apps/api..."
-            (cd apps/api && npm run lint)
-          fi
-          if [ -f "apps/web/package.json" ]; then
-            echo "--> Running Lint for apps/web..."
-            (cd apps/web && npm run lint)
-          fi
-
-      # Step 3: Unit Testing
-      - name: 5. Run Unit Tests
-        run: |
-          echo "=== BƯỚC 3: CHẠY UNIT TEST ==="
-          if [ -f "apps/api/package.json" ]; then
-            echo "--> Running Tests for apps/api..."
-            (cd apps/api && (npm run test -- --passWithNoTests || true))
-          fi
-          if [ -f "apps/web/package.json" ]; then
-            echo "--> Running Tests for apps/web..."
-            (cd apps/web && (npm run test -- --passWithNoTests || true))
-          fi
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+ 
+      - name: "[web] Lint"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: npm run lint
+ 
+      - name: "[web] Typecheck"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: npm run typecheck
+ 
+      - name: "[web] Unit test (Vitest)"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: npm test -- --passWithNoTests
+ 
+      - name: "[web] Cache Next.js build"
+        if: steps.detect.outputs.web == 'true'
+        uses: actions/cache@v4
+        with:
+          path: apps/web/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('apps/web/package-lock.json') }}-${{ hashFiles('apps/web/src/**') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('apps/web/package-lock.json') }}-
+ 
+      - name: "[web] Build"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: npm run build
         env:
-          CI: true
-          NODE_ENV: test
-          JWT_SECRET: "brewlite_ci_test_jwt_secret_key_32bytes_minimum"
-
-      # Step 4: Build Application
-      - name: 4. Build Applications
-        run: |
-          echo "=== BƯỚC 4: BIÊN DỊCH ỨNG DỤNG ==="
-          if [ -f "apps/api/package.json" ]; then
-            echo "--> Building apps/api..."
-            (cd apps/api && npm run build)
-          fi
-          if [ -f "apps/web/package.json" ]; then
-            echo "--> Building apps/web..."
-            (cd apps/web && npm run build)
-          fi
-        env:
-          NEXT_PUBLIC_API_URL: "http://localhost:3000/api/v1"
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+          NEXT_PUBLIC_API_MOCKING: disabled
