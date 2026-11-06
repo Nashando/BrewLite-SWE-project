@@ -48,6 +48,21 @@ describe('OrderService.create', () => {
     expect(tx.order.create).not.toHaveBeenCalled();
   });
 
+  it('trừ kho theo thứ tự id cố định, gộp dòng trùng món, vẫn giữ thứ tự món trên đơn', async () => {
+    const a = { ...product, id: 'a', name: 'Món A', sizes: [] };
+    const z = { ...product, id: 'z', name: 'Món Z', sizes: [] };
+    tx.product.findMany.mockResolvedValue([a, z]);
+    const lineOf = (productId: string, quantity: number) => ({ productId, sizeId: null, toppingIds: [], quantity });
+
+    const view: any = await service.create(user, { items: [lineOf('z', 1), lineOf('a', 2), lineOf('z', 3)] });
+
+    expect(tx.product.updateMany.mock.calls.map(([q]: any) => [q.where.id, q.data.stock.decrement])).toEqual([
+      ['a', 2],
+      ['z', 4],
+    ]);
+    expect(view.items.map((i: any) => i.productName)).toEqual(['Món Z', 'Món A', 'Món Z']);
+  });
+
   it('đồ uống có size mà không gửi sizeId → 400', async () => {
     await expect(service.create(user, { items: [{ ...line, sizeId: null }] })).rejects.toBeInstanceOf(BadRequestException);
   });

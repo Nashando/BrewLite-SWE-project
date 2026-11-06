@@ -1,5 +1,15 @@
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+
+/** Trả lại tồn kho của đơn, khoá sản phẩm theo thứ tự id giống lúc tạo đơn để tránh deadlock. */
+export async function restockOrder(tx: Prisma.TransactionClient, orderId: string) {
+  const items = await tx.orderItem.findMany({ where: { orderId } });
+  const quantities = new Map<string, number>();
+  for (const item of items) quantities.set(item.productId, (quantities.get(item.productId) ?? 0) + item.quantity);
+  for (const productId of [...quantities.keys()].sort()) {
+    await tx.product.update({ where: { id: productId }, data: { stock: { increment: quantities.get(productId)! } } });
+  }
+}
 
 /**
  * Đơn PENDING_PAYMENT đang giữ hàng. Nếu khách bỏ dở, tự huỷ đơn quá hạn và trả lại tồn kho.
@@ -19,10 +29,7 @@ export async function releaseExpiredOrders(prisma: PrismaService, ttlMinutes?: n
         data: { status: OrderStatus.CANCELLED },
       });
       if (claimed.count === 0) return;
-      const items = await tx.orderItem.findMany({ where: { orderId: id } });
-      for (const item of items) {
-        await tx.product.update({ where: { id: item.productId }, data: { stock: { increment: item.quantity } } });
-      }
+      await restockOrder(tx, id);
     });
   }
 }

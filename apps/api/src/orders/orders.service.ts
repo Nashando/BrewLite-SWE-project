@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { OrderStatus, PaymentMethod, PaymentStatus, Role } from '@prisma/client';
 import { AuthUser } from '../common/auth-user';
+import { restockOrder } from '../common/order-expiry';
 import { toOrderView } from '../common/order-view';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -56,10 +57,7 @@ export class OrdersService {
       });
       if (claimed.count === 0) throw new ConflictException('Chỉ huỷ được đơn chưa bắt đầu pha chế');
 
-      const items = await tx.orderItem.findMany({ where: { orderId: id } });
-      for (const item of items) {
-        await tx.product.update({ where: { id: item.productId }, data: { stock: { increment: item.quantity } } });
-      }
+      await restockOrder(tx, id);
 
       const paid = await tx.payment.findFirst({ where: { orderId: id, status: PaymentStatus.SUCCESS } });
       if (paid) {

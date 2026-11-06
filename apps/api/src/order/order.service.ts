@@ -42,7 +42,7 @@ export class OrderService {
       );
 
       let total = 0;
-      const shortages = new Set<string>();
+      const demand = new Map<string, number>();
       const items: Prisma.OrderItemUncheckedCreateWithoutOrderInput[] = [];
 
       for (const line of lines) {
@@ -61,18 +61,9 @@ export class OrderService {
         if (picked.some((t) => !t)) throw new BadRequestException('Topping không hợp lệ');
         const lineToppings = picked as Topping[];
 
-        // updateMany có điều kiện stock >= qty → an toàn khi nhiều người đặt cùng lúc
-        const updated = await tx.product.updateMany({
-          where: { id: product.id, stock: { gte: line.quantity } },
-          data: { stock: { decrement: line.quantity } },
-        });
-        if (updated.count === 0) {
-          shortages.add(product.name);
-          continue;
-        }
-
         const unitPrice = calcUnitPrice(product.basePrice, size?.extraPrice ?? 0, lineToppings.map((t) => t.price));
         total += unitPrice * line.quantity;
+        demand.set(product.id, (demand.get(product.id) ?? 0) + line.quantity);
         items.push({
           productId: product.id,
           productName: product.name,
@@ -83,8 +74,20 @@ export class OrderService {
         });
       }
 
-      if (shortages.size > 0) {
-        const names = [...shortages];
+      // Trừ kho theo thứ tự id cố định để các đơn đặt cùng lúc không khoá chéo nhau (deadlock).
+      // updateMany có điều kiện stock >= qty → an toàn khi nhiều người đặt cùng lúc
+      const shortages: string[] = [];
+      for (const productId of [...demand.keys()].sort()) {
+        const quantity = demand.get(productId)!;
+        const updated = await tx.product.updateMany({
+          where: { id: productId, stock: { gte: quantity } },
+          data: { stock: { decrement: quantity } },
+        });
+        if (updated.count === 0) shortages.push(products.get(productId)!.name);
+      }
+
+      if (shortages.length > 0) {
+        const names = shortages;
         throw new ConflictException({
           message: `Sản phẩm ${names.map((n) => `"${n}"`).join(', ')} không đủ số lượng tồn kho.`,
           code: 'OUT_OF_STOCK',
