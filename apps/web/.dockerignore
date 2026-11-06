@@ -1,0 +1,12 @@
+node_modules
+.next
+coverage
+.env
+.env.*
+!.env.example
+Dockerfile
+.dockerignore
+README.md
+**/__tests__
+src/test
+vitest.config.ts
