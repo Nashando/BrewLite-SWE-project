@@ -81,7 +81,7 @@ describe('RegisterForm', () => {
 
   it('báo lỗi khi mật khẩu nhập lại không khớp', async () => {
     renderWithProviders(<RegisterForm />);
-    await register({ name: 'An', email: 'an@example.com', password: '123456', confirm: '654321' });
+    await register({ name: 'An', email: 'an@example.com', password: '12345678', confirm: '87654321' });
 
     expect(await screen.findByText('Mật khẩu nhập lại không khớp')).toBeInTheDocument();
     expect(useAuthStore.getState().token).toBeNull();
@@ -89,21 +89,21 @@ describe('RegisterForm', () => {
 
   it('báo lỗi khi mật khẩu quá ngắn', async () => {
     renderWithProviders(<RegisterForm />);
-    await register({ name: 'An', email: 'an@example.com', password: '123', confirm: '123' });
+    await register({ name: 'An', email: 'an@example.com', password: '1234567', confirm: '1234567' });
 
-    expect(await screen.findByText('Mật khẩu cần ít nhất 6 ký tự')).toBeInTheDocument();
+    expect(await screen.findByText('Mật khẩu cần ít nhất 8 ký tự')).toBeInTheDocument();
   });
 
   it('hiển thị lỗi từ server khi email đã tồn tại', async () => {
     renderWithProviders(<RegisterForm />);
-    await register({ name: 'An', email: 'demo@brewlite.vn', password: '123456', confirm: '123456' });
+    await register({ name: 'An', email: 'demo@brewlite.vn', password: '12345678', confirm: '12345678' });
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Email đã được đăng ký');
   });
 
   it('tạo tài khoản, lưu phiên và chuyển trang', async () => {
     renderWithProviders(<RegisterForm next="/orders" />);
-    await register({ name: 'An', email: 'an@example.com', password: '123456', confirm: '123456' });
+    await register({ name: 'An', email: 'an@example.com', password: '12345678', confirm: '12345678' });
 
     await waitFor(() => expect(nav.replace).toHaveBeenCalledWith('/orders'));
     expect(useAuthStore.getState().token).toBeTruthy();

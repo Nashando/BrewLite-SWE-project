@@ -11,7 +11,7 @@ export const registerSchema = z
   .object({
     name: z.string().trim().min(2, 'Tên cần ít nhất 2 ký tự'),
     email,
-    password: z.string().min(6, 'Mật khẩu cần ít nhất 6 ký tự'),
+    password: z.string().min(8, 'Mật khẩu cần ít nhất 8 ký tự'),
     confirmPassword: z.string().min(1, 'Nhập lại mật khẩu'),
   })
   .refine((v) => v.password === v.confirmPassword, {

@@ -14,7 +14,7 @@ import { calculateLineTotal, calculateTotal } from '@/features/cart/utils/calcul
 import { ApiError, getErrorMessage } from '@/lib/errors';
 import { formatVND } from '@/lib/format';
 import type { PaymentMethod } from '@/types';
-import { PaymentFailedError, useCheckout } from '../hooks/useCheckout';
+import { OrderExpiredError, PaymentFailedError, useCheckout } from '../hooks/useCheckout';
 import { cardSchema, type CardValues } from '../schemas';
 import { CardFields } from './CardFields';
 
@@ -34,6 +34,16 @@ function CheckoutError({ error }: { error: unknown }) {
         <p className="mt-1 text-ink/70">
           Đơn hàng của bạn vẫn được giữ. Kiểm tra thông tin rồi thử lại, hoặc chọn phương thức khác.
         </p>
+      </div>
+    );
+  }
+
+  if (error instanceof OrderExpiredError) {
+    return (
+      <div role="alert" className={box}>
+        <p className="font-semibold text-danger">Đơn hàng không còn hiệu lực</p>
+        <p className="mt-1">{error.message}</p>
+        <p className="mt-1 text-ink/70">Bạn chưa bị trừ tiền. Bấm thanh toán lại để tạo đơn mới.</p>
       </div>
     );
   }

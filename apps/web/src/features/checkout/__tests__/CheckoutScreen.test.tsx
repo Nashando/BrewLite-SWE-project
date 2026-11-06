@@ -233,4 +233,61 @@ describe('CheckoutScreen', () => {
     expect(calls.payments).toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Thử thanh toán lại' })).toBeDisabled();
   });
+
+  describe('thanh toán bị 409', () => {
+    const conflict = () =>
+      HttpResponse.json({ statusCode: 409, message: 'Đơn không thanh toán được' }, { status: 409 });
+    const orderStatus = (status: Order['status']) =>
+      server.use(http.get(`${API_URL}/orders/o-1`, () => HttpResponse.json({ ...order, status })));
+
+    it('đơn đã hết hạn: báo lỗi, chưa tự tạo đơn, lần thử sau mới tạo đơn mới', async () => {
+      const user = userEvent.setup();
+      orderStatus('CANCELLED');
+      onPayment((callNumber) => (callNumber === 1 ? conflict() : paymentResult('SUCCESS')));
+      renderWithProviders(<CheckoutScreen />);
+
+      await user.click(payButton());
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('Đơn hàng không còn hiệu lực');
+      expect(calls.orders).toBe(1);
+      expect(nav.push).not.toHaveBeenCalled();
+      expect(useCartStore.getState().items).toHaveLength(2);
+
+      await user.click(screen.getByRole('button', { name: 'Thử thanh toán lại' }));
+
+      await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
+      expect(calls.orders).toBe(2);
+      expect(calls.payments[1].key).not.toBe(calls.payments[0].key);
+    });
+
+    it('đơn thực ra đã được thanh toán: coi như thành công, không tạo đơn mới', async () => {
+      const user = userEvent.setup();
+      orderStatus('PAID');
+      onPayment(conflict);
+      renderWithProviders(<CheckoutScreen />);
+
+      await user.click(payButton());
+
+      await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
+      expect(calls.orders).toBe(1);
+      expect(useCartStore.getState().items).toHaveLength(0);
+    });
+
+    it('không đọc được trạng thái đơn: báo lỗi gốc, giữ đơn và giỏ hàng', async () => {
+      const user = userEvent.setup();
+      server.use(http.get(`${API_URL}/orders/o-1`, () => HttpResponse.error()));
+      onPayment(conflict);
+      renderWithProviders(<CheckoutScreen />);
+
+      await user.click(payButton());
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('Đơn không thanh toán được');
+      expect(nav.push).not.toHaveBeenCalled();
+      expect(useCartStore.getState().items).toHaveLength(2);
+
+      await user.click(screen.getByRole('button', { name: 'Thử thanh toán lại' }));
+      await waitFor(() => expect(calls.payments).toHaveLength(2));
+      expect(calls.orders).toBe(1);
+    });
+  });
 });

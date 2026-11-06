@@ -10,6 +10,14 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Dùng cho request lấy theo id: 404 là không có bản ghi,
+ * 400 là id sai định dạng (API kiểm tra UUID), với người dùng đều là "không tìm thấy".
+ */
+export function isNotFoundError(error: unknown): boolean {
+  return error instanceof ApiError && (error.status === 404 || error.status === 400);
+}
+
 /** Chuyển lỗi bất kỳ thành thông báo hiển thị cho người dùng. */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { ButtonLink } from '@/components/ui/ButtonLink';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { RequireAuth } from '@/features/auth/components/RequireAuth';
-import { ApiError, getErrorMessage } from '@/lib/errors';
+import { getErrorMessage, isNotFoundError } from '@/lib/errors';
 import { formatDateTime, formatVND } from '@/lib/format';
 import type { OrderStatus } from '@/types';
 import { useOrder } from '../hooks/useOrders';
@@ -55,7 +55,7 @@ function OrderDetail({ id }: { id: string }) {
   }
 
   if (isError) {
-    if (error instanceof ApiError && error.status === 404) {
+    if (isNotFoundError(error)) {
       return (
         <div className="flex flex-col items-center px-6 py-16 text-center">
           <h2 className="font-display text-xl font-semibold">Không tìm thấy đơn</h2>

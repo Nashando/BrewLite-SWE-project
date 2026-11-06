@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ProductTile } from '@/components/ui/ProductTile';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
-import { ApiError, getErrorMessage } from '@/lib/errors';
+import { getErrorMessage, isNotFoundError } from '@/lib/errors';
 import { formatVND } from '@/lib/format';
 import { CartLink } from '@/features/cart/components/CartLink';
 import { useCartStore } from '@/features/cart/store';
@@ -45,7 +45,7 @@ export function ProductDetailScreen({ id }: { id: string }) {
       <div className="flex min-h-dvh flex-col">
         {header}
         <main className="flex-1">
-          {error instanceof ApiError && error.status === 404 ? (
+          {isNotFoundError(error) ? (
             <ProductNotFound />
           ) : (
             <ErrorState

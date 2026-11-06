@@ -134,4 +134,15 @@ describe('OrderDetailScreen (xác nhận và trạng thái đơn)', () => {
 
     expect(await screen.findByText('Không tìm thấy đơn')).toBeInTheDocument();
   });
+
+  it('hiển thị "không tìm thấy" khi id sai định dạng (API trả 400)', async () => {
+    server.use(
+      http.get(`${API_URL}/orders/abc`, () =>
+        HttpResponse.json({ statusCode: 400, message: 'Validation failed' }, { status: 400 }),
+      ),
+    );
+    renderWithProviders(<OrderDetailScreen id="abc" />);
+
+    expect(await screen.findByText('Không tìm thấy đơn')).toBeInTheDocument();
+  });
 });

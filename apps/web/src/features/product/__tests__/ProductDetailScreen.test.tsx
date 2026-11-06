@@ -117,6 +117,17 @@ describe('ProductDetailScreen', () => {
     expect(screen.getByRole('link', { name: 'Về menu' })).toHaveAttribute('href', '/menu');
   });
 
+  it('hiển thị "không tìm thấy" khi id sai định dạng (API trả 400)', async () => {
+    server.use(
+      http.get(`${API_URL}/products/abc`, () =>
+        HttpResponse.json({ statusCode: 400, message: 'Validation failed' }, { status: 400 }),
+      ),
+    );
+    renderWithProviders(<ProductDetailScreen id="abc" />);
+
+    expect(await screen.findByText('Không tìm thấy món')).toBeInTheDocument();
+  });
+
   it('hiển thị lỗi máy chủ và cho phép thử lại', async () => {
     const user = userEvent.setup();
     const url = `${API_URL}/products/p-01`;
