@@ -52,14 +52,20 @@ const order: Order = {
 interface PaymentBody {
   orderId: string;
   method: string;
-  card?: { number: string };
+  simulate?: string;
 }
 
-// Ghi lại các request để kiểm tra đơn chỉ tạo một lần và khóa idempotency.
+// Ghi lại các request để kiểm tra số đơn đã tạo và khóa idempotency.
 const calls = { orders: 0, payments: [] as { key: string | null; body: PaymentBody }[] };
 
-const paymentResult = (status: 'SUCCESS' | 'FAILED', failureReason?: string) =>
-  HttpResponse.json({ id: 'pay-1', orderId: 'o-1', method: 'CARD', status, failureReason });
+const paid = () =>
+  HttpResponse.json({ id: 'pay-1', orderId: 'o-1', method: 'MOMO', status: 'SUCCESS' }, { status: 201 });
+
+const declined = () =>
+  HttpResponse.json(
+    { statusCode: 402, code: 'PAYMENT_FAILED', message: 'Thanh toán thất bại, vui lòng thử lại.' },
+    { status: 402 },
+  );
 
 function onPayment(responder: (callNumber: number, body: PaymentBody) => Response) {
   server.use(
@@ -71,16 +77,10 @@ function onPayment(responder: (callNumber: number, body: PaymentBody) => Respons
   );
 }
 
-const payButton = () => screen.getByRole('button', { name: /^Thanh toán/ });
-
-async function fillCard(number: string) {
-  const user = userEvent.setup();
-  await user.click(screen.getByRole('radio', { name: 'Thẻ ngân hàng' }));
-  await user.type(screen.getByLabelText('Số thẻ'), number);
-  await user.type(screen.getByLabelText('Hạn dùng (MM/YY)'), '12/40');
-  await user.type(screen.getByLabelText('CVV'), '123');
-  return user;
-}
+const submitButton = () => screen.getByRole('button', { name: /^Xác nhận đặt hàng/ });
+const retryButton = () => screen.getByRole('button', { name: 'Thử thanh toán lại' });
+const gateway = () => screen.findByRole('region', { name: 'Cổng thanh toán mô phỏng' });
+const confirmOnGateway = () => screen.getByRole('button', { name: 'Xác nhận thanh toán' });
 
 beforeEach(() => {
   localStorage.clear();
@@ -102,13 +102,16 @@ beforeEach(() => {
 });
 
 describe('CheckoutScreen', () => {
-  it('hiển thị tóm tắt đơn hàng và tổng tiền', () => {
+  it('hiển thị tóm tắt đơn hàng, tổng tiền và 3 phương thức thanh toán', () => {
     renderWithProviders(<CheckoutScreen />);
 
     const summary = screen.getByRole('region', { name: 'Tóm tắt đơn hàng' });
     expect(within(summary).getByText('2 × Cà phê sữa đá')).toBeInTheDocument();
     expect(within(summary).getByText('Lớn, Kem cheese')).toBeInTheDocument();
     expect(within(summary).getByText(/153\.000\s₫/)).toBeInTheDocument(); // 57.000 x 2 + 39.000
+    for (const name of ['MoMo', 'VNPAY', 'Tiền mặt tại quầy']) {
+      expect(screen.getByRole('radio', { name })).toBeInTheDocument();
+    }
   });
 
   it('yêu cầu đăng nhập khi chưa có phiên', () => {
@@ -126,74 +129,83 @@ describe('CheckoutScreen', () => {
     expect(screen.getByText('Giỏ hàng đang trống')).toBeInTheDocument();
   });
 
-  it('thanh toán bằng Ví: tạo đơn, thanh toán, xóa giỏ và chuyển tới đơn hàng', async () => {
+  it.each(['MoMo', 'VNPAY'])('%s: tạo đơn, qua cổng giả lập, xóa giỏ và chuyển tới đơn hàng', async (name) => {
     const user = userEvent.setup();
-    onPayment(() => paymentResult('SUCCESS'));
+    onPayment(paid);
     renderWithProviders(<CheckoutScreen />);
 
-    await user.click(payButton());
+    await user.click(screen.getByRole('radio', { name }));
+    await user.click(submitButton());
+
+    const screenGateway = await gateway();
+    expect(within(screenGateway).getByText('BL-1001')).toBeInTheDocument();
+    expect(within(screenGateway).getByText(name)).toBeInTheDocument();
+    expect(calls.orders).toBe(1);
+    expect(calls.payments).toHaveLength(0); // chưa thanh toán khi khách chưa xác nhận
+
+    await user.click(confirmOnGateway());
 
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
-    expect(calls.orders).toBe(1);
-    expect(calls.payments).toHaveLength(1);
-    expect(calls.payments[0].body).toMatchObject({ orderId: 'o-1', method: 'WALLET' });
+    expect(calls.payments[0].body).toMatchObject({
+      orderId: 'o-1',
+      method: name === 'MoMo' ? 'MOMO' : 'VNPAY',
+      simulate: 'SUCCESS',
+    });
     expect(calls.payments[0].key).toBeTruthy();
     expect(useCartStore.getState().items).toHaveLength(0);
   });
 
-  it('không gửi request khi thông tin thẻ không hợp lệ', async () => {
+  it('tiền mặt: không qua cổng giả lập, đơn chờ thu tại quầy', async () => {
     const user = userEvent.setup();
-    renderWithProviders(<CheckoutScreen />);
-
-    await user.click(screen.getByRole('radio', { name: 'Thẻ ngân hàng' }));
-    await user.type(screen.getByLabelText('Số thẻ'), '1234');
-    await user.click(payButton());
-
-    expect(await screen.findByText('Số thẻ gồm 16 chữ số')).toBeInTheDocument();
-    expect(screen.getByText('Nhập hạn dùng dạng MM/YY')).toBeInTheDocument();
-    expect(screen.getByText('CVV gồm 3 hoặc 4 chữ số')).toBeInTheDocument();
-    expect(calls.orders).toBe(0);
-    expect(calls.payments).toHaveLength(0);
-  });
-
-  it('thẻ bị từ chối: báo lỗi, giữ đơn, thử lại với khóa mới và thành công', async () => {
-    onPayment((_, body) =>
-      body.card?.number.startsWith('4000')
-        ? paymentResult('FAILED', 'Thẻ bị từ chối')
-        : paymentResult('SUCCESS'),
+    onPayment(() =>
+      HttpResponse.json({ id: 'pay-1', orderId: 'o-1', method: 'CASH', status: 'PENDING' }, { status: 201 }),
     );
     renderWithProviders(<CheckoutScreen />);
 
-    const user = await fillCard('4000 0000 0000 0002');
-    await user.click(payButton());
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('Thanh toán không thành công');
-    expect(screen.getByRole('alert')).toHaveTextContent('Thẻ bị từ chối');
-    expect(nav.push).not.toHaveBeenCalled();
-    expect(useCartStore.getState().items).toHaveLength(2); // giỏ vẫn còn
-
-    await user.clear(screen.getByLabelText('Số thẻ'));
-    await user.type(screen.getByLabelText('Số thẻ'), '4242 4242 4242 4242');
-    await user.click(screen.getByRole('button', { name: 'Thử thanh toán lại' }));
+    await user.click(screen.getByRole('radio', { name: 'Tiền mặt tại quầy' }));
+    expect(screen.getByText(/ra quầy trả tiền/)).toBeInTheDocument();
+    await user.click(submitButton());
 
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
-    expect(calls.orders).toBe(1); // không tạo đơn thứ hai
-    expect(calls.payments).toHaveLength(2);
-    expect(calls.payments[0].body.card?.number).toBe('4000000000000002'); // đã bỏ khoảng trắng
+    expect(calls.payments[0].body).toEqual({ orderId: 'o-1', method: 'CASH' });
+    expect(useCartStore.getState().items).toHaveLength(0);
+  });
+
+  it('thất bại: báo lỗi, giữ giỏ, thử lại tạo đơn mới với khóa mới', async () => {
+    const user = userEvent.setup();
+    onPayment((_, body) => (body.simulate === 'FAILED' ? declined() : paid()));
+    renderWithProviders(<CheckoutScreen />);
+
+    await user.click(submitButton());
+    await gateway();
+    await user.click(screen.getByRole('button', { name: 'Mô phỏng thất bại' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Thanh toán thất bại, vui lòng thử lại.');
+    expect(screen.getByRole('alert')).toHaveTextContent('chưa bị trừ tiền');
+    expect(nav.push).not.toHaveBeenCalled();
+    expect(useCartStore.getState().items).toHaveLength(2);
+    expect(calls.orders).toBe(1);
+
+    await user.click(retryButton());
+    await gateway();
+    expect(calls.orders).toBe(2);
+    await user.click(confirmOnGateway());
+
+    await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
     expect(calls.payments[1].key).not.toBe(calls.payments[0].key);
   });
 
-  it('lỗi mạng: thử lại dùng lại đúng Idempotency-Key và không tạo đơn mới', async () => {
+  it('lỗi mạng: ở lại cổng giả lập, thử lại dùng đúng khóa và không tạo đơn mới', async () => {
     const user = userEvent.setup();
-    onPayment((callNumber) =>
-      callNumber === 1 ? HttpResponse.error() : paymentResult('SUCCESS'),
-    );
+    onPayment((callNumber) => (callNumber === 1 ? HttpResponse.error() : paid()));
     renderWithProviders(<CheckoutScreen />);
 
-    await user.click(payButton());
+    await user.click(submitButton());
+    await gateway();
+    await user.click(confirmOnGateway());
     expect(await screen.findByRole('alert')).toHaveTextContent('Không kết nối được tới máy chủ');
 
-    await user.click(screen.getByRole('button', { name: 'Thử thanh toán lại' }));
+    await user.click(confirmOnGateway());
 
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
     expect(calls.orders).toBe(1);
@@ -201,12 +213,30 @@ describe('CheckoutScreen', () => {
     expect(calls.payments[1].key).toBe(calls.payments[0].key);
   });
 
-  it('bấm đúp chỉ gửi một yêu cầu thanh toán', async () => {
+  it('chọn phương thức khác từ cổng giả lập: dùng lại đơn đang giữ', async () => {
     const user = userEvent.setup();
-    onPayment(() => paymentResult('SUCCESS'));
+    onPayment(paid);
     renderWithProviders(<CheckoutScreen />);
 
-    await user.dblClick(payButton());
+    await user.click(submitButton());
+    await gateway();
+    await user.click(screen.getByRole('button', { name: 'Chọn phương thức khác' }));
+    await user.click(screen.getByRole('radio', { name: 'Tiền mặt tại quầy' }));
+    await user.click(submitButton());
+
+    await waitFor(() => expect(nav.push).toHaveBeenCalled());
+    expect(calls.orders).toBe(1);
+    expect(calls.payments[0].body.method).toBe('CASH');
+  });
+
+  it('bấm đúp chỉ tạo một đơn và gửi một yêu cầu thanh toán', async () => {
+    const user = userEvent.setup();
+    onPayment(paid);
+    renderWithProviders(<CheckoutScreen />);
+
+    await user.dblClick(submitButton());
+    await gateway();
+    await user.dblClick(confirmOnGateway());
 
     await waitFor(() => expect(nav.push).toHaveBeenCalled());
     expect(calls.orders).toBe(1);
@@ -218,20 +248,20 @@ describe('CheckoutScreen', () => {
     server.use(
       http.post(`${API_URL}/orders`, () =>
         HttpResponse.json(
-          { statusCode: 409, code: 'OUT_OF_STOCK', message: 'Trà sen vàng đã hết hàng' },
-          { status: 409 },
+          { statusCode: 400, code: 'OUT_OF_STOCK', message: 'Sản phẩm "Trà sen vàng" không đủ số lượng tồn kho.' },
+          { status: 400 },
         ),
       ),
     );
-    onPayment(() => paymentResult('SUCCESS'));
+    onPayment(paid);
     renderWithProviders(<CheckoutScreen />);
 
-    await user.click(payButton());
+    await user.click(submitButton());
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Trà sen vàng đã hết hàng');
+    expect(await screen.findByRole('alert')).toHaveTextContent('không đủ số lượng tồn kho');
     expect(screen.getByRole('link', { name: 'Quay lại giỏ hàng' })).toHaveAttribute('href', '/cart');
     expect(calls.payments).toHaveLength(0);
-    expect(screen.getByRole('button', { name: 'Thử thanh toán lại' })).toBeDisabled();
+    expect(retryButton()).toBeDisabled();
   });
 
   describe('thanh toán bị 409', () => {
@@ -240,23 +270,31 @@ describe('CheckoutScreen', () => {
     const orderStatus = (status: Order['status']) =>
       server.use(http.get(`${API_URL}/orders/o-1`, () => HttpResponse.json({ ...order, status })));
 
+    async function payOnGateway(user: ReturnType<typeof userEvent.setup>) {
+      await user.click(submitButton());
+      await gateway();
+      await user.click(confirmOnGateway());
+    }
+
     it('đơn đã hết hạn: báo lỗi, chưa tự tạo đơn, lần thử sau mới tạo đơn mới', async () => {
       const user = userEvent.setup();
       orderStatus('CANCELLED');
-      onPayment((callNumber) => (callNumber === 1 ? conflict() : paymentResult('SUCCESS')));
+      onPayment((callNumber) => (callNumber === 1 ? conflict() : paid()));
       renderWithProviders(<CheckoutScreen />);
 
-      await user.click(payButton());
+      await payOnGateway(user);
 
       expect(await screen.findByRole('alert')).toHaveTextContent('Đơn hàng không còn hiệu lực');
       expect(calls.orders).toBe(1);
       expect(nav.push).not.toHaveBeenCalled();
       expect(useCartStore.getState().items).toHaveLength(2);
 
-      await user.click(screen.getByRole('button', { name: 'Thử thanh toán lại' }));
+      await user.click(retryButton());
+      await gateway();
+      expect(calls.orders).toBe(2);
+      await user.click(confirmOnGateway());
 
       await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
-      expect(calls.orders).toBe(2);
       expect(calls.payments[1].key).not.toBe(calls.payments[0].key);
     });
 
@@ -266,7 +304,7 @@ describe('CheckoutScreen', () => {
       onPayment(conflict);
       renderWithProviders(<CheckoutScreen />);
 
-      await user.click(payButton());
+      await payOnGateway(user);
 
       await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
       expect(calls.orders).toBe(1);
@@ -279,13 +317,13 @@ describe('CheckoutScreen', () => {
       onPayment(conflict);
       renderWithProviders(<CheckoutScreen />);
 
-      await user.click(payButton());
+      await payOnGateway(user);
 
       expect(await screen.findByRole('alert')).toHaveTextContent('Đơn không thanh toán được');
       expect(nav.push).not.toHaveBeenCalled();
       expect(useCartStore.getState().items).toHaveLength(2);
 
-      await user.click(screen.getByRole('button', { name: 'Thử thanh toán lại' }));
+      await user.click(confirmOnGateway());
       await waitFor(() => expect(calls.payments).toHaveLength(2));
       expect(calls.orders).toBe(1);
     });

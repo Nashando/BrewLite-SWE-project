@@ -4,7 +4,7 @@ import { CupIcon } from '@/components/ui/CupIcon';
 export function AppHeader({ title, actions }: { title: string; actions?: ReactNode }) {
   return (
     <header className="bg-pine px-4 pb-7 pt-[max(env(safe-area-inset-top),1rem)] text-mist">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-x-2">
         <div className="flex items-center gap-2">
           <CupIcon className="h-6 w-6 text-crema" />
           <span className="font-display text-lg font-semibold">BrewLite</span>

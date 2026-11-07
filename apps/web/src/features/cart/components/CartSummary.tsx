@@ -4,7 +4,7 @@ import { formatVND } from '@/lib/format';
 interface CartSummaryProps {
   total: number;
   count: number;
-  /** Chỉ truyền khi trang đặt đơn đã có. */
+  /** Chỉ truyền khi trang thanh toán đã có. */
   checkoutHref?: string;
 }
 
@@ -20,7 +20,7 @@ export function CartSummary({ total, count, checkoutHref }: CartSummaryProps) {
       </div>
       {checkoutHref && (
         <ButtonLink href={checkoutHref} className="mt-3 w-full">
-          Đặt đơn
+          Thanh toán
         </ButtonLink>
       )}
     </section>

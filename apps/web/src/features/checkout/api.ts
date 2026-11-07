@@ -5,16 +5,14 @@ export interface CreateOrderInput {
   items: { productId: string; sizeId: string | null; toppingIds: string[]; quantity: number }[];
 }
 
-export interface CardInput {
-  number: string;
-  expiry: string;
-  cvv: string;
-}
+/** Kết quả khách chọn trên màn hình cổng giả lập. */
+export type SimulatedResult = 'SUCCESS' | 'FAILED';
 
 export interface PayInput {
   orderId: string;
   method: PaymentMethod;
-  card?: CardInput;
+  /** Bắt buộc với MOMO, VNPAY; CASH thu tại quầy nên không có. */
+  simulate?: SimulatedResult;
 }
 
 export function createOrder(input: CreateOrderInput) {

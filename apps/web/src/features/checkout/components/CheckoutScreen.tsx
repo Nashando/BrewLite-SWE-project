@@ -1,10 +1,8 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { useForm } from 'react-hook-form';
 import { BackHeader } from '@/components/layout/BackHeader';
 import { Button } from '@/components/ui/Button';
 import { ButtonLink } from '@/components/ui/ButtonLink';
@@ -14,25 +12,26 @@ import { calculateLineTotal, calculateTotal } from '@/features/cart/utils/calcul
 import { ApiError, getErrorMessage } from '@/lib/errors';
 import { formatVND } from '@/lib/format';
 import type { PaymentMethod } from '@/types';
-import { OrderExpiredError, PaymentFailedError, useCheckout } from '../hooks/useCheckout';
-import { cardSchema, type CardValues } from '../schemas';
-import { CardFields } from './CardFields';
+import type { SimulatedResult } from '../api';
+import { OrderExpiredError, useCheckout } from '../hooks/useCheckout';
+import { MockGateway } from './MockGateway';
 
 const METHODS: { value: PaymentMethod; label: string }[] = [
-  { value: 'WALLET', label: 'Ví BrewLite' },
-  { value: 'CARD', label: 'Thẻ ngân hàng' },
+  { value: 'MOMO', label: 'MoMo' },
+  { value: 'VNPAY', label: 'VNPAY' },
+  { value: 'CASH', label: 'Tiền mặt tại quầy' },
 ];
 
 function CheckoutError({ error }: { error: unknown }) {
   const box = 'mt-6 rounded-xl bg-danger/10 px-4 py-3 text-sm';
 
-  if (error instanceof PaymentFailedError) {
+  if (error instanceof ApiError && error.code === 'PAYMENT_FAILED') {
     return (
       <div role="alert" className={box}>
         <p className="font-semibold text-danger">Thanh toán không thành công</p>
         <p className="mt-1">{error.message}</p>
         <p className="mt-1 text-ink/70">
-          Đơn hàng của bạn vẫn được giữ. Kiểm tra thông tin rồi thử lại, hoặc chọn phương thức khác.
+          Đơn vừa rồi đã được hủy và bạn chưa bị trừ tiền. Giỏ hàng vẫn còn, bấm thử lại để tạo đơn mới.
         </p>
       </div>
     );
@@ -73,18 +72,13 @@ function CheckoutForm() {
   const hydrated = useCartStore((s) => s.hydrated);
   const items = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clear);
-  const [method, setMethod] = useState<PaymentMethod>('WALLET');
+  const [method, setMethod] = useState<PaymentMethod>('MOMO');
   const checkout = useCheckout();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CardValues>({ resolver: zodResolver(cardSchema) });
 
-  if (checkout.isSuccess) {
+  if (checkout.isSuccess && checkout.data.stage === 'done') {
     return (
       <p role="status" className="py-16 text-center text-ink/70">
-        Đặt đơn thành công, đang chuyển tới đơn hàng…
+        Đặt hàng thành công, đang chuyển tới đơn hàng…
       </p>
     );
   }
@@ -113,32 +107,46 @@ function CheckoutForm() {
   const outOfStock =
     checkout.error instanceof ApiError && checkout.error.code === 'OUT_OF_STOCK';
 
-  const submitPayment = (input: Parameters<typeof checkout.mutate>[0]) =>
-    checkout.mutate(input, {
-      onSuccess: ({ orderId }) => {
-        router.push(`/orders/${orderId}`);
-        clearCart();
+  const submit = (simulate?: SimulatedResult) =>
+    checkout.mutate(
+      { method, simulate },
+      {
+        onSuccess: (result) => {
+          if (result.stage !== 'done') return;
+          router.push(`/orders/${result.orderId}`);
+          clearCart();
+        },
       },
-    });
+    );
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    if (method === 'CARD') {
-      return handleSubmit((card) =>
-        submitPayment({
-          method: 'CARD',
-          card: { number: card.number.replace(/\s/g, ''), expiry: card.expiry, cvv: card.cvv },
-        }),
-      )(event);
-    }
     event.preventDefault();
-    submitPayment({ method: 'WALLET' });
+    submit();
   };
 
   const buttonLabel = checkout.isPending
     ? 'Đang xử lý…'
     : checkout.isError
       ? 'Thử thanh toán lại'
-      : `Thanh toán ${formatVND(total)}`;
+      : `Xác nhận đặt hàng ${formatVND(total)}`;
+
+  if (checkout.gatewayOrder) {
+    return (
+      <>
+        <MockGateway
+          order={checkout.gatewayOrder}
+          method={method}
+          pending={checkout.isPending}
+          onResult={submit}
+          onBack={() => {
+            checkout.reset();
+            checkout.closeGateway();
+          }}
+        />
+        {checkout.isError && <CheckoutError error={checkout.error} />}
+      </>
+    );
+  }
 
   return (
     <>
@@ -188,10 +196,12 @@ function CheckoutForm() {
               </label>
             ))}
           </div>
-          <p className="mt-2 text-sm text-ink/70">Thanh toán mô phỏng, không trừ tiền thật.</p>
+          <p className="mt-2 text-sm text-ink/70">
+            {method === 'CASH'
+              ? 'Đơn được giữ 15 phút, mời bạn ra quầy trả tiền.'
+              : 'Thanh toán mô phỏng, không trừ tiền thật.'}
+          </p>
         </fieldset>
-
-        {method === 'CARD' && <CardFields register={register} errors={errors} />}
 
         {checkout.isError && <CheckoutError error={checkout.error} />}
 

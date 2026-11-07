@@ -9,7 +9,14 @@ import { getErrorMessage, isNotFoundError } from '@/lib/errors';
 import { formatDateTime, formatVND } from '@/lib/format';
 import type { OrderStatus } from '@/types';
 import { useOrder } from '../hooks/useOrders';
-import { ORDER_STATUS, OrderStatusBadge } from './OrderStatusBadge';
+import { CancelOrderButton } from './CancelOrderButton';
+import {
+  canCancel,
+  isWaitingCash,
+  ORDER_STATUS,
+  OrderStatusBadge,
+  PAYMENT_METHOD_LABEL,
+} from './OrderStatusBadge';
 
 const STEPS: OrderStatus[] = ['PAID', 'PREPARING', 'READY', 'COMPLETED'];
 
@@ -76,6 +83,9 @@ function OrderDetail({ id }: { id: string }) {
     );
   }
 
+  // Giao dịch mới nhất còn hiệu lực; lần thử thất bại không cần hiện cho khách.
+  const payment = data.payments?.find((p) => p.status !== 'FAILED');
+
   return (
     <>
       <h1 className="mt-5 font-display text-3xl font-bold">Đơn {data.code}</h1>
@@ -83,12 +93,27 @@ function OrderDetail({ id }: { id: string }) {
         <OrderStatusBadge status={data.status} />
         <span className="text-sm text-ink/70">{formatDateTime(data.createdAt)}</span>
       </div>
-      <p className="mt-3 text-ink/80">{ORDER_STATUS[data.status].hint}</p>
+      <p className="mt-3 text-ink/80">
+        {isWaitingCash(data)
+          ? 'Mời bạn ra quầy trả tiền mặt trong 15 phút, quá hạn đơn sẽ tự hủy.'
+          : ORDER_STATUS[data.status].hint}
+      </p>
+      {payment && (
+        <p className="mt-1 text-sm text-ink/70">
+          Thanh toán: {PAYMENT_METHOD_LABEL[payment.method]}
+          {payment.status === 'REFUNDED' && ' (đã hoàn tiền)'}
+        </p>
+      )}
 
       <OrderTimeline status={data.status} />
       <Button variant="secondary" className="mt-6" onClick={() => void refetch()} disabled={isFetching}>
         {isFetching ? 'Đang cập nhật…' : 'Làm mới'}
       </Button>
+      {canCancel(data.status) && (
+        <div className="mt-3">
+          <CancelOrderButton orderId={data.id} />
+        </div>
+      )}
 
       <section aria-label="Món đã đặt" className="mt-8">
         <ul className="divide-y divide-line">

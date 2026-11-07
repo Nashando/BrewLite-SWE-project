@@ -12,6 +12,21 @@ const productsUrl = `${API_URL}/products`;
 const firstProduct = mockProducts[0].name;
 
 describe('MenuScreen', () => {
+  it('tìm món không cần gõ dấu, không thấy thì báo rõ', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<MenuScreen />);
+    await screen.findByText(firstProduct);
+    const search = screen.getByRole('searchbox', { name: 'Tìm món' });
+
+    await user.type(search, 'tra dao');
+    expect(screen.getByText('Trà đào cam sả')).toBeInTheDocument();
+    expect(screen.queryByText(firstProduct)).not.toBeInTheDocument();
+
+    await user.clear(search);
+    await user.type(search, 'khong co mon nay');
+    expect(screen.getByText('Không tìm thấy món phù hợp.')).toBeInTheDocument();
+  });
+
   it('hiển thị trạng thái loading khi đang tải', async () => {
     renderWithProviders(<MenuScreen />);
 

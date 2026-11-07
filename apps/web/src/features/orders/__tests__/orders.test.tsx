@@ -124,6 +124,58 @@ describe('OrderDetailScreen (xác nhận và trạng thái đơn)', () => {
     expect(currentStep()).toBeUndefined();
   });
 
+  it('đơn trả tiền mặt đang chờ: nhắc ra quầy và ghi phương thức', async () => {
+    server.use(
+      http.get(`${API_URL}/orders/o-2`, () =>
+        HttpResponse.json({
+          ...preparing,
+          status: 'PENDING_PAYMENT',
+          payments: [{ id: 'p', orderId: 'o-2', method: 'CASH', status: 'PENDING' }],
+        }),
+      ),
+    );
+    renderWithProviders(<OrderDetailScreen id="o-2" />);
+
+    expect(await screen.findByText(/ra quầy trả tiền mặt/)).toBeInTheDocument();
+    expect(screen.getByText(/Tiền mặt tại quầy/)).toBeInTheDocument();
+  });
+
+  it('hủy đơn: hỏi lại trước khi gửi, hủy xong cập nhật trạng thái', async () => {
+    const user = userEvent.setup();
+    let status: Order['status'] = 'PAID';
+    let cancels = 0;
+    server.use(
+      http.get(`${API_URL}/orders/o-2`, () => HttpResponse.json({ ...preparing, status })),
+      http.post(`${API_URL}/orders/o-2/cancel`, () => {
+        cancels += 1;
+        status = 'CANCELLED';
+        return HttpResponse.json({ ...preparing, status }, { status: 201 });
+      }),
+    );
+    renderWithProviders(<OrderDetailScreen id="o-2" />);
+
+    await user.click(await screen.findByRole('button', { name: 'Hủy đơn' }));
+    expect(cancels).toBe(0);
+
+    await user.click(screen.getByRole('button', { name: 'Giữ đơn' }));
+    expect(cancels).toBe(0);
+
+    await user.click(screen.getByRole('button', { name: 'Hủy đơn' }));
+    await user.click(screen.getByRole('button', { name: 'Xác nhận hủy' }));
+
+    await waitFor(() => expect(cancels).toBe(1));
+    expect(await screen.findByText('Đơn này đã bị hủy.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Hủy đơn' })).not.toBeInTheDocument();
+  });
+
+  it('đơn đang pha chế không có nút hủy', async () => {
+    server.use(http.get(`${API_URL}/orders/o-2`, () => HttpResponse.json(preparing)));
+    renderWithProviders(<OrderDetailScreen id="o-2" />);
+
+    await screen.findByRole('heading', { name: /Đơn BL-1002/ });
+    expect(screen.queryByRole('button', { name: 'Hủy đơn' })).not.toBeInTheDocument();
+  });
+
   it('hiển thị "không tìm thấy" khi đơn không tồn tại', async () => {
     server.use(
       http.get(`${API_URL}/orders/khong-co`, () =>

@@ -1,18 +1,12 @@
-import { useMutation } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef, useState } from 'react';
 import { useCartStore } from '@/features/cart/store';
+import { productKeys } from '@/features/menu/api';
+import { fetchOrder, ordersKey } from '@/features/orders/api';
 import { ApiError } from '@/lib/errors';
-import { fetchOrder } from '@/features/orders/api';
-import type { PaymentMethod } from '@/types';
-import { createOrder, pay, type CardInput } from '../api';
+import type { Order, PaymentMethod } from '@/types';
+import { createOrder, pay, type SimulatedResult } from '../api';
 import { createIdempotencyKey } from '../utils/idempotency';
-
-export class PaymentFailedError extends Error {
-  constructor(reason?: string | null) {
-    super(reason || 'Thanh toán bị từ chối.');
-    this.name = 'PaymentFailedError';
-  }
-}
 
 /** Đơn đang giữ không còn thanh toán được (hết hạn giữ hàng hoặc đã hủy). */
 export class OrderExpiredError extends Error {
@@ -24,14 +18,19 @@ export class OrderExpiredError extends Error {
 
 interface CheckoutInput {
   method: PaymentMethod;
-  card?: CardInput;
+  /** Có giá trị khi khách đã chọn kết quả trên màn hình cổng giả lập. */
+  simulate?: SimulatedResult;
 }
 
+/** `gateway`: đơn đã tạo, cần hiện cổng giả lập. `done`: chuyển sang trang đơn hàng được rồi. */
+type CheckoutResult = { stage: 'gateway' } | { stage: 'done'; orderId: string };
+
 /**
- * Tạo đơn rồi thanh toán.
- * - Đơn chỉ được tạo một lần, thử thanh toán lại dùng lại đơn cũ.
- * - Lỗi mạng hoặc 5xx: giữ nguyên Idempotency-Key để gửi lại không bị trừ tiền hai lần.
- * - Bị từ chối hoặc lỗi 4xx: lần thử sau là yêu cầu mới nên đổi khóa.
+ * Tạo đơn và giữ hàng trước, rồi thanh toán (theo sơ đồ tuần tự).
+ * - MOMO, VNPAY: dừng ở màn hình cổng giả lập, khách chọn kết quả rồi mới gọi thanh toán.
+ * - CASH: ghi nhận trả tại quầy, đơn chờ nhân viên xác nhận.
+ * - Thanh toán thất bại (402): API đã hủy đơn và trả kho, nên lần thử sau tạo đơn mới.
+ * - Lỗi mạng hoặc 5xx: giữ nguyên Idempotency-Key để gửi lại không bị xử lý hai lần.
  * - API trả 409: đọc trạng thái thật của đơn, vì 409 dùng chung cho đơn đã trả và đơn hết hạn.
  *   Đã trả thì coi như thành công (không tạo đơn mới để tránh thu tiền hai lần);
  *   đã hủy thì báo lỗi và lần thử sau mới tạo đơn mới, để khách biết trước khi trả tiền.
@@ -39,53 +38,65 @@ interface CheckoutInput {
  */
 export function useCheckout() {
   const items = useCartStore((s) => s.items);
-  const orderIdRef = useRef<string | null>(null);
+  const client = useQueryClient();
+  const [gatewayOrder, setGatewayOrder] = useState<Order | null>(null);
+  const orderRef = useRef<Order | null>(null);
   const keyRef = useRef<string | null>(null);
-  const inFlightRef = useRef<Promise<{ orderId: string }> | null>(null);
+  const inFlightRef = useRef<Promise<CheckoutResult> | null>(null);
 
-  async function run(input: CheckoutInput) {
-    if (!orderIdRef.current) {
-      const order = await createOrder({
-        items: items.map((item) => ({
-          productId: item.productId,
-          sizeId: item.sizeId,
-          toppingIds: item.toppings.map((t) => t.id),
-          quantity: item.quantity,
-        })),
-      });
-      orderIdRef.current = order.id;
+  async function run({ method, simulate }: CheckoutInput): Promise<CheckoutResult> {
+    orderRef.current ??= await createOrder({
+      items: items.map((item) => ({
+        productId: item.productId,
+        sizeId: item.sizeId,
+        toppingIds: item.toppings.map((t) => t.id),
+        quantity: item.quantity,
+      })),
+    });
+    const order = orderRef.current;
+
+    if (method !== 'CASH' && !simulate) {
+      setGatewayOrder(order);
+      return { stage: 'gateway' };
     }
-    const orderId = orderIdRef.current;
+
     const key = (keyRef.current ??= createIdempotencyKey());
-
     try {
-      const payment = await pay({ orderId, ...input }, key);
-      if (payment.status === 'FAILED') throw new PaymentFailedError(payment.failureReason);
-      return { orderId };
+      await pay({ orderId: order.id, method, simulate }, key);
+      return { stage: 'done', orderId: order.id };
     } catch (error) {
-      const definitive =
-        error instanceof PaymentFailedError ||
-        (error instanceof ApiError && error.status >= 400 && error.status < 500);
-      if (definitive) keyRef.current = null;
+      // Lỗi 4xx là kết quả đã rõ, lần thử sau là yêu cầu mới nên đổi khóa
+      if (error instanceof ApiError && error.status >= 400 && error.status < 500) keyRef.current = null;
 
+      if (error instanceof ApiError && error.status === 402) {
+        orderRef.current = null;
+        setGatewayOrder(null);
+      }
       if (error instanceof ApiError && error.status === 409) {
-        const order = await fetchOrder(orderId).catch(() => null);
-        if (order?.status === 'CANCELLED') {
-          orderIdRef.current = null;
+        const latest = await fetchOrder(order.id).catch(() => null);
+        if (latest?.status === 'CANCELLED') {
+          orderRef.current = null;
+          setGatewayOrder(null);
           throw new OrderExpiredError();
         }
-        if (order && order.status !== 'PENDING_PAYMENT') return { orderId };
+        if (latest && latest.status !== 'PENDING_PAYMENT') return { stage: 'done', orderId: order.id };
       }
       throw error;
     }
   }
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: (input: CheckoutInput) => {
       inFlightRef.current ??= run(input).finally(() => {
         inFlightRef.current = null;
       });
       return inFlightRef.current;
     },
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: ordersKey });
+      void client.invalidateQueries({ queryKey: productKeys.all }); // tồn kho có thể đã đổi
+    },
   });
+
+  return { ...mutation, gatewayOrder, closeGateway: () => setGatewayOrder(null) };
 }

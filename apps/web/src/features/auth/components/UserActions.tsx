@@ -4,11 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useAuthStore } from '../store';
 
-const linkClass = 'inline-flex min-h-[44px] items-center px-2 text-sm font-medium';
+const linkClass = 'inline-flex min-h-[44px] items-center whitespace-nowrap px-1.5 text-sm font-medium';
 
 export function UserActions() {
   const hydrated = useAuthStore((s) => s.hydrated);
   const token = useAuthStore((s) => s.token);
+  const role = useAuthStore((s) => s.user?.role);
   const logout = useAuthStore((s) => s.logout);
   const queryClient = useQueryClient();
 
@@ -24,6 +25,16 @@ export function UserActions() {
 
   return (
     <>
+      {(role === 'STAFF' || role === 'MANAGER') && (
+        <Link href="/staff" className={linkClass}>
+          Quầy
+        </Link>
+      )}
+      {role === 'MANAGER' && (
+        <Link href="/admin/products" className={linkClass}>
+          Quản lý
+        </Link>
+      )}
       <Link href="/orders" className={linkClass}>
         Đơn hàng
       </Link>
