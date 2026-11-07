@@ -6,12 +6,17 @@ function normalize(text: string): string {
     .normalize('NFD')
     .replace(/\p{M}/gu, '')
     .replace(/đ/gi, 'd')
-    .toLowerCase()
-    .trim();
+    .toLowerCase();
 }
 
-export function matchesSearch(product: Pick<Product, 'name' | 'description'>, query: string): boolean {
-  const q = normalize(query);
-  if (!q) return true;
-  return normalize(`${product.name} ${product.description}`).includes(q);
+const wordsOf = (text: string) => normalize(text).split(/\s+/).filter(Boolean);
+
+/**
+ * Chỉ tìm theo tên món, vì mô tả hay nhắc tới món khác ("Bạc xỉu: ít cà phê") nên dễ ra kết quả thừa.
+ * Mỗi từ khóa phải khớp phần đầu của một từ trong tên, để "an" không khớp nhầm "Bánh".
+ */
+export function matchesSearch(product: Pick<Product, 'name'>, query: string): boolean {
+  const keywords = wordsOf(query);
+  const nameWords = wordsOf(product.name);
+  return keywords.every((keyword) => nameWords.some((word) => word.startsWith(keyword)));
 }

@@ -74,11 +74,12 @@ export function MenuScreen() {
           </div>
         } />
       {showTabs && (
-        <div className="px-4 pt-3">
+        <div className="px-4 pb-1 pt-3">
           <input
             type="search"
             aria-label="Tìm món"
             placeholder="Tìm món…"
+            spellCheck={false}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="min-h-[44px] w-full rounded-full border border-line bg-white px-4 text-base"
