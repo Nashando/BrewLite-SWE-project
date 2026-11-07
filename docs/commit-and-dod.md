@@ -34,12 +34,14 @@ Có thể thêm phạm vi trong ngoặc khi thấy hữu ích, chẳng hạn `fe
 
 ## 3. Tiêu chí hoàn thành (Definition of Done - DoD)
 
-Một task được xem là hoàn thành khi:
+Một task hoặc Pull Request (PR) được xem là hoàn thành khi đáp ứng đầy đủ các tiêu chí bắt buộc sau:
 
-1. Phần việc đã được thực hiện và chạy thử trong phạm vi liên quan.
-2. Các kiểm thử hiện có liên quan đã chạy thành công. Nếu chưa có kiểm thử phù hợp, người thực hiện kiểm tra thủ công các luồng chính.
-3. Không đưa mật khẩu, token hoặc thông tin kết nối bí mật thật vào repository.
-4. Cập nhật `.env.example` nếu có thêm biến môi trường; cập nhật tài liệu nếu thay đổi ảnh hưởng đến cách cài đặt hoặc sử dụng.
-5. Nếu làm việc qua PR, thay đổi đã được thành viên khác xem qua và nhóm thống nhất trước khi gộp.
-
-Các bước lint, test, build hoặc CI được thực hiện khi dự án đã có cấu hình tương ứng; không yêu cầu nhóm tạo thêm quy trình nếu hiện tại chưa sử dụng.
+1. **Thực thi & Kiểm thử cục bộ**: Phần việc đã được thực hiện, chạy thử thành công trong phạm vi liên quan và không phát sinh lỗi hồi quy (regression).
+2. **Quy chuẩn CI bắt buộc (Mandatory CI)**: 
+   - **Tuyệt đối KHÔNG được merge PR nếu CI thất bại (CI fail)**.
+   - Bắt buộc toàn bộ các bước trong GitHub Actions workflow (`.github/workflows/ci.yml`) phải báo xanh (Pass 100%):
+     - `[api]`: Install dependencies -> Generate Prisma Client -> Lint -> Unit test -> Build.
+     - `[web]`: Install dependencies -> Lint -> Typecheck -> Unit test (Vitest) -> Build.
+3. **Bảo mật & Secrets**: Tuyệt đối không đưa mật khẩu, token, connection string hoặc thông tin bí mật vào kho mã nguồn (luôn dùng `.env` và template `.env.example`).
+4. **Đồng bộ Cấu hình & Tài liệu**: Cập nhật `.env.example` nếu có thêm/sửa biến môi trường; cập nhật tài liệu kiến trúc/hướng dẫn sử dụng nếu thay đổi ảnh hưởng đến hệ thống.
+5. **Code Review & Phê duyệt (Approval)**: PR bắt buộc phải có ít nhất một thành viên khác xem xét (review) và phê duyệt (Approve) trước khi gộp vào nhánh chính (`main`).

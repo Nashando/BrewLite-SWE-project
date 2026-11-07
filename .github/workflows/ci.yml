@@ -27,7 +27,7 @@ permissions:
   contents: read
  
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   NEXT_TELEMETRY_DISABLED: '1'
   # Giá trị GIẢ LẬP, chỉ dùng cho CI
   DATABASE_URL: postgresql://brewlite:brewlite@localhost:5432/brewlite
