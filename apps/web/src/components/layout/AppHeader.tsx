@@ -1,13 +1,12 @@
 import type { ReactNode } from 'react';
-import { CupIcon } from '@/components/ui/CupIcon';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 export function AppHeader({ title, actions }: { title: string; actions?: ReactNode }) {
   return (
     <header className="bg-pine px-4 pb-7 pt-[max(env(safe-area-inset-top),1rem)] text-mist">
       <div className="flex flex-wrap items-center">
-        <div className="mr-auto flex items-center gap-2">
-          <CupIcon className="h-6 w-6 text-crema" />
-          <span className="font-display text-lg font-semibold">BrewLite</span>
+        <div className="mr-auto">
+          <BrandLogo />
         </div>
         {actions}
       </div>
