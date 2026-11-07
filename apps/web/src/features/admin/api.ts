@@ -10,7 +10,6 @@ export interface ProductInput {
   description: string;
   category: string;
   basePrice: number;
-  imageUrl: string | null;
   isActive: boolean;
   sizes: { id?: string; name: string; extraPrice: number }[];
 }

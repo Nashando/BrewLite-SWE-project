@@ -11,10 +11,6 @@ export const productSchema = z.object({
   description: z.string().trim().max(500, 'Tối đa 500 ký tự'),
   category: z.string().trim().min(1, 'Nhập danh mục').max(50, 'Tối đa 50 ký tự'),
   basePrice: money,
-  imageUrl: z
-    .string()
-    .trim()
-    .refine((v) => v === '' || /^https?:\/\/\S+$/i.test(v), 'Ảnh phải là URL http hoặc https'),
   isActive: z.boolean(),
   sizes: z
     .array(

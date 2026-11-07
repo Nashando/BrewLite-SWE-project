@@ -86,21 +86,18 @@ export function ProductForm({ product, categories, onDone }: ProductFormProps) {
           description: product.description,
           category: product.category,
           basePrice: product.basePrice,
-          imageUrl: product.imageUrl ?? '',
           isActive: product.isActive,
           sizes: product.sizes,
           stock: product.stock,
         }
-      : { name: '', description: '', category: '', imageUrl: '', isActive: true, sizes: [], stock: 0 },
+      : { name: '', description: '', category: '', isActive: true, sizes: [], stock: 0 },
   });
   // keyName khác "id" để giữ id của size đã có, API dựa vào đó phân biệt sửa và thêm
   const sizes = useFieldArray({ control, name: 'sizes', keyName: 'fieldKey' });
 
   const save = useMutation({
-    mutationFn: ({ stock, imageUrl, ...values }: ProductValues) => {
-      const input = { ...values, imageUrl: imageUrl || null };
-      return product ? updateProduct(product.id, input) : createProduct({ ...input, stock });
-    },
+    mutationFn: ({ stock, ...input }: ProductValues) =>
+      product ? updateProduct(product.id, input) : createProduct({ ...input, stock }),
     onSuccess: () => {
       invalidate();
       onDone();
@@ -144,13 +141,6 @@ export function ProductForm({ product, categories, onDone }: ProductFormProps) {
             {...register('stock', { valueAsNumber: true })}
           />
         )}
-        <TextField
-          label="URL ảnh (không bắt buộc)"
-          type="url"
-          placeholder="https://…"
-          error={errors.imageUrl?.message}
-          {...register('imageUrl')}
-        />
         <label className="flex min-h-[44px] items-center gap-3">
           <input type="checkbox" className="h-5 w-5 accent-pine" {...register('isActive')} />
           <span className="font-medium">Đang bán (bỏ chọn để ẩn khỏi menu)</span>

@@ -87,10 +87,10 @@ describe('Quản lý món', () => {
       category: 'Trà',
       basePrice: 40000,
       stock: 20,
-      imageUrl: null,
       isActive: true,
       sizes: [{ name: 'S', extraPrice: 0 }],
     });
+    expect(saved).not.toHaveProperty('imageUrl');
     expect(await screen.findByRole('button', { name: 'Thêm món' })).toBeInTheDocument(); // về danh sách
   });
 
@@ -99,13 +99,11 @@ describe('Quản lý món', () => {
     renderWithProviders(<AdminProductsScreen />);
     await user.click(await screen.findByRole('button', { name: 'Thêm món' }));
 
-    await user.type(screen.getByLabelText('URL ảnh (không bắt buộc)'), 'javascript:alert(1)');
     await user.click(screen.getByRole('button', { name: 'Lưu món' }));
 
     expect(await screen.findByText('Nhập tên món')).toBeInTheDocument();
     expect(screen.getByText('Nhập danh mục')).toBeInTheDocument();
     expect(screen.getByText('Nhập số tiền')).toBeInTheDocument();
-    expect(screen.getByText('Ảnh phải là URL http hoặc https')).toBeInTheDocument();
   });
 
   it('sửa món: giữ id size để API biết là sửa, không gửi stock', async () => {
