@@ -7,7 +7,7 @@
 Phiên bản đầu tiên chạy được toàn bộ luồng: **Xem menu ➔ Chọn tuỳ chọn ➔ Giỏ hàng ➔ Đặt đơn ➔ Thanh toán ➔ Theo dõi đơn**.
 
 **Truy cập**
-- Web: `https://brewlite-swe-project-web.vercel.app`[cite: 8]
+- Web: `https://brewlite-swe-project-web.vercel.app`
 - API: `https://brewlite-swe-project.onrender.com` (health check: `https://brewlite-swe-project.onrender.com/health`)
 - Image: `ghcr.io/nashando/brewlite-api:1.0.0`
 

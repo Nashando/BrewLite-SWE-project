@@ -41,7 +41,6 @@ BrewLite-SWE-project/
 │   ├── security-audit.md        # Biên bản kiểm tra secret
 │   └── Deployment Diagram.md    # Sơ đồ triển khai hạ tầng UML
 ├── .github/workflows/           # CI/CD (ci.yml, cd.yml, secret-scan.yml)
-├── scripts/                     # smoke-test.sh, deploy-render.sh, secret-audit.sh
 ├── docker-compose.yml           # Cấu hình môi trường chạy toàn bộ hệ thống ở Local
 ├── .env.example                 # Mẫu khai báo biến môi trường chuẩn
 └── README.md
@@ -184,8 +183,6 @@ Test của API dùng mock Prisma nên **không cần PostgreSQL**. Build image D
   git push origin v1.0.0
   ```
   Pipeline CD (`.github/workflows/cd.yml`) tự chạy: Lint & Test ➔ Build Docker image ➔ Push GHCR ➔ Deploy API ➔ Smoke test ➔ Deploy Web ➔ Smoke test.
-- **Rollback tự động:** nếu deploy hoặc smoke test thất bại, pipeline dừng và đưa API (và Web nếu đã deploy) về phiên bản trước.
-- **Rollback thủ công:** GitHub ➔ Actions ➔ **CD** ➔ *Run workflow* ➔ nhập `rollback_to` (ví dụ `1.0.0`).
 - **Hướng dẫn đầy đủ** (cấu hình lần đầu, secrets, migration, xử lý sự cố): [docs/deployment.md](./docs/deployment.md). Ghi chú phát hành: [docs/release-notes.md](./docs/release-notes.md).
 
 ---
@@ -228,7 +225,7 @@ Toàn bộ tài liệu kỹ thuật được lưu trữ trong thư mục `docs/`
 
 ---
 
-## 👥 11. Phân Công Thành Viên & Vai Trò Dự Án
+## 👥 10. Phân Công Thành Viên & Vai Trò Dự Án
 
 | Thành viên | Vai trò | Trách nhiệm chính trong Sprint 1 & Sprint 2 |
 |---|---|---|
