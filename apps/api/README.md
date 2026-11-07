@@ -29,22 +29,29 @@ Xác thực: `Authorization: Bearer <accessToken>`. Mọi `id` là UUID dạng c
 | GET | /products/:id | public | thêm `sizes[{id,name,extraPrice}]`, `toppings[{id,name,price}]` (bánh: `[]`) |
 | POST | /auth/register, /auth/login | public | `{accessToken, refreshToken, user{id,name,email,role}}` |
 | POST | /auth/refresh | public | `{refreshToken}` → cặp token mới |
-| GET | /auth/me | JWT | kèm `walletBalance` |
-| POST | /orders | JWT | `{items:[{productId,sizeId\|null,toppingIds[],quantity}], note?}` → đơn `PENDING_PAYMENT`, **server tự tính lại giá**, trừ kho. Hết hàng: 409 `code: "OUT_OF_STOCK"`. Bỏ `items` thì lấy từ giỏ trên server |
-| POST | /payments | JWT | header `Idempotency-Key` (UUID), body `{orderId, method: WALLET\|CARD, card?:{number,expiry,cvv}}` → `{id,orderId,method,status: SUCCESS\|FAILED,failureReason}` (luôn 201). Thành công ⇒ đơn `PAID`; thất bại ⇒ đơn vẫn `PENDING_PAYMENT` để thử lại |
+| GET | /auth/me | JWT | thông tin tài khoản đang đăng nhập |
+| POST | /orders | JWT | `{items:[{productId,sizeId\|null,toppingIds[],quantity}], note?}` → đơn `PENDING_PAYMENT`, **server tự tính lại giá**, trừ kho. Hết hàng: 400 `code: "OUT_OF_STOCK"`. Bỏ `items` thì lấy từ giỏ trên server |
+| POST | /payments | JWT | header `Idempotency-Key` (UUID), body `{orderId, method: MOMO\|VNPAY\|CASH, simulate?: SUCCESS\|FAILED}` (`simulate` bắt buộc với MOMO, VNPAY). Thành công: 201, đơn `PAID`. Thất bại: 402 `code: "PAYMENT_FAILED"`, đơn `CANCELLED`, trả kho, thử lại phải tạo đơn mới. CASH: 201 giao dịch `PENDING`, đơn chờ nhân viên xác nhận |
 | GET | /orders, /orders/:id, /orders/code/:code | JWT | `{id,code,status,total,createdAt,items[{productName,sizeName,toppings:string[],quantity,unitPrice}],payments[]}` |
-| POST | /orders/:id/cancel | JWT | huỷ khi chưa pha chế (`PENDING_PAYMENT`/`PAID`); hoàn kho, hoàn tiền nếu đã trả |
+| POST | /orders/:id/cancel | JWT | huỷ khi chưa pha chế (`PENDING_PAYMENT`/`PAID`); hoàn kho, giao dịch đã trả chuyển `REFUNDED` |
+| POST | /orders/:id/confirm-cash | STAFF, MANAGER | xác nhận đã thu tiền mặt: giao dịch `SUCCESS`, đơn `PAID` |
 | PATCH | /orders/:id/status | STAFF, MANAGER | PAID→PREPARING→READY→COMPLETED |
-| GET | /orders/all | STAFF, MANAGER | tất cả đơn |
+| GET | /orders/all | STAFF, MANAGER | tất cả đơn, kèm `customer{name,email}` |
 | GET/DELETE | /cart | JWT | giỏ hàng trên server (tuỳ chọn, frontend hiện lưu giỏ ở client) |
 | POST | /cart/items | JWT | `{productId, sizeId?, toppingIds?, quantity}` |
 | PATCH/DELETE | /cart/items/:id | JWT | |
+| GET/POST | /admin/products | MANAGER | danh sách kể cả món ẩn, kèm `stock`, `sizes`; thêm món |
+| PATCH | /admin/products/:id | MANAGER | sửa món, ẩn bằng `isActive: false`; gửi `sizes` là thay toàn bộ size |
+| POST | /admin/products/:id/stock | MANAGER | `{delta}`: dương là nhập thêm, âm là giảm; không cho âm kho |
+| GET/POST | /admin/toppings | MANAGER | danh sách kể cả topping ẩn; thêm topping |
+| PATCH | /admin/toppings/:id | MANAGER | sửa, ẩn topping |
+| GET | /admin/reports/revenue?days=1\|7\|30 | MANAGER | `{revenue,orderCount,averageOrder,daily[{date,revenue,orders}],topProducts[{productId,name,quantity,revenue}]}`, tính theo giờ Việt Nam, không tính đơn huỷ và đơn chưa trả |
 
 ## Quy tắc nghiệp vụ
 - Đơn `PENDING_PAYMENT` giữ hàng tối đa 15 phút; quá hạn tự huỷ và trả lại tồn kho.
-- Giả lập thanh toán: ví mặc định 500.000đ (thiếu ⇒ FAILED). Thẻ bắt đầu `4000` hoặc kết thúc `0002` bị từ chối, kết thúc `0003` mô phỏng timeout, thẻ khác thành công.
+- Giả lập thanh toán: MOMO, VNPAY không nối cổng thật, kết quả do khách chọn trên màn hình cổng giả lập. CASH trả tại quầy, quá hạn giữ hàng mà chưa thu thì đơn tự huỷ.
 - Trạng thái đơn: `PENDING_PAYMENT` → `PAID` → `PREPARING` → `READY` → `COMPLETED`; hoặc `CANCELLED`.
-- Size: Tall / Grande / Venti. Danh mục: Cà phê, Trà, Freeze, Bánh.
+- Size: S / M / L. Danh mục: Cà phê, Trà, Freeze, Bánh.
 
 ## Docker
 `docker compose up --build` ở thư mục gốc repo dùng `apps/api/Dockerfile` (cần `package-lock.json`). Container tự chạy `prisma migrate deploy` khi khởi động. Nạp dữ liệu mẫu: chạy `npm run prisma:seed` trên máy host với `DATABASE_URL` trỏ `localhost:5432`.
