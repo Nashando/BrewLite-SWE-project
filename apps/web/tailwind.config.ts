@@ -12,6 +12,7 @@ const config: Config = {
         crema: '#F1C45B', // lớp crema: điểm sáng
         line: '#CBD9D3', // đường kẻ, viền
         danger: '#B42318', // lỗi, hết hàng
+        chart: '#0E8A6B', // cột biểu đồ, đã kiểm tra độ tương phản trên nền mist
       },
       fontFamily: {
         display: ['var(--font-display)', 'system-ui', 'sans-serif'],
