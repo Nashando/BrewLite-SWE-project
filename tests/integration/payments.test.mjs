@@ -49,12 +49,12 @@ test('INT-T03: trả bằng ví thành công: trừ số dư, đơn PAID', async
   assert.equal(res.body.status, 'SUCCESS');
   assert.equal(res.body.method, 'WALLET');
   assert.match(res.body.transactionRef, /^TXN-/);
-  assert.equal(await balanceOf(user.token), 470000);
+  assert.equal(await balanceOf(user.token), 170000);
   assert.equal((await orderOf(user.token, order.id)).status, 'PAID');
 });
 
 test('INT-T03: ví không đủ tiền: 402, huỷ đơn, trả kho, không trừ số dư', async () => {
-  const { p, user, order } = await orderReady({ basePrice: 600000, stock: 5 });
+  const { p, user, order } = await orderReady({ basePrice: 300000, stock: 5 });
   assert.equal(await stockOf(manager, p.id), 4);
 
   const res = await pay(user.token, order.id, 'WALLET');
@@ -62,7 +62,7 @@ test('INT-T03: ví không đủ tiền: 402, huỷ đơn, trả kho, không tr�
   assert.equal(res.status, 402);
   assert.equal(res.body.code, 'PAYMENT_FAILED');
   assert.equal(res.body.message, 'Số dư ví không đủ');
-  assert.equal(await balanceOf(user.token), 500000);
+  assert.equal(await balanceOf(user.token), 200000);
   assert.equal((await orderOf(user.token, order.id)).status, 'CANCELLED');
   assert.equal(await stockOf(manager, p.id), 5);
 });
@@ -74,7 +74,7 @@ test('INT-T03: trả bằng thẻ thành công, không đụng tới ví', async
 
   assert.equal(res.status, 201);
   assert.equal(res.body.status, 'SUCCESS');
-  assert.equal(await balanceOf(user.token), 500000);
+  assert.equal(await balanceOf(user.token), 200000);
   assert.equal((await orderOf(user.token, order.id)).status, 'PAID');
 });
 
@@ -109,7 +109,7 @@ test('INT-T03: không trả được đơn của người khác', async () => {
   const { order } = await orderReady();
   const stranger = await registerCustomer();
   assert.equal((await pay(stranger.token, order.id, 'WALLET')).status, 404);
-  assert.equal(await balanceOf(stranger.token), 500000);
+  assert.equal(await balanceOf(stranger.token), 200000);
 });
 
 test('INT-T03: gửi lại cùng Idempotency-Key trả kết quả cũ, không trừ tiền lần 2', async () => {
@@ -121,7 +121,7 @@ test('INT-T03: gửi lại cùng Idempotency-Key trả kết quả cũ, không t
 
   assert.equal(again.status, 201);
   assert.equal(again.body.id, first.body.id);
-  assert.equal(await balanceOf(user.token), 470000);
+  assert.equal(await balanceOf(user.token), 170000);
 });
 
 test('INT-T03: gửi lại key của lần thất bại vẫn trả 402', async () => {
@@ -147,7 +147,7 @@ test('INT-T03: 8 request song song cùng key: mọi request nhận kết quả c
 
   assert.deepEqual(countStatuses(res), { 201: 8 });
   assert.equal(new Set(res.map((r) => r.body.id)).size, 1);
-  assert.equal(await balanceOf(user.token), 470000);
+  assert.equal(await balanceOf(user.token), 170000);
 });
 
 test('INT-T03: 8 request song song khác key: chỉ một lần thành công', async () => {
@@ -156,7 +156,7 @@ test('INT-T03: 8 request song song khác key: chỉ một lần thành công', a
   const res = await Promise.all(Array.from({ length: 8 }, () => pay(user.token, order.id, 'WALLET')));
 
   assert.deepEqual(countStatuses(res), { 201: 1, 409: 7 });
-  assert.equal(await balanceOf(user.token), 470000);
+  assert.equal(await balanceOf(user.token), 170000);
 });
 
 test('INT-T03: 8 request thất bại song song cùng key: chỉ trả kho một lần', async () => {
@@ -170,12 +170,12 @@ test('INT-T03: 8 request thất bại song song cùng key: chỉ trả kho một
 });
 
 test('INT-T03: ví chỉ đủ một đơn: hai đơn trả song song không làm âm số dư', async () => {
-  const p = await product({ basePrice: 300000, stock: 5 });
+  const p = await product({ basePrice: 150000, stock: 5 });
   const user = await registerCustomer();
   const orders = await Promise.all([1, 2].map(() => createOrder(user.token, [lineOf(p)])));
 
   const res = await Promise.all(orders.map(({ body }) => pay(user.token, body.id, 'WALLET')));
 
   assert.deepEqual(countStatuses(res), { 201: 1, 402: 1 });
-  assert.equal(await balanceOf(user.token), 200000);
+  assert.equal(await balanceOf(user.token), 50000);
 });

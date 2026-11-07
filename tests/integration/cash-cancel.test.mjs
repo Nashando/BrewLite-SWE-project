@@ -65,7 +65,7 @@ test('INT-T04: tiền mặt: đơn chờ thu, nhân viên xác nhận thì đơn
   const paid = await orderOf(user.token, order.id);
   assert.equal(paid.status, 'PAID');
   assert.equal(paid.payments[0].status, 'SUCCESS');
-  assert.equal(await balanceOf(user.token), 500000, 'tiền mặt không trừ ví');
+  assert.equal(await balanceOf(user.token), 200000, 'tiền mặt không trừ ví');
 });
 
 test('INT-T04: đang chờ tiền mặt thì không trả thêm bằng ví, thẻ', async () => {
@@ -74,7 +74,7 @@ test('INT-T04: đang chờ tiền mặt thì không trả thêm bằng ví, th�
 
   assert.equal((await pay(user.token, order.id, 'WALLET')).status, 409);
   assert.equal((await pay(user.token, order.id, 'CARD', { card: goodCard })).status, 409);
-  assert.equal(await balanceOf(user.token), 500000);
+  assert.equal(await balanceOf(user.token), 200000);
 });
 
 test('INT-T04: xác nhận tiền mặt: nhiều nhân viên cùng lúc chỉ một lần được, đơn không chọn tiền mặt bị từ chối', async () => {
@@ -106,12 +106,12 @@ test('INT-T04: đơn quá 15 phút chưa thanh toán tự huỷ, trả kho, khô
 test('INT-T04: huỷ đơn đã trả bằng ví: hoàn số dư, trả kho, chỉ hoàn một lần', async () => {
   const { p, user, order } = await orderReady({ stock: 5, basePrice: 30000, quantity: 2 });
   await pay(user.token, order.id, 'WALLET');
-  assert.equal(await balanceOf(user.token), 440000);
+  assert.equal(await balanceOf(user.token), 140000);
 
   const res = await Promise.all([1, 2, 3].map(() => cancel(user.token, order.id)));
 
   assert.deepEqual(countStatuses(res), { 201: 1, 409: 2 });
-  assert.equal(await balanceOf(user.token), 500000);
+  assert.equal(await balanceOf(user.token), 200000);
   assert.equal(await stockOf(manager, p.id), 5);
   const cancelled = await orderOf(user.token, order.id);
   assert.equal(cancelled.status, 'CANCELLED');
@@ -122,7 +122,7 @@ test('INT-T04: huỷ đơn đã trả bằng thẻ: giao dịch REFUNDED, số d
   const { user, order } = await orderReady();
   await pay(user.token, order.id, 'CARD', { card: goodCard });
   assert.equal((await cancel(user.token, order.id)).status, 201);
-  assert.equal(await balanceOf(user.token), 500000);
+  assert.equal(await balanceOf(user.token), 200000);
   assert.equal((await orderOf(user.token, order.id)).payments[0].status, 'REFUNDED');
 });
 

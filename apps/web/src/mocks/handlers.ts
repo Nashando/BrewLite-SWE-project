@@ -27,9 +27,9 @@ interface MockUser {
 }
 
 const users: MockUser[] = [
-  { id: 'u-1', name: 'Khách demo', email: 'demo@brewlite.vn', password: '123456', role: 'CUSTOMER', walletBalance: 500000 },
-  { id: 'u-2', name: 'Nhân viên demo', email: 'staff@brewlite.vn', password: '123456', role: 'STAFF', walletBalance: 500000 },
-  { id: 'u-3', name: 'Quản lý demo', email: 'manager@brewlite.vn', password: '123456', role: 'MANAGER', walletBalance: 500000 },
+  { id: 'u-1', name: 'Khách demo', email: 'demo@brewlite.vn', password: '123456', role: 'CUSTOMER', walletBalance: 200000 },
+  { id: 'u-2', name: 'Nhân viên demo', email: 'staff@brewlite.vn', password: '123456', role: 'STAFF', walletBalance: 200000 },
+  { id: 'u-3', name: 'Quản lý demo', email: 'manager@brewlite.vn', password: '123456', role: 'MANAGER', walletBalance: 200000 },
 ];
 const orders: Order[] = [];
 const paymentsByKey = new Map<string, Payment>();
@@ -118,7 +118,7 @@ export const handlers = [
   http.post(`${API_URL}/auth/register`, async ({ request }) => {
     const { name, email, password } = (await request.json()) as Pick<MockUser, 'name' | 'email' | 'password'>;
     if (users.some((u) => u.email === email)) return conflict('Email đã được đăng ký');
-    const user: MockUser = { id: `u-${users.length + 1}`, name, email, password, role: 'CUSTOMER', walletBalance: 500000 };
+    const user: MockUser = { id: `u-${users.length + 1}`, name, email, password, role: 'CUSTOMER', walletBalance: 200000 };
     users.push(user);
     return HttpResponse.json(toSession(user), { status: 201 });
   }),

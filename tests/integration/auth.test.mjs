@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { call, registerCustomer, uuid } from '../helpers/api.mjs';
 
-test('INT-T01: đăng ký rồi đăng nhập nhận JWT, ví khởi tạo 500.000đ', async () => {
+test('INT-T01: đăng ký rồi đăng nhập nhận JWT, ví khởi tạo 200.000đ', async () => {
   const user = await registerCustomer();
   const login = await call('POST', '/auth/login', { body: { email: user.email, password: user.password } });
   assert.equal(login.status, 200);
@@ -11,7 +11,7 @@ test('INT-T01: đăng ký rồi đăng nhập nhận JWT, ví khởi tạo 500.0
   const me = await call('GET', '/auth/me', { token: login.body.accessToken });
   assert.equal(me.status, 200);
   assert.equal(me.body.email, user.email);
-  assert.equal(me.body.walletBalance, 500000);
+  assert.equal(me.body.walletBalance, 200000);
   assert.equal(me.body.password, undefined, 'không được trả mật khẩu');
 });
 

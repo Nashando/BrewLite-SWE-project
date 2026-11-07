@@ -54,7 +54,7 @@ test('E2E-T01: từ menu đến xác nhận đơn bằng ví, gồm bước chư
   await expect(page.getByRole('radio', { name: 'Ví BrewLite' })).toBeChecked();
   await placeOrderButton(page).click();
   await expect(gateway(page)).toContainText('90.000');
-  await expect(gateway(page)).toContainText('500.000');
+  await expect(gateway(page)).toContainText('200.000');
   await confirmPayment(page).click();
 
   // Xác nhận đơn: có mã đơn, đã thanh toán, đúng món
@@ -71,7 +71,7 @@ test('E2E-T01: từ menu đến xác nhận đơn bằng ví, gồm bước chư
   await expect(page.getByRole('link', { name: 'Thanh toán' })).toHaveCount(0);
   await page.goto('/orders');
   await expect(page.getByRole('link', { name: new RegExp(code) })).toBeVisible();
-  expect((await call('GET', '/auth/me', { token: user.token })).body.walletBalance).toBe(410000);
+  expect((await call('GET', '/auth/me', { token: user.token })).body.walletBalance).toBe(110000);
 });
 
 test('E2E-T02: thẻ bị từ chối báo lỗi, giữ giỏ, thử lại bằng thẻ khác thành công', async ({ page }) => {

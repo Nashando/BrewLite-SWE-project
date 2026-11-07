@@ -41,7 +41,7 @@ model User {
   password      String
   name          String
   role          Role     @default(CUSTOMER)
-  walletBalance Int      @default(500000) // ví mô phỏng (VND)
+  walletBalance Int      @default(200000) // ví mô phỏng (VND)
   createdAt     DateTime @default(now())
 
   cart   Cart?

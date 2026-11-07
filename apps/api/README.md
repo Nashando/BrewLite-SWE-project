@@ -49,7 +49,7 @@ Xác thực: `Authorization: Bearer <accessToken>`. Mọi `id` là UUID dạng c
 
 ## Quy tắc nghiệp vụ
 - Đơn `PENDING_PAYMENT` giữ hàng tối đa 15 phút; quá hạn tự huỷ và trả lại tồn kho.
-- Giả lập thanh toán, không nối cổng thật: ví mặc định 500.000đ (thiếu ⇒ thất bại). Thẻ bắt đầu `4000` hoặc kết thúc `0002` bị từ chối, kết thúc `0003` mô phỏng timeout, thẻ khác thành công; chỉ lưu 4 số cuối.
+- Giả lập thanh toán, không nối cổng thật: ví mặc định 200.000đ (thiếu ⇒ thất bại). Thẻ bắt đầu `4000` hoặc kết thúc `0002` bị từ chối, kết thúc `0003` mô phỏng timeout, thẻ khác thành công; chỉ lưu 4 số cuối.
 - Phần mở rộng: CASH trả tại quầy, quá hạn giữ hàng mà chưa thu thì đơn tự huỷ.
 - Trạng thái đơn: `PENDING_PAYMENT` → `PAID` → `PREPARING` → `READY` → `COMPLETED`; hoặc `CANCELLED`.
 - Size: S / M / L. Danh mục: Cà phê, Trà, Freeze, Bánh.
