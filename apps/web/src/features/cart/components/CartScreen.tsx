@@ -7,6 +7,8 @@ import { calculateTotal, countItems } from '../utils/calculateTotal';
 import { CartEmpty } from './CartEmpty';
 import { CartItemRow } from './CartItemRow';
 import { CartSummary } from './CartSummary';
+import { useCartSync } from '../hooks/useCartSync';
+import { CartSyncMessage } from './CartSyncMessage';
 
 function CartSkeleton() {
   return (
@@ -24,6 +26,7 @@ function CartSkeleton() {
 }
 
 export function CartScreen() {
+  const { notice } = useCartSync();
   const hydrated = useCartStore((s) => s.hydrated);
   const items = useCartStore((s) => s.items);
 
@@ -32,6 +35,7 @@ export function CartScreen() {
       <BackHeader title="Giỏ hàng" backHref="/menu" backLabel="Menu" />
 
       <main className="flex-1 px-4">
+        <CartSyncMessage notice={notice} />
         {!hydrated ? (
           <CartSkeleton />
         ) : items.length === 0 ? (

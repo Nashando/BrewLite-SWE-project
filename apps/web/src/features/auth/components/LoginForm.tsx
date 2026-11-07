@@ -31,7 +31,7 @@ export function LoginForm({ next }: { next?: string }) {
   });
 
   return (
-    <form onSubmit={handleSubmit((values) => mutation.mutate(values))} noValidate className="space-y-4">
+    <form method="post" onSubmit={handleSubmit((values) => mutation.mutate(values))} noValidate className="space-y-4">
       {mutation.isError && (
         <p role="alert" className="rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">
           {getErrorMessage(mutation.error)}

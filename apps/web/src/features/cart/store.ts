@@ -11,6 +11,7 @@ interface CartState {
   addItem: (input: Omit<CartItem, 'lineId'>) => void;
   setQuantity: (lineId: string, quantity: number) => void;
   removeItem: (lineId: string) => void;
+  setUnitPrice: (lineId: string, unitPrice: number) => void;
   clear: () => void;
 }
 
@@ -53,6 +54,11 @@ export const useCartStore = create<CartState>()(
 
       removeItem: (lineId) =>
         set((state) => ({ items: state.items.filter((i) => i.lineId !== lineId) })),
+
+      setUnitPrice: (lineId, unitPrice) =>
+        set((state) => ({
+          items: state.items.map((i) => (i.lineId === lineId ? { ...i, unitPrice } : i)),
+        })),
 
       clear: () => set({ items: [] }),
     }),

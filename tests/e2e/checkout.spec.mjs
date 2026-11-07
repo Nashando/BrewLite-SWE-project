@@ -104,6 +104,58 @@ test('E2E-T02: thẻ bị từ chối báo lỗi, giữ giỏ, thử lại bằn
   await expect(page.getByRole('main')).toContainText('Thẻ ngân hàng');
 });
 
+test('E2E-T06: giỏ còn món cũ không có trên hệ thống: tự bỏ, báo khách, đặt được món còn lại', async ({ page }) => {
+  const user = await registerCustomer();
+  await logIn(page, user.email, user.password);
+  await addToCart(page, product.name, { size: 'S' });
+
+  // Giỏ trong localStorage còn món từ lần chạy mock, id không phải UUID
+  await page.evaluate(() => {
+    const stored = JSON.parse(localStorage.getItem('brewlite-cart'));
+    stored.state.items.push({
+      lineId: 'p-08|size-l|top-cream',
+      productId: 'p-08',
+      name: 'Matcha đá xay',
+      category: 'Đá xay',
+      imageUrl: null,
+      sizeId: 'size-l',
+      sizeName: 'Lớn',
+      toppings: [{ id: 'top-cream', name: 'Kem whipping', price: 8000 }],
+      unitPrice: 79000,
+      quantity: 1,
+    });
+    localStorage.setItem('brewlite-cart', JSON.stringify(stored));
+  });
+
+  // Vào thẳng trang thanh toán: đúng trường hợp giỏ cũ từng gây lỗi "must be a UUID"
+  await page.goto('/checkout');
+  await expect(page.getByRole('main')).toContainText('Đã bỏ khỏi giỏ');
+  await expect(page.getByRole('main')).toContainText('Matcha đá xay');
+  await expect(page.getByRole('region', { name: 'Tóm tắt đơn hàng' })).not.toContainText('Matcha đá xay');
+
+  await placeOrderButton(page).click();
+  await confirmPayment(page).click();
+  await expect(page).toHaveURL(/\/orders\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole('main')).toContainText('Đã thanh toán');
+});
+
+test('E2E-T06: quản lý đổi giá sau khi khách thêm vào giỏ: giỏ hiện giá mới, đúng số tiền bị trừ', async ({ page }) => {
+  const user = await registerCustomer();
+  await logIn(page, user.email, user.password);
+  await addToCart(page, product.name, { size: 'S' });
+
+  await call('PATCH', `/admin/products/${product.id}`, { token: manager, body: { basePrice: 50000 } });
+
+  // Đi qua trang giỏ: giỏ đối chiếu ngay tại đây nên thông báo hiện ở trang giỏ
+  await page.goto('/cart');
+  await expect(page.getByRole('main')).toContainText('Giá một số món đã thay đổi');
+  await page.getByRole('link', { name: 'Thanh toán' }).click();
+  await expect(page).toHaveURL(/\/checkout$/);
+  await expect(page.getByRole('region', { name: 'Tóm tắt đơn hàng' })).toContainText('50.000');
+  await placeOrderButton(page).click();
+  await expect(gateway(page)).toContainText('50.000');
+});
+
 test('E2E-T03: món vừa hết hàng khi đặt đơn thì báo lỗi và dẫn về giỏ', async ({ page }) => {
   const user = await registerCustomer();
   await logIn(page, user.email, user.password);

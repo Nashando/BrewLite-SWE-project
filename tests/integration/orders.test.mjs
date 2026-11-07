@@ -70,6 +70,17 @@ test('INT-T02: dữ liệu sai bị từ chối và không trừ kho', async () 
   assert.equal(await stockOf(manager, p.id), 10);
 });
 
+test('INT-T02: id sai định dạng từ giỏ cũ: báo tiếng Việt, không lộ lỗi kỹ thuật', async () => {
+  const { token } = await registerCustomer();
+  const res = await call('POST', '/orders', {
+    token,
+    body: { items: [{ productId: 'p-01', sizeId: 'size-l', toppingIds: ['top-shot'], quantity: 1 }] },
+  });
+  assert.equal(res.status, 400);
+  assert.match(res.body.message.join(' '), /không còn hợp lệ/);
+  assert.doesNotMatch(res.body.message.join(' '), /UUID/);
+});
+
 test('INT-T02: hết hàng trả 400 OUT_OF_STOCK, rollback cả các món khác trong đơn', async () => {
   const enough = await product({ stock: 10 });
   const short = await product({ stock: 1 });

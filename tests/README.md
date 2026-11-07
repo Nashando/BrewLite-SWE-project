@@ -12,6 +12,7 @@ Các test này chạy trên hệ thống thật (web, API, PostgreSQL), không d
 | E2E-T01 | `e2e/checkout.spec.mjs` | Từ menu đến xác nhận đơn bằng ví, gồm trường hợp chưa đăng nhập |
 | E2E-T02 | `e2e/checkout.spec.mjs` | Thẻ bị từ chối rồi thử lại |
 | E2E-T03 | `e2e/checkout.spec.mjs` | Món hết hàng khi thanh toán |
+| E2E-T06 | `e2e/checkout.spec.mjs` | Giỏ còn món cũ hoặc giá đã đổi được tự cập nhật |
 | E2E-T04 | `e2e/staff.spec.mjs` | Trả tiền mặt, quầy xác nhận và xử lý đơn, khách thấy trạng thái mới |
 | E2E-T05 | `e2e/admin.spec.mjs` | Quản lý thêm món, món lên menu, xem doanh thu |
 

@@ -69,6 +69,17 @@ describe('LoginForm', () => {
   });
 });
 
+describe('Bảo mật form', () => {
+  // Nếu bấm trước khi JavaScript tải xong, trình duyệt tự gửi form: phải là POST để mật khẩu không lên URL
+  it('form đăng nhập và đăng ký dùng POST', () => {
+    const { container, unmount } = renderWithProviders(<LoginForm />);
+    expect(container.querySelector('form')).toHaveAttribute('method', 'post');
+    unmount();
+    const register = renderWithProviders(<RegisterForm />);
+    expect(register.container.querySelector('form')).toHaveAttribute('method', 'post');
+  });
+});
+
 describe('RegisterForm', () => {
   async function register(values: { name: string; email: string; password: string; confirm: string }) {
     const user = userEvent.setup();

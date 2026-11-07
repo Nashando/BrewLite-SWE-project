@@ -7,6 +7,8 @@ import { BackHeader } from '@/components/layout/BackHeader';
 import { Button } from '@/components/ui/Button';
 import { ButtonLink } from '@/components/ui/ButtonLink';
 import { RequireAuth } from '@/features/auth/components/RequireAuth';
+import { CartSyncMessage } from '@/features/cart/components/CartSyncMessage';
+import { useCartSync } from '@/features/cart/hooks/useCartSync';
 import { useCartStore } from '@/features/cart/store';
 import { calculateLineTotal, calculateTotal } from '@/features/cart/utils/calculateTotal';
 import { ApiError, getErrorMessage } from '@/lib/errors';
@@ -74,6 +76,7 @@ function CheckoutForm() {
   const clearCart = useCartStore((s) => s.clear);
   const [method, setMethod] = useState<PaymentMethod>('WALLET');
   const checkout = useCheckout();
+  const { notice, checking } = useCartSync();
 
   if (checkout.isSuccess && checkout.data.stage === 'done') {
     return (
@@ -93,13 +96,16 @@ function CheckoutForm() {
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center px-6 py-16 text-center">
-        <h2 className="font-display text-xl font-semibold">Giỏ hàng đang trống</h2>
-        <p className="mt-2 max-w-xs text-ink/70">Chọn món trước khi thanh toán.</p>
-        <ButtonLink href="/menu" className="mt-6">
-          Xem menu
-        </ButtonLink>
-      </div>
+      <>
+        <CartSyncMessage notice={notice} />
+        <div className="flex flex-col items-center px-6 py-16 text-center">
+          <h2 className="font-display text-xl font-semibold">Giỏ hàng đang trống</h2>
+          <p className="mt-2 max-w-xs text-ink/70">Chọn món trước khi thanh toán.</p>
+          <ButtonLink href="/menu" className="mt-6">
+            Xem menu
+          </ButtonLink>
+        </div>
+      </>
     );
   }
 
@@ -150,6 +156,7 @@ function CheckoutForm() {
 
   return (
     <>
+      <CartSyncMessage notice={notice} />
       <section aria-label="Tóm tắt đơn hàng" className="pt-4">
         <ul className="divide-y divide-line">
           {items.map((item) => {
@@ -206,7 +213,7 @@ function CheckoutForm() {
         {checkout.isError && <CheckoutError error={checkout.error} />}
 
         <div className="sticky bottom-0 -mx-4 mt-8 border-t border-line bg-mist/95 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 backdrop-blur">
-          <Button type="submit" className="w-full" disabled={checkout.isPending || outOfStock}>
+          <Button type="submit" className="w-full" disabled={checkout.isPending || outOfStock || checking}>
             {buttonLabel}
           </Button>
         </div>

@@ -32,6 +32,7 @@ export function RegisterForm({ next }: { next?: string }) {
 
   return (
     <form
+      method="post"
       onSubmit={handleSubmit(({ name, email, password }) =>
         mutation.mutate({ name, email, password }),
       )}

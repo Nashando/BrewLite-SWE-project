@@ -79,6 +79,12 @@ const retryButton = () => screen.getByRole('button', { name: 'Thử thanh toán 
 const gateway = () => screen.findByRole('region', { name: 'Cổng thanh toán mô phỏng' });
 const confirmOnGateway = () => screen.getByRole('button', { name: 'Xác nhận thanh toán' });
 
+/** Chờ giỏ đối chiếu với API xong, lúc đó nút đặt hàng mới bấm được. */
+async function renderCheckout() {
+  renderWithProviders(<CheckoutScreen />);
+  await waitFor(() => expect(submitButton()).toBeEnabled());
+}
+
 async function fillCard(user: ReturnType<typeof userEvent.setup>, number: string) {
   await user.clear(screen.getByLabelText('Số thẻ'));
   await user.type(screen.getByLabelText('Số thẻ'), number);
@@ -141,7 +147,7 @@ describe('CheckoutScreen', () => {
   it('ví: tạo đơn, hiện số dư ở cổng mô phỏng, xác nhận rồi mới thanh toán', async () => {
     const user = userEvent.setup();
     onPayment(paid);
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.click(submitButton());
 
@@ -159,6 +165,27 @@ describe('CheckoutScreen', () => {
     expect(useCartStore.getState().items).toHaveLength(0);
   });
 
+  it('món trong giỏ không còn bán: bỏ khỏi giỏ, báo khách, không gửi đơn có món đó', async () => {
+    const user = userEvent.setup();
+    onPayment(paid);
+    server.use(
+      http.get(`${API_URL}/products/p-10`, () => HttpResponse.json({ statusCode: 404, message: 'x' }, { status: 404 })),
+    );
+    let sent: { items: { productId: string }[] } | undefined;
+    server.use(
+      http.post(`${API_URL}/orders`, async ({ request }) => {
+        sent = (await request.json()) as typeof sent;
+        return HttpResponse.json(order, { status: 201 });
+      }),
+    );
+    await renderCheckout();
+
+    expect(await screen.findByText(/Đã bỏ khỏi giỏ.*Bánh croissant bơ/)).toBeInTheDocument();
+    await user.click(submitButton());
+    await gateway();
+    expect(sent?.items.map((i) => i.productId)).toEqual(['p-01']);
+  });
+
   it('ví không đủ tiền: cảnh báo ngay trên cổng mô phỏng', async () => {
     const user = userEvent.setup();
     server.use(
@@ -166,7 +193,7 @@ describe('CheckoutScreen', () => {
         HttpResponse.json({ id: 'u-1', name: 'K', email: 'demo@brewlite.vn', walletBalance: 1000 }),
       ),
     );
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.click(submitButton());
 
@@ -176,7 +203,7 @@ describe('CheckoutScreen', () => {
   it('thẻ: không gửi request khi thông tin thẻ không hợp lệ', async () => {
     const user = userEvent.setup();
     onPayment(paid);
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.click(screen.getByRole('radio', { name: 'Thẻ ngân hàng' }));
     await user.click(submitButton());
@@ -195,7 +222,7 @@ describe('CheckoutScreen', () => {
     onPayment(() =>
       HttpResponse.json({ id: 'pay-1', orderId: 'o-1', method: 'CASH', status: 'PENDING' }, { status: 201 }),
     );
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.click(screen.getByRole('radio', { name: 'Tiền mặt tại quầy' }));
     expect(screen.getByText(/ra quầy trả tiền/)).toBeInTheDocument();
@@ -209,7 +236,7 @@ describe('CheckoutScreen', () => {
   it('thẻ bị từ chối: báo lỗi, giữ giỏ, thử lại tạo đơn mới với khóa mới', async () => {
     const user = userEvent.setup();
     onPayment((_, body) => (body.card?.number.startsWith('4000') ? declined() : paid()));
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.click(screen.getByRole('radio', { name: 'Thẻ ngân hàng' }));
     await user.click(submitButton());
@@ -239,7 +266,7 @@ describe('CheckoutScreen', () => {
   it('lỗi mạng: ở lại cổng mô phỏng, thử lại dùng đúng khóa và không tạo đơn mới', async () => {
     const user = userEvent.setup();
     onPayment((callNumber) => (callNumber === 1 ? HttpResponse.error() : paid()));
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.click(submitButton());
     await gateway();
@@ -257,7 +284,7 @@ describe('CheckoutScreen', () => {
   it('chọn phương thức khác từ cổng mô phỏng: dùng lại đơn đang giữ', async () => {
     const user = userEvent.setup();
     onPayment(paid);
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.click(submitButton());
     await gateway();
@@ -273,7 +300,7 @@ describe('CheckoutScreen', () => {
   it('bấm đúp chỉ tạo một đơn và gửi một yêu cầu thanh toán', async () => {
     const user = userEvent.setup();
     onPayment(paid);
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.dblClick(submitButton());
     await gateway();
@@ -295,7 +322,7 @@ describe('CheckoutScreen', () => {
       ),
     );
     onPayment(paid);
-    renderWithProviders(<CheckoutScreen />);
+    await renderCheckout();
 
     await user.click(submitButton());
 
@@ -321,7 +348,7 @@ describe('CheckoutScreen', () => {
       const user = userEvent.setup();
       orderStatus('CANCELLED');
       onPayment((callNumber) => (callNumber === 1 ? conflict() : paid()));
-      renderWithProviders(<CheckoutScreen />);
+      await renderCheckout();
 
       await payOnGateway(user);
 
@@ -343,7 +370,7 @@ describe('CheckoutScreen', () => {
       const user = userEvent.setup();
       orderStatus('PAID');
       onPayment(conflict);
-      renderWithProviders(<CheckoutScreen />);
+      await renderCheckout();
 
       await payOnGateway(user);
 
@@ -356,7 +383,7 @@ describe('CheckoutScreen', () => {
       const user = userEvent.setup();
       server.use(http.get(`${API_URL}/orders/o-1`, () => HttpResponse.error()));
       onPayment(conflict);
-      renderWithProviders(<CheckoutScreen />);
+      await renderCheckout();
 
       await payOnGateway(user);
 

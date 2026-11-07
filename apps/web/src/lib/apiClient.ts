@@ -49,7 +49,7 @@ export async function apiFetch<T>(
       code?: string;
     } | null;
     const message = Array.isArray(payload?.message)
-      ? payload.message.join(', ')
+      ? Array.from(new Set(payload.message)).join(', ')
       : (payload?.message ?? (res.statusText || 'Request failed'));
     if (res.status === 401 && token) onUnauthorized();
     throw new ApiError(message, res.status, payload?.code);
