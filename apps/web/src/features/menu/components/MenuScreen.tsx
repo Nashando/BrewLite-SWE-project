@@ -67,12 +67,7 @@ export function MenuScreen() {
 
   return (
     <>
-      <AppHeader title="Hôm nay uống gì?" actions={
-          <div className="ml-auto flex flex-wrap items-center justify-end">
-            <UserActions />
-            <CartLink />
-          </div>
-        } />
+      <AppHeader title="Hôm nay uống gì?" actions={<CartLink />} nav={<UserActions />} />
       {showTabs && (
         <div className="px-4 pb-1 pt-3">
           <input
