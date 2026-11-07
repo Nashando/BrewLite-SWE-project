@@ -12,7 +12,12 @@
   }
 
   :focus-visible {
-    outline: 2px solid theme('colors.cherry');
+    outline: 2px solid theme('colors.pine');
     outline-offset: 2px;
+  }
+
+  /* Header nền xanh đậm: viền xanh sẽ không nhìn thấy khi dùng bàn phím */
+  header :focus-visible {
+    outline-color: theme('colors.crema');
   }
 }

@@ -38,7 +38,7 @@ export function UserActions() {
         </Link>
       )}
       <Link href="/orders" className={linkClass}>
-        Đơn hàng
+        Đơn của tôi
       </Link>
       <button
         type="button"
