@@ -1,10 +1,16 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useCartStore } from '@/features/cart/store';
+import { apiFetch } from '@/lib/apiClient';
+import { API_URL } from '@/lib/env';
+import { server } from '@/mocks/server';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { LoginForm } from '../components/LoginForm';
 import { RegisterForm } from '../components/RegisterForm';
 import { RequireAuth } from '../components/RequireAuth';
+import { UserActions } from '../components/UserActions';
 import { useAuthStore } from '../store';
 
 const nav = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
@@ -66,6 +72,48 @@ describe('LoginForm', () => {
     await login('demo@brewlite.vn', '123456');
 
     await waitFor(() => expect(nav.replace).toHaveBeenCalledWith(expected));
+  });
+});
+
+describe('Đăng xuất', () => {
+  const line = {
+    lineId: 'p-10|none',
+    productId: 'p-10',
+    name: 'Bánh croissant bơ',
+    category: 'Bánh',
+    imageUrl: null,
+    sizeId: null,
+    sizeName: null,
+    toppings: [],
+    unitPrice: 39000,
+    quantity: 1,
+  };
+
+  beforeEach(() => {
+    useAuthStore.setState({ token: 'mock-token-u-1', user: { id: 'u-1', name: 'K', email: 'k@b.vn' } });
+    useCartStore.setState({ items: [line], hydrated: true });
+  });
+
+  it('bấm Đăng xuất thì xóa giỏ và phiên, kể cả trong localStorage', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<UserActions />);
+
+    await user.click(screen.getByRole('button', { name: 'Đăng xuất' }));
+
+    expect(useAuthStore.getState().token).toBeNull();
+    expect(useCartStore.getState().items).toHaveLength(0);
+    expect(JSON.parse(localStorage.getItem('brewlite-cart')!).state.items).toHaveLength(0);
+  });
+
+  it('phiên hết hạn (401) thì đăng xuất nhưng giữ giỏ để đăng nhập lại thanh toán tiếp', async () => {
+    server.use(
+      http.get(`${API_URL}/orders`, () => HttpResponse.json({ statusCode: 401, message: 'x' }, { status: 401 })),
+    );
+
+    await expect(apiFetch('/orders')).rejects.toThrow();
+
+    expect(useAuthStore.getState().token).toBeNull();
+    expect(useCartStore.getState().items).toHaveLength(1);
   });
 });
 

@@ -2,6 +2,7 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useCartStore } from '@/features/cart/store';
 import { useAuthStore } from '../store';
 
 const linkClass = 'inline-flex min-h-[44px] items-center whitespace-nowrap px-1.5 text-sm font-medium';
@@ -11,6 +12,7 @@ export function UserActions() {
   const token = useAuthStore((s) => s.token);
   const role = useAuthStore((s) => s.user?.role);
   const logout = useAuthStore((s) => s.logout);
+  const clearCart = useCartStore((s) => s.clear);
   const queryClient = useQueryClient();
 
   if (!hydrated) return null;
@@ -43,6 +45,7 @@ export function UserActions() {
         className={linkClass}
         onClick={() => {
           logout();
+          clearCart(); // người sau dùng chung máy không thấy giỏ của người trước
           queryClient.clear(); // bỏ dữ liệu đơn hàng của người dùng cũ
         }}
       >

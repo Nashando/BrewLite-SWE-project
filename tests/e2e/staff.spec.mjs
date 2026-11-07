@@ -67,6 +67,14 @@ test('E2E-T04: khách hủy đơn đã trả, không vào được màn hình qu
 
     await page.goto('/staff');
     await expect(page.getByText('Bạn không có quyền xem trang này')).toBeVisible();
+
+    // Đăng xuất thì giỏ trống, người sau dùng chung máy không thấy giỏ của người trước
+    await addToCart(page, product.name, { size: 'S' });
+    await page.goto('/menu');
+    await page.getByRole('button', { name: 'Đăng xuất' }).click();
+    await expect(page.getByRole('link', { name: 'Đăng nhập' })).toBeVisible();
+    await page.goto('/cart');
+    await expect(page.getByRole('link', { name: 'Thanh toán' })).toHaveCount(0);
   } finally {
     await hideProduct(manager, product.id);
   }
