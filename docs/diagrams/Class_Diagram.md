@@ -25,8 +25,8 @@ REFUNDED
 }
 
 enum PaymentMethod {
-WALLET
-CREDIT_CARD
+MOMO
+VNPAY
 CASH
 }
 

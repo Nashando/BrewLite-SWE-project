@@ -42,7 +42,7 @@ repeat while (Giỏ hàng hợp lệ & Đủ tồn kho?) is (Không)
 :Mở Transaction: Tạo đơn hàng (PENDING) & Giữ/Trừ tồn kho;
 
 |Dịch vụ Thanh toán (Payment Service)|
-:Thực hiện xử lý thanh toán mô phỏng (Ví/Thẻ);
+:Thực hiện xử lý thanh toán mô phỏng (MoMo/VNPAY) hoặc ghi nhận tiền mặt tại quầy;
 
 |Hệ thống (Next.js / NestJS)|
 if (Kết quả thanh toán?) then (Thành công)
