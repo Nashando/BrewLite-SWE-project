@@ -88,7 +88,7 @@ export class OrderService {
 
       if (shortages.length > 0) {
         const names = shortages;
-        throw new ConflictException({
+        throw new BadRequestException({
           message: `Sản phẩm ${names.map((n) => `"${n}"`).join(', ')} không đủ số lượng tồn kho.`,
           code: 'OUT_OF_STOCK',
           outOfStock: names,

@@ -39,6 +39,13 @@ export class OrdersController {
     return this.orders.cancel(user, id);
   }
 
+  /** Nhân viên xác nhận đã thu tiền mặt tại quầy. */
+  @Post(':id/confirm-cash')
+  @Roles(Role.STAFF, Role.MANAGER)
+  confirmCash(@Param('id', ParseUUIDPipe) id: string) {
+    return this.orders.confirmCash(id);
+  }
+
   @Patch(':id/status')
   @Roles(Role.STAFF, Role.MANAGER)
   updateStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateStatusDto) {

@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { OrderService } from './order.service';
 
 describe('OrderService.create', () => {
@@ -40,10 +40,10 @@ describe('OrderService.create', () => {
     expect(view.items[0]).toMatchObject({ sizeName: 'Grande', toppings: ['Thạch dừa'], unitPrice: 36000, quantity: 2 });
   });
 
-  it('hết hàng → 409 mã OUT_OF_STOCK, không tạo đơn', async () => {
+  it('hết hàng → 400 mã OUT_OF_STOCK, không tạo đơn', async () => {
     tx.product.updateMany.mockResolvedValue({ count: 0 });
     const err: any = await service.create(user, { items: [line] }).catch((e) => e);
-    expect(err).toBeInstanceOf(ConflictException);
+    expect(err).toBeInstanceOf(BadRequestException);
     expect(err.getResponse()).toMatchObject({ code: 'OUT_OF_STOCK', outOfStock: ['Cà phê sữa đá'] });
     expect(tx.order.create).not.toHaveBeenCalled();
   });

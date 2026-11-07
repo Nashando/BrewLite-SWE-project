@@ -4,9 +4,9 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 const sizes = [
-  { name: 'Tall', extraPrice: 0 },
-  { name: 'Grande', extraPrice: 6000 },
-  { name: 'Venti', extraPrice: 12000 },
+  { name: 'S', extraPrice: 0 },
+  { name: 'M', extraPrice: 6000 },
+  { name: 'L', extraPrice: 12000 },
 ];
 
 const toppings = [

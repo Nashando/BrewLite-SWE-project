@@ -13,7 +13,11 @@ export function toPaymentView(p: Payment) {
   };
 }
 
-type OrderWithRelations = Order & { items: OrderItem[]; payments?: Payment[] };
+type OrderWithRelations = Order & {
+  items: OrderItem[];
+  payments?: Payment[];
+  user?: { name: string; email: string };
+};
 
 /** Dạng response của đơn hàng, khớp type Order của frontend (total, toppings là mảng tên). */
 export function toOrderView(order: OrderWithRelations) {
@@ -32,5 +36,7 @@ export function toOrderView(order: OrderWithRelations) {
       unitPrice: i.unitPrice,
     })),
     payments: (order.payments ?? []).map(toPaymentView),
+    // Chỉ có ở màn hình nhân viên, để quầy biết đơn của ai
+    ...(order.user ? { customer: { name: order.user.name, email: order.user.email } } : {}),
   };
 }

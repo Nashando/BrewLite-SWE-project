@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { OrderStatus, PaymentMethod, PaymentStatus, Role } from '@prisma/client';
 import { AuthUser } from '../common/auth-user';
-import { restockOrder } from '../common/order-expiry';
+import { releaseExpiredOrders, restockOrder, voidPendingPayments } from '../common/order-expiry';
 import { toOrderView } from '../common/order-view';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -20,18 +20,24 @@ export class OrdersService {
 
   /** Lịch sử đơn của chính người dùng. */
   async listMine(userId: string) {
+    await releaseExpiredOrders(this.prisma);
     const orders = await this.prisma.order.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, include: detailInclude });
-    return orders.map(toOrderView);
+    return orders.map((o) => toOrderView(o));
   }
 
-  /** Nhân viên / quản lý xem tất cả đơn. */
+  /** Nhân viên / quản lý xem tất cả đơn, kèm tên khách. */
   async listAll() {
-    const orders = await this.prisma.order.findMany({ orderBy: { createdAt: 'desc' }, include: detailInclude });
-    return orders.map(toOrderView);
+    await releaseExpiredOrders(this.prisma);
+    const orders = await this.prisma.order.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { ...detailInclude, user: { select: { name: true, email: true } } },
+    });
+    return orders.map((o) => toOrderView(o));
   }
 
   /** Chi tiết đơn. Khách chỉ xem được đơn của mình. */
   async findOne(user: AuthUser, id: string) {
+    await releaseExpiredOrders(this.prisma);
     return toOrderView(await this.findEntity(user, id));
   }
 
@@ -46,10 +52,11 @@ export class OrdersService {
 
   /**
    * Huỷ đơn khi chưa pha chế (PENDING_PAYMENT hoặc PAID): hoàn lại tồn kho;
-   * nếu đã thanh toán thì hoàn tiền (ví cộng lại số dư, thẻ mô phỏng chỉ đổi trạng thái giao dịch).
+   * nếu đã thanh toán qua MOMO, VNPAY mô phỏng thì đổi giao dịch sang REFUNDED;
+   * tiền mặt chưa thu thì giao dịch chờ bị vô hiệu, đã thu thì quầy hoàn lại và cũng ghi REFUNDED.
    */
   async cancel(user: AuthUser, id: string) {
-    const order = await this.findEntity(user, id);
+    await this.findEntity(user, id);
     const cancelled = await this.prisma.$transaction(async (tx) => {
       const claimed = await tx.order.updateMany({
         where: { id, status: { in: [OrderStatus.PENDING_PAYMENT, OrderStatus.PAID] } },
@@ -58,17 +65,32 @@ export class OrdersService {
       if (claimed.count === 0) throw new ConflictException('Chỉ huỷ được đơn chưa bắt đầu pha chế');
 
       await restockOrder(tx, id);
-
-      const paid = await tx.payment.findFirst({ where: { orderId: id, status: PaymentStatus.SUCCESS } });
-      if (paid) {
-        await tx.payment.update({ where: { id: paid.id }, data: { status: PaymentStatus.REFUNDED } });
-        if (paid.method === PaymentMethod.WALLET) {
-          await tx.user.update({ where: { id: order.userId }, data: { walletBalance: { increment: paid.amount } } });
-        }
-      }
+      await voidPendingPayments(tx, id, 'Đơn đã bị huỷ');
+      await tx.payment.updateMany({ where: { orderId: id, status: PaymentStatus.SUCCESS }, data: { status: PaymentStatus.REFUNDED } });
       return tx.order.findUniqueOrThrow({ where: { id }, include: detailInclude });
     });
     return toOrderView(cancelled);
+  }
+
+  /** Nhân viên xác nhận đã thu tiền mặt tại quầy: giao dịch SUCCESS, đơn PAID. */
+  async confirmCash(id: string) {
+    await releaseExpiredOrders(this.prisma);
+    const order = await this.prisma.$transaction(async (tx) => {
+      const claimed = await tx.order.updateMany({
+        where: { id, status: OrderStatus.PENDING_PAYMENT },
+        data: { status: OrderStatus.PAID },
+      });
+      if (claimed.count === 0) throw new ConflictException('Đơn không còn chờ thanh toán, vui lòng tải lại');
+
+      const paid = await tx.payment.updateMany({
+        where: { orderId: id, method: PaymentMethod.CASH, status: PaymentStatus.PENDING },
+        data: { status: PaymentStatus.SUCCESS },
+      });
+      // Ném lỗi để rollback việc đổi trạng thái đơn ở trên
+      if (paid.count === 0) throw new ConflictException('Đơn này không chọn thanh toán tiền mặt');
+      return tx.order.findUniqueOrThrow({ where: { id }, include: detailInclude });
+    });
+    return toOrderView(order);
   }
 
   /** Nhân viên / quản lý chuyển trạng thái theo đúng thứ tự. */
