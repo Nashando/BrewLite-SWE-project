@@ -1,0 +1,132 @@
+name: CI (sequential)
+ 
+# Phiên bản B: 1 job duy nhất, chạy TUẦN TỰ api rồi đến web.
+# Chỉ dùng MỘT trong hai: ci.yml (song song) HOẶC file này. Đừng commit cả hai cùng lúc.
+ 
+on:
+  push:
+    branches: [main, CI]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.editorconfig'
+  pull_request:
+    branches: [main, CI]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.editorconfig'
+ 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+ 
+permissions:
+  contents: read
+ 
+env:
+  NODE_VERSION: '22'
+  NEXT_TELEMETRY_DISABLED: '1'
+  # Giá trị GIẢ LẬP, chỉ dùng cho CI
+  DATABASE_URL: postgresql://brewlite:brewlite@localhost:5432/brewlite
+  JWT_SECRET: ci-only-secret-not-for-production
+  JWT_EXPIRES_IN: 1d
+ 
+jobs:
+  ci:
+    name: ci (api -> web)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+ 
+      - name: Kiểm tra apps/api và apps/web
+        id: detect
+        run: |
+          [ -f apps/api/package.json ] && echo "api=true" >> "$GITHUB_OUTPUT" || { echo "api=false" >> "$GITHUB_OUTPUT"; echo "::warning::Không có apps/api/package.json, bỏ qua api."; }
+          [ -f apps/web/package.json ] && echo "web=true" >> "$GITHUB_OUTPUT" || { echo "web=false" >> "$GITHUB_OUTPUT"; echo "::warning::Không có apps/web/package.json, bỏ qua web."; }
+ 
+      - name: Setup Node.js
+        if: steps.detect.outputs.api == 'true' || steps.detect.outputs.web == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            apps/api/package-lock.json
+            apps/web/package-lock.json
+ 
+      # ---------- API ----------
+      - name: "[api] Install dependencies"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+ 
+      - name: "[api] Generate Prisma Client"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: |
+          if [ -f prisma/schema.prisma ]; then
+            npx prisma generate
+          else
+            echo "Không có prisma/schema.prisma, bỏ qua prisma generate."
+          fi
+ 
+      - name: "[api] Lint"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: npm run lint
+ 
+      - name: "[api] Unit test"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: npm test -- --passWithNoTests
+ 
+      - name: "[api] Build"
+        if: steps.detect.outputs.api == 'true'
+        working-directory: apps/api
+        run: npm run build
+ 
+      # ---------- WEB ----------
+      - name: "[web] Install dependencies"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+ 
+      - name: "[web] Lint"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: npm run lint
+ 
+      - name: "[web] Typecheck"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: npm run typecheck
+ 
+      - name: "[web] Unit test (Vitest)"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: npm test -- --passWithNoTests
+ 
+      - name: "[web] Cache Next.js build"
+        if: steps.detect.outputs.web == 'true'
+        uses: actions/cache@v4
+        with:
+          path: apps/web/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('apps/web/package-lock.json') }}-${{ hashFiles('apps/web/src/**') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('apps/web/package-lock.json') }}-
+ 
+      - name: "[web] Build"
+        if: steps.detect.outputs.web == 'true'
+        working-directory: apps/web
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+          NEXT_PUBLIC_API_MOCKING: disabled
+
