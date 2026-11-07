@@ -2,13 +2,18 @@
 
 import Link from 'next/link';
 import { BagIcon } from '@/components/ui/icons';
+import { canOrder } from '@/features/auth/roles';
+import { useAuthStore } from '@/features/auth/store';
 import { useCartStore } from '../store';
 import { countItems } from '../utils/calculateTotal';
 
 export function CartLink() {
+  const role = useAuthStore((s) => s.user?.role);
   const hydrated = useCartStore((s) => s.hydrated);
   const count = useCartStore((s) => countItems(s.items));
   const shown = hydrated ? count : 0;
+
+  if (!canOrder(role)) return null;
 
   return (
     <Link

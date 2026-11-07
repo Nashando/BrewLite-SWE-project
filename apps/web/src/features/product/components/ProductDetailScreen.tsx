@@ -10,6 +10,8 @@ import { QuantityStepper } from '@/components/ui/QuantityStepper';
 import { getErrorMessage, isNotFoundError } from '@/lib/errors';
 import { formatVND } from '@/lib/format';
 import { CartLink } from '@/features/cart/components/CartLink';
+import { canOrder } from '@/features/auth/roles';
+import { useAuthStore } from '@/features/auth/store';
 import { useCartStore } from '@/features/cart/store';
 import { useProduct } from '../hooks/useProduct';
 import { calculateUnitPrice } from '../utils/calculatePrice';
@@ -21,6 +23,7 @@ import { ToppingSelector } from './ToppingSelector';
 export function ProductDetailScreen({ id }: { id: string }) {
   const { data, isPending, isError, error, refetch, isFetching } = useProduct(id);
   const addItem = useCartStore((s) => s.addItem);
+  const role = useAuthStore((s) => s.user?.role);
 
   const [sizeId, setSizeId] = useState<string | null>(null);
   const [toppingIds, setToppingIds] = useState<string[]>([]);
@@ -133,6 +136,7 @@ export function ProductDetailScreen({ id }: { id: string }) {
         )}
       </main>
 
+      {canOrder(role) ? (
       <section
         aria-label="Số lượng và giá"
         className="sticky bottom-0 border-t border-line bg-mist/95 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 backdrop-blur"
@@ -167,6 +171,11 @@ export function ProductDetailScreen({ id }: { id: string }) {
           </Button>
         </div>
       </section>
+      ) : (
+        <p className="border-t border-line px-4 py-3 text-sm text-ink/70">
+          Tài khoản nhân viên, quản lý chỉ xem được món, không đặt đơn.
+        </p>
+      )}
     </div>
   );
 }

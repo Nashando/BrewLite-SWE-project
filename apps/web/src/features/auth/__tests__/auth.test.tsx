@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CartLink } from '@/features/cart/components/CartLink';
 import { useCartStore } from '@/features/cart/store';
 import { apiFetch } from '@/lib/apiClient';
 import { API_URL } from '@/lib/env';
@@ -114,6 +115,38 @@ describe('Đăng xuất', () => {
 
     expect(useAuthStore.getState().token).toBeNull();
     expect(useCartStore.getState().items).toHaveLength(1);
+  });
+});
+
+describe('Nhân viên và quản lý không đặt đơn', () => {
+  it.each(['STAFF', 'MANAGER'] as const)('%s không thấy Đơn của tôi và giỏ hàng', (role) => {
+    useAuthStore.setState({ token: 't', user: { id: 'u', name: 'N', email: 'n@b.vn', role } });
+    renderWithProviders(
+      <>
+        <UserActions />
+        <CartLink />
+      </>,
+    );
+    expect(screen.queryByRole('link', { name: 'Đơn của tôi' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Giỏ hàng/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Quầy' })).toBeInTheDocument();
+  });
+
+  it('khách và người chưa đăng nhập vẫn thấy giỏ hàng', () => {
+    useAuthStore.setState({ token: 't', user: { id: 'u', name: 'K', email: 'k@b.vn', role: 'CUSTOMER' } });
+    const customer = renderWithProviders(
+      <>
+        <UserActions />
+        <CartLink />
+      </>,
+    );
+    expect(screen.getByRole('link', { name: 'Đơn của tôi' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Giỏ hàng/ })).toBeInTheDocument();
+    customer.unmount();
+
+    useAuthStore.setState({ token: null, user: null });
+    renderWithProviders(<CartLink />);
+    expect(screen.getByRole('link', { name: /Giỏ hàng/ })).toBeInTheDocument();
   });
 });
 

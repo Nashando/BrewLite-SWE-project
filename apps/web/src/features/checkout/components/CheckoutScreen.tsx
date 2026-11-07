@@ -7,6 +7,7 @@ import { BackHeader } from '@/components/layout/BackHeader';
 import { Button } from '@/components/ui/Button';
 import { ButtonLink } from '@/components/ui/ButtonLink';
 import { RequireAuth } from '@/features/auth/components/RequireAuth';
+import { RequireCustomer } from '@/features/auth/components/RequireCustomer';
 import { CartSyncMessage } from '@/features/cart/components/CartSyncMessage';
 import { useCartSync } from '@/features/cart/hooks/useCartSync';
 import { useCartStore } from '@/features/cart/store';
@@ -228,7 +229,9 @@ export function CheckoutScreen() {
       <BackHeader title="Thanh toán" backHref="/cart" backLabel="Giỏ hàng" />
       <main className="flex-1 px-4">
         <RequireAuth next="/checkout">
-          <CheckoutForm />
+          <RequireCustomer>
+            <CheckoutForm />
+          </RequireCustomer>
         </RequireAuth>
       </main>
     </div>

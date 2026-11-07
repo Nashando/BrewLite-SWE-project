@@ -66,3 +66,22 @@ test('E2E-T05: nhân viên không vào được trang quản lý', async ({ page
   await page.goto('/admin/products');
   await expect(page.getByText('Bạn không có quyền xem trang này')).toBeVisible();
 });
+
+test('E2E-T05: nhân viên chỉ xem món, không có giỏ hàng và không đặt đơn được', async ({ page }) => {
+  await logIn(page, 'staff@brewlite.vn', 'Staff@123', '/staff');
+
+  await page.goto('/menu');
+  await expect(page.getByRole('heading', { name: 'Hôm nay uống gì?' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Quầy' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Giỏ hàng/ })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Đơn của tôi' })).toHaveCount(0);
+
+  await page.getByRole('main').getByRole('link').first().click();
+  await expect(page.getByText(/chỉ xem được món/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /Thêm vào giỏ/ })).toHaveCount(0);
+
+  for (const path of ['/cart', '/checkout']) {
+    await page.goto(path);
+    await expect(page.getByText('Tài khoản này không đặt đơn được')).toBeVisible();
+  }
+});

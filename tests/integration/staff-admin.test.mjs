@@ -49,6 +49,22 @@ test('INT-T05: nhân viên chuyển trạng thái đơn đúng thứ tự, khác
   assert.equal((await setStatus(staff, order.id, 'COMPLETED')).status, 409);
 });
 
+test('INT-T05: chỉ khách hàng mới đặt được đơn và thanh toán', async () => {
+  const p = await product();
+  const customer = await registerCustomer();
+  const order = (await createOrder(customer.token, [lineOf(p)])).body;
+
+  for (const token of [staff, manager]) {
+    assert.equal((await createOrder(token, [lineOf(p)])).status, 403);
+    assert.equal((await pay(token, order.id, 'WALLET')).status, 403);
+    assert.equal((await call('GET', '/cart', { token })).status, 403);
+    assert.equal((await call('POST', '/cart/items', { token, body: { productId: p.id, sizeId: p.sizes[0].id, quantity: 1 } })).status, 403);
+  }
+  assert.equal((await orderOf(customer.token, order.id)).status, 'PENDING_PAYMENT');
+  assert.equal(await stockOf(manager, p.id), 9, 'đơn bị chặn không trừ kho');
+  assert.equal((await call('GET', '/cart', { token: customer.token })).status, 200);
+});
+
 test('INT-T05: khách chỉ thấy đơn của mình; nhân viên thấy tất cả, kèm tên khách', async () => {
   const p = await product();
   const a = await registerCustomer();

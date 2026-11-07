@@ -7,6 +7,9 @@ import { calculateTotal, countItems } from '../utils/calculateTotal';
 import { CartEmpty } from './CartEmpty';
 import { CartItemRow } from './CartItemRow';
 import { CartSummary } from './CartSummary';
+import { RequireCustomer } from '@/features/auth/components/RequireCustomer';
+import { canOrder } from '@/features/auth/roles';
+import { useAuthStore } from '@/features/auth/store';
 import { useCartSync } from '../hooks/useCartSync';
 import { CartSyncMessage } from './CartSyncMessage';
 
@@ -29,6 +32,18 @@ export function CartScreen() {
   const { notice } = useCartSync();
   const hydrated = useCartStore((s) => s.hydrated);
   const items = useCartStore((s) => s.items);
+  const role = useAuthStore((s) => s.user?.role);
+
+  if (!canOrder(role)) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <BackHeader title="Giỏ hàng" backHref="/menu" backLabel="Menu" />
+        <main className="flex-1 px-4">
+          <RequireCustomer>{null}</RequireCustomer>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh flex-col">

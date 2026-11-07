@@ -1,6 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { useAuthStore } from '@/features/auth/store';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { CartScreen } from '../components/CartScreen';
 import { useCartStore } from '../store';
@@ -37,6 +38,7 @@ const summary = () => screen.getByRole('region', { name: 'Tổng cộng' });
 beforeEach(() => {
   localStorage.clear();
   useCartStore.setState({ items: [], hydrated: true });
+  useAuthStore.setState({ token: null, user: null });
 });
 
 describe('CartScreen', () => {
@@ -45,6 +47,15 @@ describe('CartScreen', () => {
     renderWithProviders(<CartScreen />);
 
     expect(screen.getByRole('status')).toHaveTextContent('Đang tải giỏ hàng');
+  });
+
+  it('quản lý không dùng được giỏ hàng', () => {
+    useAuthStore.setState({ token: 't', user: { id: 'u-3', name: 'Q', email: 'q@b.vn', role: 'MANAGER' } });
+    useCartStore.setState({ items: [croissant] });
+    renderWithProviders(<CartScreen />);
+
+    expect(screen.getByText('Tài khoản này không đặt đơn được')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Tổng cộng' })).not.toBeInTheDocument();
   });
 
   it('hiển thị trạng thái giỏ trống kèm đường dẫn về menu', () => {

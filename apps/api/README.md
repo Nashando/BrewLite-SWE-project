@@ -30,16 +30,16 @@ Xác thực: `Authorization: Bearer <accessToken>`. Mọi `id` là UUID dạng c
 | POST | /auth/register, /auth/login | public | `{accessToken, refreshToken, user{id,name,email,role}}` |
 | POST | /auth/refresh | public | `{refreshToken}` → cặp token mới |
 | GET | /auth/me | JWT | thông tin tài khoản, kèm `walletBalance` |
-| POST | /orders | JWT | `{items:[{productId,sizeId\|null,toppingIds[],quantity}], note?}` → đơn `PENDING_PAYMENT`, **server tự tính lại giá**, trừ kho. Hết hàng: 400 `code: "OUT_OF_STOCK"`. Bỏ `items` thì lấy từ giỏ trên server |
-| POST | /payments | JWT | header `Idempotency-Key` (UUID), body `{orderId, method: WALLET\|CARD\|CASH, card?:{number,expiry,cvv}}` (`card` bắt buộc với CARD). Thành công: 201, đơn `PAID`. Thất bại: 402 `code: "PAYMENT_FAILED"`, đơn `CANCELLED`, trả kho, thử lại phải tạo đơn mới. CASH: 201 giao dịch `PENDING`, đơn chờ nhân viên xác nhận |
+| POST | /orders | CUSTOMER | `{items:[{productId,sizeId\|null,toppingIds[],quantity}], note?}` → đơn `PENDING_PAYMENT`, **server tự tính lại giá**, trừ kho. Hết hàng: 400 `code: "OUT_OF_STOCK"`. Bỏ `items` thì lấy từ giỏ trên server |
+| POST | /payments | CUSTOMER | header `Idempotency-Key` (UUID), body `{orderId, method: WALLET\|CARD\|CASH, card?:{number,expiry,cvv}}` (`card` bắt buộc với CARD). Thành công: 201, đơn `PAID`. Thất bại: 402 `code: "PAYMENT_FAILED"`, đơn `CANCELLED`, trả kho, thử lại phải tạo đơn mới. CASH: 201 giao dịch `PENDING`, đơn chờ nhân viên xác nhận |
 | GET | /orders, /orders/:id, /orders/code/:code | JWT | `{id,code,status,total,createdAt,items[{productName,sizeName,toppings:string[],quantity,unitPrice}],payments[]}` |
 | POST | /orders/:id/cancel | JWT | huỷ khi chưa pha chế (`PENDING_PAYMENT`/`PAID`); hoàn kho, giao dịch đã trả chuyển `REFUNDED` |
 | POST | /orders/:id/confirm-cash | STAFF, MANAGER | xác nhận đã thu tiền mặt: giao dịch `SUCCESS`, đơn `PAID` |
 | PATCH | /orders/:id/status | STAFF, MANAGER | PAID→PREPARING→READY→COMPLETED |
 | GET | /orders/all | STAFF, MANAGER | tất cả đơn, kèm `customer{name,email}` |
-| GET/DELETE | /cart | JWT | giỏ hàng trên server (tuỳ chọn, frontend hiện lưu giỏ ở client) |
-| POST | /cart/items | JWT | `{productId, sizeId?, toppingIds?, quantity}` |
-| PATCH/DELETE | /cart/items/:id | JWT | |
+| GET/DELETE | /cart | CUSTOMER | giỏ hàng trên server (tuỳ chọn, frontend hiện lưu giỏ ở client) |
+| POST | /cart/items | CUSTOMER | `{productId, sizeId?, toppingIds?, quantity}` |
+| PATCH/DELETE | /cart/items/:id | CUSTOMER | |
 | GET/POST | /admin/products | MANAGER | danh sách kể cả món ẩn, kèm `stock`, `sizes`; thêm món |
 | PATCH | /admin/products/:id | MANAGER | sửa món, ẩn bằng `isActive: false`; gửi `sizes` là thay toàn bộ size |
 | POST | /admin/products/:id/stock | MANAGER | `{delta}`: dương là nhập thêm, âm là giảm; không cho âm kho |

@@ -3,6 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useCartStore } from '@/features/cart/store';
+import { canOrder } from '../roles';
 import { useAuthStore } from '../store';
 
 const linkClass = 'inline-flex min-h-[44px] items-center whitespace-nowrap px-1.5 text-sm font-medium';
@@ -37,9 +38,11 @@ export function UserActions() {
           Quản lý
         </Link>
       )}
-      <Link href="/orders" className={linkClass}>
-        Đơn của tôi
-      </Link>
+      {canOrder(role) && (
+        <Link href="/orders" className={linkClass}>
+          Đơn của tôi
+        </Link>
+      )}
       <button
         type="button"
         className={linkClass}

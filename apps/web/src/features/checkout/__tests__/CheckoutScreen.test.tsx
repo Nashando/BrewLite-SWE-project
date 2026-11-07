@@ -137,6 +137,14 @@ describe('CheckoutScreen', () => {
     expect(screen.queryByRole('region', { name: 'Tóm tắt đơn hàng' })).not.toBeInTheDocument();
   });
 
+  it.each(['STAFF', 'MANAGER'] as const)('%s không đặt đơn được', (role) => {
+    useAuthStore.setState({ user: { id: 'u-2', name: 'N', email: 'n@b.vn', role } });
+    renderWithProviders(<CheckoutScreen />);
+
+    expect(screen.getByText('Tài khoản này không đặt đơn được')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Tóm tắt đơn hàng' })).not.toBeInTheDocument();
+  });
+
   it('hiển thị giỏ trống khi chưa có món', () => {
     useCartStore.setState({ items: [] });
     renderWithProviders(<CheckoutScreen />);

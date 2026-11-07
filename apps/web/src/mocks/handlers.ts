@@ -130,7 +130,8 @@ export const handlers = [
   }),
 
   http.post(`${API_URL}/orders`, async ({ request }) => {
-    if (!isAuthed(request)) return unauthorized();
+    const denied = requireRole(request, ['CUSTOMER']);
+    if (denied) return denied;
     const body = (await request.json()) as OrderBody;
 
     const items: Order['items'] = [];
@@ -174,7 +175,8 @@ export const handlers = [
   }),
 
   http.post(`${API_URL}/payments`, async ({ request }) => {
-    if (!isAuthed(request)) return unauthorized();
+    const denied = requireRole(request, ['CUSTOMER']);
+    if (denied) return denied;
     const key = request.headers.get('idempotency-key');
     const previous = key ? paymentsByKey.get(key) : undefined;
     if (previous) {

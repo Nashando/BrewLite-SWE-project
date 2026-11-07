@@ -2,6 +2,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { useAuthStore } from '@/features/auth/store';
 import { useCartStore } from '@/features/cart/store';
 import { API_URL } from '@/lib/env';
 import { mockProductDetails } from '@/mocks/data';
@@ -14,6 +15,7 @@ const latte = mockProductDetails.find((p) => p.id === 'p-01')!;
 beforeEach(() => {
   localStorage.clear();
   useCartStore.setState({ items: [], hydrated: true });
+  useAuthStore.setState({ token: null, user: null });
 });
 
 async function renderLatte() {
@@ -55,6 +57,15 @@ describe('ProductDetailScreen', () => {
 
     await user.click(screen.getByRole('checkbox', { name: /Kem cheese/ })); // bỏ topping
     expect(within(bar).getByRole('button', { name: /94\.000\s₫/ })).toBeInTheDocument(); // 47.000 x 2
+  });
+
+  it('nhân viên chỉ xem món, không thêm vào giỏ được', async () => {
+    useAuthStore.setState({ token: 't', user: { id: 'u-2', name: 'N', email: 'n@b.vn', role: 'STAFF' } });
+    renderWithProviders(<ProductDetailScreen id="p-01" />);
+
+    await screen.findByRole('heading', { name: latte.name });
+    expect(screen.getByText(/chỉ xem được món/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Thêm vào giỏ/ })).not.toBeInTheDocument();
   });
 
   it('không cho giảm số lượng dưới 1', async () => {
