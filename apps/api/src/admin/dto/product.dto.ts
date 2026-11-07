@@ -1,11 +1,10 @@
 import { Type } from 'class-transformer';
 import {
-  ArrayMaxSize, IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, IsUUID, Max, MaxLength, Min, NotEquals, ValidateNested,
+  ArrayMaxSize, IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Max, MaxLength, Min, NotEquals, ValidateNested,
 } from 'class-validator';
 
 const MAX_PRICE = 10_000_000;
 const MAX_STOCK = 1_000_000;
-const imageUrl = { protocols: ['http', 'https'], require_protocol: true };
 
 export class ProductSizeDto {
   /** Có id là sửa size cũ, không có là thêm size mới. */
@@ -19,7 +18,6 @@ export class CreateProductDto {
   @IsOptional() @IsString() @MaxLength(500) description?: string;
   @IsString() @IsNotEmpty({ message: 'Vui lòng nhập danh mục' }) @MaxLength(50) category: string;
   @IsInt() @Min(0) @Max(MAX_PRICE) basePrice: number;
-  @IsOptional() @IsUrl(imageUrl, { message: 'Ảnh phải là URL http hoặc https' }) imageUrl?: string | null;
   @IsInt() @Min(0) @Max(MAX_STOCK) stock: number;
   @IsOptional() @IsBoolean() isActive?: boolean;
   @IsOptional() @IsArray() @ArrayMaxSize(10) @ValidateNested({ each: true }) @Type(() => ProductSizeDto) sizes?: ProductSizeDto[];
@@ -31,7 +29,6 @@ export class UpdateProductDto {
   @IsOptional() @IsString() @MaxLength(500) description?: string;
   @IsOptional() @IsString() @IsNotEmpty({ message: 'Vui lòng nhập danh mục' }) @MaxLength(50) category?: string;
   @IsOptional() @IsInt() @Min(0) @Max(MAX_PRICE) basePrice?: number;
-  @IsOptional() @IsUrl(imageUrl, { message: 'Ảnh phải là URL http hoặc https' }) imageUrl?: string | null;
   @IsOptional() @IsBoolean() isActive?: boolean;
   /** Có gửi thì thay toàn bộ danh sách size: size vắng mặt sẽ bị xoá. */
   @IsOptional() @IsArray() @ArrayMaxSize(10) @ValidateNested({ each: true }) @Type(() => ProductSizeDto) sizes?: ProductSizeDto[];

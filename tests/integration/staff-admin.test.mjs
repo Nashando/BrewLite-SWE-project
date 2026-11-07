@@ -104,7 +104,7 @@ test('INT-T05: quản lý thêm, sửa, ẩn món; món cập nhật trên menu 
   assert.equal((await call('GET', `/products/${p.id}`)).body.basePrice, 32000);
 
   assert.equal((await call('PATCH', `/admin/products/${p.id}`, { token: manager, body: { basePrice: -1 } })).status, 400);
-  assert.equal((await call('PATCH', `/admin/products/${p.id}`, { token: manager, body: { imageUrl: 'javascript:alert(1)' } })).status, 400);
+  assert.equal((await call('PATCH', `/admin/products/${p.id}`, { token: manager, body: { imageUrl: 'https://example.com/a.png' } })).status, 400, 'không còn thêm ảnh qua API');
 
   await hideProduct(manager, p.id);
   assert.ok(!(await call('GET', '/products')).body.some((x) => x.id === p.id));
