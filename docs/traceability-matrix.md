@@ -1,15 +1,13 @@
 # Ma trận truy vết (Traceability Matrix)
 
-Bảng dưới đây thể hiện sự liên kết giữa Yêu cầu (FR/NFR) với Use-case, Sơ đồ thiết kế, Code/API và Test tương ứng.
+Bảng dưới đây thể hiện sự liên kết giữa Yêu cầu (FR) với Use-case, Sơ đồ thiết kế, Code/API và Test tương ứng.
 
-| Mã yêu cầu | Use-case / User Story | Thiết kế / Sơ đồ | Code / API | Test |
-|---|---|---|---|---|
-| FR-01 | US-01 Xem menu | Activity-01, Class-01 | GET /products | API-T01 |
-| FR-02 | US-02 Xem chi tiết sản phẩm | Activity-01, Class-01 | GET /products/:id | API-T02 |
-| FR-03 | US-03 Giỏ hàng | Activity-02 | POST /cart | API-T03 |
-| FR-04 | US-04 Đăng ký / Đăng nhập | Activity-03 | POST /auth/login | INT-T01 |
-| FR-05 | UC-01 Đặt và thanh toán đơn hàng | Sequence-01, Class-02 | POST /orders, POST /payments | INT-T03, E2E-T01 |
-| FR-06 | US-06 Lịch sử đơn | Activity-04 | GET /orders | API-T04 |
-| FR-07 | US-07 Quản lý trạng thái đơn | Activity-05 | PUT /orders/:id/status | API-T05 |
-
-*(Ghi chú: Đây là bản nháp v1. Tên sơ đồ, API và mã Test sẽ được cập nhật chính xác khi TV2, TV4, TV5, TV6 hoàn thành code).*
+| Mã yêu cầu | Use-case / Sơ đồ | Code / API | Test |
+|---|---|---|---|
+| FR-01 | Activity-01, Class-01 | API: `GET /products` (thư mục `products`)<br>UI: `apps/web/src/app/menu/page.tsx` | API-T01 |
+| FR-02 | Activity-01, Class-01 | API: `GET /products/:id` (thư mục `products`)<br>UI: `apps/web/src/app/products/[id]/page.tsx` | API-T02 |
+| FR-03 | Activity-02 | API: `POST /cart` (thư mục `cart`)<br>UI: `apps/web/src/app/cart/page.tsx` | API-T03 |
+| FR-04 | Activity-03 | API: `POST /auth/login` (thư mục `auth`)<br>UI: `apps/web/src/app/login/page.tsx`<br>UI: `apps/web/src/app/register/page.tsx` | INT-T01 |
+| FR-05 | UC-01 Thanh toán, Sequence-01 | API: `POST /orders` (thư mục `order`)<br>API: `POST /payments` (thư mục `payment`)<br>UI: `apps/web/src/app/checkout/page.tsx` | INT-T03, E2E-T01 |
+| FR-06 | Activity-04 | API: `GET /orders` (thư mục `orders`)<br>UI: `apps/web/src/app/orders/page.tsx` | API-T04 |
+| FR-07 | Activity-05 | API: `PUT /orders/:id/status` (thư mục `orders`)<br>UI: (Đang cập nhật) | API-T05 |
