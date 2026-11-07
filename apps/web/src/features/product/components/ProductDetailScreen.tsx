@@ -109,7 +109,6 @@ export function ProductDetailScreen({ id }: { id: string }) {
       <main className="flex-1 px-4 pb-8">
         <div className="flex items-end gap-4 pt-5">
           <ProductTile
-            category={product.category}
             imageUrl={product.imageUrl}
             size="lg"
             dimmed={unavailable}

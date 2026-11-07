@@ -11,7 +11,6 @@ export function ProductRow({ product }: { product: Product }) {
     <li>
       <Link href={`/products/${product.id}`} className="flex gap-4 py-4">
         <ProductTile
-          category={product.category}
           imageUrl={product.imageUrl}
           dimmed={unavailable}
         />

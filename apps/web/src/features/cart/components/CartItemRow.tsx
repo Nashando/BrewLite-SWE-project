@@ -15,7 +15,7 @@ export function CartItemRow({ item }: { item: CartItem }) {
   return (
     <li className="py-4">
       <div className="flex gap-4">
-        <ProductTile category={item.category} imageUrl={item.imageUrl} />
+        <ProductTile imageUrl={item.imageUrl} />
         <div className="min-w-0 flex-1">
           <h2 className="font-display text-lg font-semibold leading-snug">{item.name}</h2>
           {options && <p className="mt-0.5 text-sm text-ink/70">{options}</p>}
