@@ -67,7 +67,17 @@ export function MenuScreen() {
 
   return (
     <>
-      <AppHeader title="Hôm nay uống gì?" actions={<CartLink />} nav={<UserActions />} />
+      <AppHeader
+        title="Hôm nay uống gì?"
+        actions={
+          <>
+            <UserActions />
+            <div className="order-2 sm:order-3">
+              <CartLink />
+            </div>
+          </>
+        }
+      />
       {showTabs && (
         <div className="px-4 pb-1 pt-3">
           <input

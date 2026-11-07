@@ -20,14 +20,15 @@ export function UserActions() {
 
   if (!token) {
     return (
-      <Link href="/login" className={linkClass}>
+      <Link href="/login" className={`order-1 ${linkClass}`}>
         Đăng nhập
       </Link>
     );
   }
 
+  // Trên điện thoại các link xuống dòng riêng để giỏ hàng luôn cạnh logo; màn hình rộng thì cùng một dòng
   return (
-    <>
+    <nav aria-label="Tài khoản" className="order-3 -ml-1.5 flex w-full flex-wrap items-center sm:order-2 sm:ml-0 sm:w-auto">
       {(role === 'STAFF' || role === 'MANAGER') && (
         <Link href="/staff" className={linkClass}>
           Quầy
@@ -54,6 +55,6 @@ export function UserActions() {
       >
         Đăng xuất
       </button>
-    </>
+    </nav>
   );
 }
