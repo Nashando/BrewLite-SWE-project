@@ -1,0 +1,264 @@
+name: CD
+ 
+# Push tag vX.Y.Z -> Lint & Test -> Build Docker image -> Push GHCR -> Deploy API (Render)
+#                -> Smoke test API -> Deploy Web (Vercel) -> Smoke test Web
+# Thất bại ở bước deploy hoặc smoke test: pipeline dừng, job "rollback" tự đưa API (và Web nếu đã deploy) về bản trước.
+# Rollback thủ công: Actions -> CD -> Run workflow -> điền rollback_to (vd 1.0.0).
+# Cấu hình secrets/variables và cách chạy lần đầu: xem docs/deployment.md
+ 
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+  workflow_dispatch:
+    inputs:
+      rollback_to:
+        description: "Rollback API về phiên bản đã phát hành, ví dụ 1.0.0 (để trống = không làm gì)"
+        required: false
+        default: ""
+        type: string
+ 
+# Không bao giờ chạy 2 lần deploy production cùng lúc, cũng không huỷ lần đang chạy giữa chừng.
+concurrency:
+  group: cd-production
+  cancel-in-progress: false
+ 
+permissions:
+  contents: read
+ 
+env:
+  IMAGE_NAME: brewlite-api
+  NODE_VERSION: "22"
+ 
+jobs:
+  # 1) Cổng chất lượng: dùng lại đúng pipeline CI (lint, test, build) cho commit được gắn tag
+  quality:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ci.yml
+ 
+  # 2) Build image và push lên GitHub Container Registry
+  build-push:
+    needs: quality
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - name: Checkout (đủ lịch sử để kiểm tra tag)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+ 
+      - name: Tag phải nằm trên nhánh main
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag $GITHUB_REF_NAME không nằm trên nhánh main. Merge PR vào main rồi gắn tag lại trên main."
+            exit 1
+          fi
+ 
+      - name: Tính tên image và phiên bản
+        id: meta
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"   # GHCR bắt buộc chữ thường
+          echo "image=ghcr.io/${OWNER}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+ 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+ 
+      - name: Đăng nhập GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+ 
+      - name: Build và push image (tag theo semver và commit SHA)
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/api
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}
+            ${{ steps.meta.outputs.image }}:sha-${{ steps.meta.outputs.short_sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.meta.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+ 
+      - name: Ghi tóm tắt
+        run: |
+          {
+            echo "### Image đã push"
+            echo "- \`${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}\`"
+            echo "- \`${{ steps.meta.outputs.image }}:sha-${{ steps.meta.outputs.short_sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+ 
+  # 3) Deploy API lên Render (migration chạy tự động khi container khởi động: prisma migrate deploy)
+  deploy-api:
+    needs: build-push
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy image lên Render
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
+        run: bash scripts/deploy-render.sh "${{ needs.build-push.outputs.image }}:${{ needs.build-push.outputs.version }}"
+ 
+  # 4) Smoke test API
+  smoke-api:
+    needs: deploy-api
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke test API (/health, /products)
+        env:
+          API_URL: ${{ vars.PRODUCTION_API_URL }}
+        run: |
+          [ -n "$API_URL" ] || { echo "::error::Thiếu variable PRODUCTION_API_URL"; exit 1; }
+          bash scripts/smoke-test.sh api "$API_URL"
+ 
+  # 5) Deploy Web lên Vercel (chỉ khi API đã khoẻ)
+  deploy-web:
+    needs: smoke-api
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Cài Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Lấy cấu hình project (NEXT_PUBLIC_API_URL... đặt trong Vercel, scope Production)
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Build
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+      - name: Deploy production
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+ 
+  # 6) Smoke test Web
+  smoke-web:
+    needs: deploy-web
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke test Web (/menu)
+        env:
+          WEB_URL: ${{ vars.PRODUCTION_WEB_URL }}
+        run: |
+          [ -n "$WEB_URL" ] || { echo "::error::Thiếu variable PRODUCTION_WEB_URL"; exit 1; }
+          TIMEOUT_SECONDS=180 bash scripts/smoke-test.sh web "$WEB_URL"
+ 
+  # 7) Tự rollback khi deploy hoặc smoke test thất bại
+  rollback:
+    needs: [build-push, deploy-api, smoke-api, deploy-web, smoke-web]
+    if: always() && github.event_name == 'push' && contains(needs.*.result, 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+ 
+      - name: Tìm phiên bản trước
+        id: prev
+        run: |
+          CURRENT="$GITHUB_REF_NAME"
+          PREV="$(git tag --list "v[0-9]*.[0-9]*.[0-9]*" | sort -V | grep -x -B1 "$CURRENT" | head -n1 || true)"
+          if [ -z "$PREV" ] || [ "$PREV" = "$CURRENT" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Không có phiên bản trước để rollback (đây là bản phát hành đầu tiên). Sửa lỗi rồi gắn tag mới, ví dụ v1.0.1."
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "version=${PREV#v}" >> "$GITHUB_OUTPUT"
+            echo "Sẽ rollback về $PREV"
+          fi
+ 
+      - name: Rollback API về phiên bản trước
+        if: steps.prev.outputs.found == 'true' && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'failure')
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          bash scripts/deploy-render.sh "ghcr.io/${OWNER}/${IMAGE_NAME}:${{ steps.prev.outputs.version }}"
+ 
+      - name: Kiểm tra API sau rollback
+        if: steps.prev.outputs.found == 'true' && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'failure')
+        env:
+          API_URL: ${{ vars.PRODUCTION_API_URL }}
+        run: bash scripts/smoke-test.sh api "$API_URL"
+ 
+      # Web chỉ cần rollback nếu đã deploy xong rồi mới hỏng ở smoke test
+      - name: Rollback Web (Vercel)
+        if: needs.deploy-web.result == 'success'
+        continue-on-error: true
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm install --global vercel@latest
+          vercel rollback --token="$VERCEL_TOKEN"
+ 
+      - name: Tóm tắt
+        if: always()
+        run: |
+          {
+            echo "### Deploy thất bại"
+            echo "- Pipeline đã dừng. Kết quả rollback: xem các bước phía trên."
+            echo "- Nếu rollback Web lỗi: Vercel Dashboard -> Deployments -> chọn bản trước -> Instant Rollback."
+            echo "- Database không tự rollback (migration chỉ thêm); xem mục Rollback trong docs/deployment.md."
+          } >> "$GITHUB_STEP_SUMMARY"
+ 
+  # Rollback thủ công cho API (chạy từ tab Actions)
+  manual-rollback:
+    if: github.event_name == 'workflow_dispatch' && inputs.rollback_to != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kiểm tra định dạng phiên bản
+        env:
+          VERSION: ${{ inputs.rollback_to }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::rollback_to phải dạng X.Y.Z (vd 1.0.0)"; exit 1; }
+      - name: Deploy lại image của phiên bản đã chọn
+        env:
+          VERSION: ${{ inputs.rollback_to }}
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          bash scripts/deploy-render.sh "ghcr.io/${OWNER}/${IMAGE_NAME}:${VERSION}"
+      - name: Smoke test API
+        env:
+          API_URL: ${{ vars.PRODUCTION_API_URL }}
+        run: bash scripts/smoke-test.sh api "$API_URL"

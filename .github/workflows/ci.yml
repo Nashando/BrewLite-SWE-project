@@ -18,6 +18,7 @@ on:
       - 'docs/**'
       - 'LICENSE'
       - '.editorconfig'
+  workflow_call:
  
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}

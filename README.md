@@ -16,7 +16,7 @@
 - **Frontend (`apps/web`)**: Next.js 15 (React 19, TailwindCSS, TanStack React Query, Mobile-first / PWA).
 - **Backend (`apps/api`)**: NestJS 10 (TypeScript, RESTful API, JWT Auth Guard, Idempotency, Terminus Health Check).
 - **Database**: PostgreSQL 16, Prisma ORM 5 (Migration, Relations & Seeding).
-- **DevOps & CI/CD**: Docker & Docker Compose, GitHub Actions (`ci.yml`).
+- **DevOps & CI/CD**: Docker & Docker Compose, GitHub Actions (`ci.yml`, `cd.yml`), GHCR.
 - **Hosting / Cloud**: Vercel Edge (Frontend), Render / Railway (Backend API & PostgreSQL).
 
 ---
@@ -36,8 +36,12 @@ BrewLite-SWE-project/
 │   ├── issue-board/             # Bảng quản lý User Stories & Tasks Sprint 1, 2
 │   ├── screenshots/             # Thư mục lưu trữ ảnh chụp Issue Board offline
 │   ├── commit-and-dod.md        # Quy chuẩn Commit & Definition of Done (DoD)
+│   ├── deployment.md            # Hướng dẫn triển khai, secrets, rollback
+│   ├── release-notes.md         # Ghi chú phát hành
+│   ├── security-audit.md        # Biên bản kiểm tra secret
 │   └── Deployment Diagram.md    # Sơ đồ triển khai hạ tầng UML
-├── .github/workflows/           # CI Pipeline (ci.yml)
+├── .github/workflows/           # CI/CD (ci.yml, cd.yml, secret-scan.yml)
+├── scripts/                     # smoke-test.sh, deploy-render.sh, secret-audit.sh
 ├── docker-compose.yml           # Cấu hình môi trường chạy toàn bộ hệ thống ở Local
 ├── .env.example                 # Mẫu khai báo biến môi trường chuẩn
 └── README.md
@@ -58,7 +62,7 @@ cp .env.example .env
 | Nhóm | Tên biến | Giá trị mẫu | Mục đích & Lưu ý |
 |---|---|---|---|
 | **API** | `PORT` | `3001` | Cổng HTTP của Backend NestJS. |
-| **API** | `API_PREFIX` | `/api/v1` | Tiền tố chung cho tất cả các REST API endpoints. |
+| **API** | `API_PREFIX` | *(để trống)* | Tiền tố đường dẫn API. Mặc định **không có tiền tố** (`/products`, `/health`...), khớp `docker-compose.yml` và frontend. Nếu bật (vd `/api/v1`) phải đổi cả `NEXT_PUBLIC_API_URL` và truyền biến này vào service `api`. |
 | **API** | `CORS_ORIGIN` | `http://localhost:3000` | Cấu hình CORS cho phép Frontend truy cập. |
 | **DB** | `DATABASE_URL` | `postgresql://brewlite:brewlite@localhost:5432/brewlite?schema=public` | Chuỗi kết nối PostgreSQL dùng cho Prisma & NestJS. |
 | **Auth** | `JWT_SECRET` | `brewlite_super_secret_jwt_key_...` | Khóa bí mật ký Access Token (Bắt buộc tối thiểu 32 ký tự). |
@@ -66,7 +70,7 @@ cp .env.example .env
 | **Auth** | `JWT_REFRESH_SECRET` | `brewlite_super_secret_refresh_key_...` | Khóa bí mật ký Refresh Token (`auth.service.ts`). |
 | **Auth** | `JWT_REFRESH_EXPIRES_IN` | `7d` | Thời hạn của Refresh Token. |
 | **Order** | `ORDER_PAYMENT_TTL_MINUTES` | `15` | Thời gian chờ thanh toán trước khi đơn hết hạn và tự động hoàn lại tồn kho (`order-expiry.ts`). |
-| **Web** | `NEXT_PUBLIC_API_URL` | `http://localhost:3001/api/v1` | **BẮT BUỘC có `/api/v1`** để khớp với `API_PREFIX` của Backend. Nếu thiếu tiền tố này, trình duyệt gọi API sẽ trả về lỗi **404 Not Found**. |
+| **Web** | `NEXT_PUBLIC_API_URL` | `http://localhost:3001` | URL API mà **trình duyệt** gọi tới, được nhúng vào bundle lúc build. Phải khớp `API_PREFIX` (không tiền tố thì không thêm `/api/v1`, nếu không sẽ bị 404). |
 | **Web** | `NEXT_PUBLIC_API_MOCKING` | `disabled` | Bật/tắt Mock Service Worker (MSW): `enabled` hoặc `disabled`. |
 
 > ⚠️ **Lưu ý dọn dẹp cấu hình**: Các biến dư thừa không còn sử dụng trong hệ thống như `MOCK_PAYMENT_GATEWAY_URL`, `MOCK_PAYMENT_SECRET`, `APP_NAME`, `NEXT_PUBLIC_APP_NAME` đã được loại bỏ hoàn toàn khỏi `.env.example` để tránh gây nhầm lẫn.
@@ -88,9 +92,19 @@ docker compose up --build
 ```
 
 - **Frontend Web**: [http://localhost:3000](http://localhost:3000)
-- **Backend API**: [http://localhost:3001/api/v1](http://localhost:3001/api/v1)
+- **Backend API**: [http://localhost:3001](http://localhost:3001) (ví dụ [/products](http://localhost:3001/products))
 - **API Health Check**: [http://localhost:3001/health](http://localhost:3001/health)
 - **PostgreSQL Database**: `localhost:5432` (User: `brewlite`, DB: `brewlite`)
+
+> ⚠️ **Nạp dữ liệu mẫu (bắt buộc lần đầu, nếu không menu sẽ trống).** Migration tự chạy khi container `api` khởi động, nhưng dữ liệu mẫu thì không. Khi 3 service đã chạy, mở terminal khác:
+>
+> ```bash
+> cd apps/api
+> npm ci
+> DATABASE_URL=postgresql://brewlite:brewlite@localhost:5432/brewlite npx prisma db seed
+> ```
+>
+> Tài khoản mẫu (chỉ dùng local/demo): `manager@brewlite.vn / Manager@123`, `staff@brewlite.vn / Staff@123`, `khach@brewlite.vn / Customer@123`.
 
 ---
 
@@ -108,12 +122,15 @@ docker compose up -d db
 ```bash
 cd apps/api
 
+# Prisma CLI chỉ đọc apps/api/.env nên cần sao chép file .env ở thư mục gốc vào đây
+cp ../../.env .env
+
 # Cài đặt thư viện
 npm install
 
 # Sinh Prisma Client & chạy migration CSDL
 npx prisma generate
-npx prisma migrate dev
+npx prisma migrate deploy
 
 # Nạp dữ liệu mẫu (Starbucks Menu seed)
 npm run prisma:seed
@@ -126,6 +143,9 @@ npm run start:dev
 ```bash
 cd apps/web
 
+# Next.js chỉ đọc apps/web/.env.local (đặt NEXT_PUBLIC_API_MOCKING=disabled để gọi API thật)
+cp .env.example .env.local
+
 # Cài đặt thư viện
 npm install
 
@@ -135,7 +155,42 @@ npm run dev
 
 ---
 
-## 📋 6. Quy Chuẩn Commit & Definition of Done (DoD)
+## 🧪 6. Kiểm Thử & Build
+
+Các lệnh dưới đây trùng với pipeline CI (`.github/workflows/ci.yml`), chạy được ở máy cá nhân với Node.js 22:
+
+| Thành phần | Lệnh (chạy trong thư mục tương ứng) |
+|---|---|
+| **API** (`apps/api`) | `npm ci` ➔ `npx prisma generate` ➔ `npm run lint` ➔ `npm test` ➔ `npm run build` |
+| **Web** (`apps/web`) | `npm ci` ➔ `npm run lint` ➔ `npm run typecheck` ➔ `npm test` ➔ `npm run build` |
+
+Test của API dùng mock Prisma nên **không cần PostgreSQL**. Build image Docker: `docker compose build`.
+
+---
+
+## ☁️ 7. Triển Khai Production, Release & Rollback
+
+| Thành phần | Nền tảng | URL |
+|---|---|---|
+| **Frontend (Next.js)** | Vercel | `[https://brewlite-swe-project-web.vercel.app](https://brewlite-swe-project-web.vercel.app)` |
+| **Backend API (NestJS)** | Render (image từ GHCR) | `[https://brewlite-swe-project.onrender.com](https://brewlite-swe-project.onrender.com)` |
+| **Health check** | | `[https://brewlite-swe-project.onrender.com/health](https://brewlite-swe-project.onrender.com/health)` |
+| **Database** | Render PostgreSQL (không public, chỉ kết nối nội bộ) | — |
+
+- **Phát hành (deploy):** merge code vào `main`, rồi gắn tag phiên bản trên `main`:
+  ```bash
+  git checkout main && git pull
+  git tag -a v1.0.0 -m "BrewLite v1.0.0"
+  git push origin v1.0.0
+  ```
+  Pipeline CD (`.github/workflows/cd.yml`) tự chạy: Lint & Test ➔ Build Docker image ➔ Push GHCR ➔ Deploy API ➔ Smoke test ➔ Deploy Web ➔ Smoke test.
+- **Rollback tự động:** nếu deploy hoặc smoke test thất bại, pipeline dừng và đưa API (và Web nếu đã deploy) về phiên bản trước.
+- **Rollback thủ công:** GitHub ➔ Actions ➔ **CD** ➔ *Run workflow* ➔ nhập `rollback_to` (ví dụ `1.0.0`).
+- **Hướng dẫn đầy đủ** (cấu hình lần đầu, secrets, migration, xử lý sự cố): [docs/deployment.md](./docs/deployment.md). Ghi chú phát hành: [docs/release-notes.md](./docs/release-notes.md).
+
+---
+
+## 📋 8. Quy Chuẩn Commit & Definition of Done (DoD)
 
 Dự án áp dụng quy chuẩn phát triển và kiểm soát chất lượng nghiêm ngặt:
 
@@ -152,19 +207,7 @@ Dự án áp dụng quy chuẩn phát triển và kiểm soát chất lượng n
 
 ---
 
-## 📊 7. Quản Lý Dự Án & Issue Board (Sprint 1 & Sprint 2)
-
-Do file nén `.zip` nộp bài đồ án không thể chứa cơ sở dữ liệu đám mây của GitHub Projects, nhóm cung cấp đầy đủ liên kết và tài liệu minh chứng:
-
-- 🔗 **GitHub Issues & Project Board trực tuyến**: [https://github.com/Nashando/BrewLite-SWE-project/issues](https://github.com/Nashando/BrewLite-SWE-project/issues)
-- 📑 **Tài liệu tổng hợp User Stories & Backlog Sprint 1 & 2**: [docs/issue-board/sprint-backlog.md](./docs/issue-board/sprint-backlog.md)
-- 🖼️ **Ảnh chụp màn hình minh chứng Issue Board offline**: Xem tại thư mục [docs/screenshots/](./docs/screenshots/):
-  - Sprint 1 Board: `docs/screenshots/sprint-1-board.png`
-  - Sprint 2 Board: `docs/screenshots/sprint-2-board.png`
-
----
-
-## 🔗 8. Danh Mục Tài Liệu Thiết Kế & Yêu Cầu
+## 🔗 9. Danh Mục Tài Liệu Thiết Kế & Yêu Cầu
 
 Toàn bộ tài liệu kỹ thuật được lưu trữ trong thư mục `docs/`:
 
@@ -185,7 +228,7 @@ Toàn bộ tài liệu kỹ thuật được lưu trữ trong thư mục `docs/`
 
 ---
 
-## 👥 9. Phân Công Thành Viên & Vai Trò Dự Án
+## 👥 11. Phân Công Thành Viên & Vai Trò Dự Án
 
 | Thành viên | Vai trò | Trách nhiệm chính trong Sprint 1 & Sprint 2 |
 |---|---|---|
