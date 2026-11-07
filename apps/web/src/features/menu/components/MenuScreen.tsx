@@ -82,7 +82,7 @@ export function MenuScreen() {
             spellCheck={false}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="min-h-[44px] w-full rounded-full border border-line bg-white px-4 text-base"
+            className="min-h-[44px] w-full rounded-full border border-line bg-white px-4 text-base focus-visible:outline-pine"
           />
         </div>
       )}
