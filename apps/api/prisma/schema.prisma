@@ -23,9 +23,9 @@ enum OrderStatus {
 }
 
 enum PaymentMethod {
-  MOMO // cổng giả lập, không nối cổng thật
-  VNPAY // cổng giả lập, không nối cổng thật
-  CASH // trả tại quầy, nhân viên xác nhận đã thu tiền
+  WALLET // ví mô phỏng, trừ vào số dư của tài khoản
+  CARD // thẻ mô phỏng, chỉ lưu 4 số cuối
+  CASH // phần mở rộng: trả tại quầy, nhân viên xác nhận đã thu tiền
 }
 
 enum PaymentStatus {
@@ -41,6 +41,7 @@ model User {
   password      String
   name          String
   role          Role     @default(CUSTOMER)
+  walletBalance Int      @default(500000) // ví mô phỏng (VND)
   createdAt     DateTime @default(now())
 
   cart   Cart?
@@ -150,6 +151,7 @@ model Payment {
   amount         Int
   idempotencyKey String
   transactionRef String        @unique // mã giao dịch ngẫu nhiên của cổng mô phỏng
+  cardLast4      String?
   failureReason  String?
   createdAt      DateTime      @default(now())
 

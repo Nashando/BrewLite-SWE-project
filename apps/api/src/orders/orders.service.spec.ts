@@ -7,7 +7,8 @@ describe('OrdersService', () => {
     order: { updateMany: jest.fn(), findUniqueOrThrow: jest.fn() },
     orderItem: { findMany: jest.fn() },
     product: { update: jest.fn() },
-    payment: { updateMany: jest.fn() },
+    payment: { updateMany: jest.fn(), findFirst: jest.fn(), update: jest.fn() },
+    user: { update: jest.fn() },
   };
   const prisma: any = {
     $transaction: jest.fn((cb: any) => cb(tx)),
@@ -23,6 +24,7 @@ describe('OrdersService', () => {
     tx.order.updateMany.mockResolvedValue({ count: 1 });
     tx.orderItem.findMany.mockResolvedValue([]);
     tx.payment.updateMany.mockResolvedValue({ count: 1 });
+    tx.payment.findFirst.mockResolvedValue(null);
     tx.order.findUniqueOrThrow.mockResolvedValue(order);
   });
 
@@ -49,10 +51,24 @@ describe('OrdersService', () => {
   });
 
   describe('cancel', () => {
-    it('đổi giao dịch đã trả sang REFUNDED và vô hiệu giao dịch chờ', async () => {
+    it('vô hiệu giao dịch tiền mặt đang chờ', async () => {
       await service.cancel(customer, 'o1');
-      const updates = tx.payment.updateMany.mock.calls.map(([q]: any) => [q.where.status, q.data.status]);
-      expect(updates).toEqual([['PENDING', 'FAILED'], ['SUCCESS', 'REFUNDED']]);
+      expect(tx.payment.updateMany.mock.calls[0][0]).toMatchObject({ where: { status: 'PENDING' }, data: { status: 'FAILED' } });
+      expect(tx.payment.update).not.toHaveBeenCalled();
+    });
+
+    it('đã trả bằng ví: REFUNDED và hoàn số dư', async () => {
+      tx.payment.findFirst.mockResolvedValue({ id: 'p1', method: 'WALLET', amount: 72000 });
+      await service.cancel(customer, 'o1');
+      expect(tx.payment.update.mock.calls[0][0]).toEqual({ where: { id: 'p1' }, data: { status: 'REFUNDED' } });
+      expect(tx.user.update.mock.calls[0][0]).toEqual({ where: { id: 'u1' }, data: { walletBalance: { increment: 72000 } } });
+    });
+
+    it('đã trả bằng thẻ: REFUNDED, không đụng tới ví', async () => {
+      tx.payment.findFirst.mockResolvedValue({ id: 'p1', method: 'CARD', amount: 72000 });
+      await service.cancel(customer, 'o1');
+      expect(tx.payment.update).toHaveBeenCalled();
+      expect(tx.user.update).not.toHaveBeenCalled();
     });
 
     it('đơn đã pha chế → 409', async () => {

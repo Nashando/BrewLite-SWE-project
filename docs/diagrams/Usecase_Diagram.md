@@ -18,7 +18,7 @@ rectangle "Hệ thống BrewLite" {
   ' Cụm Use-case trọng tâm (Task 1.3)
   usecase "Đặt & Thanh toán đơn hàng\n(UC-CHECKOUT / FR-05)" as UC_Checkout #LightSkyBlue
   usecase "Kiểm tra & Khấu trừ tồn kho" as UC_CheckStock
-  usecase "Xử lý thanh toán MoMo/VNPAY/Tiền mặt" as UC_ProcessPayment
+  usecase "Xử lý thanh toán Ví/Thẻ/Tiền mặt" as UC_ProcessPayment
   usecase "Áp dụng khuyến mãi &\nTích điểm (Promotion/Loyalty)" as UC_Promo
   
   usecase "Xem lịch sử & Theo dõi đơn (FR-06)" as UC_History

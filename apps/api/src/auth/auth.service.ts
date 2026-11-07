@@ -53,7 +53,7 @@ export class AuthService {
   me(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { id: true, email: true, name: true, role: true, createdAt: true },
+      select: { id: true, email: true, name: true, role: true, walletBalance: true, createdAt: true },
     });
   }
 

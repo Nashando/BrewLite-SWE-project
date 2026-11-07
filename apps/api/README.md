@@ -29,9 +29,9 @@ Xác thực: `Authorization: Bearer <accessToken>`. Mọi `id` là UUID dạng c
 | GET | /products/:id | public | thêm `sizes[{id,name,extraPrice}]`, `toppings[{id,name,price}]` (bánh: `[]`) |
 | POST | /auth/register, /auth/login | public | `{accessToken, refreshToken, user{id,name,email,role}}` |
 | POST | /auth/refresh | public | `{refreshToken}` → cặp token mới |
-| GET | /auth/me | JWT | thông tin tài khoản đang đăng nhập |
+| GET | /auth/me | JWT | thông tin tài khoản, kèm `walletBalance` |
 | POST | /orders | JWT | `{items:[{productId,sizeId\|null,toppingIds[],quantity}], note?}` → đơn `PENDING_PAYMENT`, **server tự tính lại giá**, trừ kho. Hết hàng: 400 `code: "OUT_OF_STOCK"`. Bỏ `items` thì lấy từ giỏ trên server |
-| POST | /payments | JWT | header `Idempotency-Key` (UUID), body `{orderId, method: MOMO\|VNPAY\|CASH, simulate?: SUCCESS\|FAILED}` (`simulate` bắt buộc với MOMO, VNPAY). Thành công: 201, đơn `PAID`. Thất bại: 402 `code: "PAYMENT_FAILED"`, đơn `CANCELLED`, trả kho, thử lại phải tạo đơn mới. CASH: 201 giao dịch `PENDING`, đơn chờ nhân viên xác nhận |
+| POST | /payments | JWT | header `Idempotency-Key` (UUID), body `{orderId, method: WALLET\|CARD\|CASH, card?:{number,expiry,cvv}}` (`card` bắt buộc với CARD). Thành công: 201, đơn `PAID`. Thất bại: 402 `code: "PAYMENT_FAILED"`, đơn `CANCELLED`, trả kho, thử lại phải tạo đơn mới. CASH: 201 giao dịch `PENDING`, đơn chờ nhân viên xác nhận |
 | GET | /orders, /orders/:id, /orders/code/:code | JWT | `{id,code,status,total,createdAt,items[{productName,sizeName,toppings:string[],quantity,unitPrice}],payments[]}` |
 | POST | /orders/:id/cancel | JWT | huỷ khi chưa pha chế (`PENDING_PAYMENT`/`PAID`); hoàn kho, giao dịch đã trả chuyển `REFUNDED` |
 | POST | /orders/:id/confirm-cash | STAFF, MANAGER | xác nhận đã thu tiền mặt: giao dịch `SUCCESS`, đơn `PAID` |
@@ -49,7 +49,8 @@ Xác thực: `Authorization: Bearer <accessToken>`. Mọi `id` là UUID dạng c
 
 ## Quy tắc nghiệp vụ
 - Đơn `PENDING_PAYMENT` giữ hàng tối đa 15 phút; quá hạn tự huỷ và trả lại tồn kho.
-- Giả lập thanh toán: MOMO, VNPAY không nối cổng thật, kết quả do khách chọn trên màn hình cổng giả lập. CASH trả tại quầy, quá hạn giữ hàng mà chưa thu thì đơn tự huỷ.
+- Giả lập thanh toán, không nối cổng thật: ví mặc định 500.000đ (thiếu ⇒ thất bại). Thẻ bắt đầu `4000` hoặc kết thúc `0002` bị từ chối, kết thúc `0003` mô phỏng timeout, thẻ khác thành công; chỉ lưu 4 số cuối.
+- Phần mở rộng: CASH trả tại quầy, quá hạn giữ hàng mà chưa thu thì đơn tự huỷ.
 - Trạng thái đơn: `PENDING_PAYMENT` → `PAID` → `PREPARING` → `READY` → `COMPLETED`; hoặc `CANCELLED`.
 - Size: S / M / L. Danh mục: Cà phê, Trà, Freeze, Bánh.
 

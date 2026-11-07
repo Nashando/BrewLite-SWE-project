@@ -52,11 +52,11 @@ export class OrdersService {
 
   /**
    * Huỷ đơn khi chưa pha chế (PENDING_PAYMENT hoặc PAID): hoàn lại tồn kho;
-   * nếu đã thanh toán qua MOMO, VNPAY mô phỏng thì đổi giao dịch sang REFUNDED;
-   * tiền mặt chưa thu thì giao dịch chờ bị vô hiệu, đã thu thì quầy hoàn lại và cũng ghi REFUNDED.
+   * giao dịch đã trả chuyển sang REFUNDED: ví được cộng lại số dư, thẻ mô phỏng chỉ đổi trạng thái,
+   * tiền mặt đã thu thì quầy hoàn lại. Tiền mặt chưa thu thì giao dịch chờ bị vô hiệu.
    */
   async cancel(user: AuthUser, id: string) {
-    await this.findEntity(user, id);
+    const order = await this.findEntity(user, id);
     const cancelled = await this.prisma.$transaction(async (tx) => {
       const claimed = await tx.order.updateMany({
         where: { id, status: { in: [OrderStatus.PENDING_PAYMENT, OrderStatus.PAID] } },
@@ -66,7 +66,13 @@ export class OrdersService {
 
       await restockOrder(tx, id);
       await voidPendingPayments(tx, id, 'Đơn đã bị huỷ');
-      await tx.payment.updateMany({ where: { orderId: id, status: PaymentStatus.SUCCESS }, data: { status: PaymentStatus.REFUNDED } });
+      const paid = await tx.payment.findFirst({ where: { orderId: id, status: PaymentStatus.SUCCESS } });
+      if (paid) {
+        await tx.payment.update({ where: { id: paid.id }, data: { status: PaymentStatus.REFUNDED } });
+        if (paid.method === PaymentMethod.WALLET) {
+          await tx.user.update({ where: { id: order.userId }, data: { walletBalance: { increment: paid.amount } } });
+        }
+      }
       return tx.order.findUniqueOrThrow({ where: { id }, include: detailInclude });
     });
     return toOrderView(cancelled);

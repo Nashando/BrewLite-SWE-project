@@ -1,15 +1,20 @@
+import { Type } from 'class-transformer';
 import { PaymentMethod } from '@prisma/client';
-import { IsEnum, IsIn, IsUUID, ValidateIf } from 'class-validator';
+import { IsDefined, IsEnum, IsString, IsUUID, Matches, ValidateIf, ValidateNested } from 'class-validator';
 
-export const SIMULATED_RESULTS = ['SUCCESS', 'FAILED'] as const;
-export type SimulatedResult = (typeof SIMULATED_RESULTS)[number];
+export class CardDto {
+  @IsString() @Matches(/^[\d\s]{13,23}$/, { message: 'Số thẻ không hợp lệ' }) number: string;
+  @Matches(/^(0[1-9]|1[0-2])\/\d{2}$/, { message: 'Hạn dùng phải dạng MM/YY' }) expiry: string;
+  @Matches(/^\d{3,4}$/, { message: 'CVV gồm 3 hoặc 4 chữ số' }) cvv: string;
+}
 
 export class PayDto {
   @IsUUID() orderId: string;
   @IsEnum(PaymentMethod) method: PaymentMethod;
 
-  /** Kết quả khách chọn trên màn hình cổng giả lập (MOMO, VNPAY). CASH không cần vì thu tại quầy. */
-  @ValidateIf((o) => o.method !== PaymentMethod.CASH)
-  @IsIn(SIMULATED_RESULTS, { message: 'Thiếu kết quả từ cổng thanh toán mô phỏng' })
-  simulate?: SimulatedResult;
+  @ValidateIf((o) => o.method === PaymentMethod.CARD)
+  @IsDefined({ message: 'Thiếu thông tin thẻ' })
+  @ValidateNested()
+  @Type(() => CardDto)
+  card?: CardDto;
 }

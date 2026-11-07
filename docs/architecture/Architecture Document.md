@@ -21,7 +21,7 @@ Sơ đồ bối cảnh mô tả tương tác giữa các tác nhân người dù
   - **Nhân viên / Quản lý quầy (Store Staff / Manager)**: Xem danh sách đơn hàng theo thời gian thực, tiếp nhận và cập nhật trạng thái đơn (Mới tạo -> Đang pha chế -> Sẵn sàng lấy đồ -> Hoàn thành).
 - **Hệ thống BrewLite (BrewLite System)**: Tiếp nhận yêu cầu từ người dùng, xử lý logic đặt đồ uống, quản lý tồn kho và lưu trữ lịch sử giao dịch.
 - **Hệ thống bên ngoài (External Systems)**:
-  - **Dịch vụ Thanh toán Mô phỏng (Mock Payment Gateway)**: Xử lý các giao dịch MoMo / VNPAY mô phỏng, phản hồi trạng thái giao dịch và đảm bảo tính an toàn giao dịch.
+  - **Dịch vụ Thanh toán Mô phỏng (Mock Payment Gateway)**: Xử lý các giao dịch Ví điện tử / Thẻ mô phỏng, phản hồi trạng thái giao dịch và đảm bảo tính an toàn giao dịch.
 
 ### 2.2 Level 2: Container Diagram (Các thành phần Container)
 Hệ thống được chia thành 3 container chính hoạt động độc lập:
@@ -45,7 +45,7 @@ Backend NestJS được thiết kế theo dạng **Module-based** tương ứng 
 - **Products Module**: Cung cấp danh mục đồ uống (Cà phê, Trà, Freeze), danh mục Size (Tall, Grande, Venti), mức độ ngọt/đá, lựa chọn loại sữa (sữa tươi, sữa hạt) và danh sách Topping/Extra Shots bổ sung theo mô hình Starbucks.
 - **Cart Module**: Quản lý giỏ hàng tạm thời, tính toán tổng tiền dựa trên các tùy chọn món và áp dụng voucher/mã giảm giá.
 - **Order Module**: Tiếp nhận đơn hàng, thực thi **Database Transaction** để đảm bảo tính toàn vẹn khi kiểm tra/trừ số lượng tồn kho và cập nhật trạng thái đơn.
-- **Payment Module**: Xử lý giao dịch qua Cổng thanh toán mô phỏng (MoMo/VNPAY) và tiền mặt tại quầy, áp dụng cơ chế **Idempotency Key** để chống thanh toán trùng lặp khi người dùng gửi lại request.
+- **Payment Module**: Xử lý giao dịch qua Cổng thanh toán mô phỏng (Ví/Thẻ) và tiền mặt tại quầy, áp dụng cơ chế **Idempotency Key** để chống thanh toán trùng lặp khi người dùng gửi lại request.
 - **Loyalty & Promotion Module**: Quản lý tích điểm thưởng (Starbucks Rewards) sau khi hoàn thành đơn hàng và quản lý danh mục mã ưu đãi.
 - **Health & Monitoring Module**: Cung cấp đường dẫn `GET /health` kiểm tra tình trạng sống của API và kết nối Database.
 

@@ -7,14 +7,17 @@ import { toPaymentView } from '../common/order-view';
 import { PrismaService } from '../prisma/prisma.service';
 import { PayDto } from './dto/pay.dto';
 
-const FAILURE_REASON = 'Thanh toán thất bại, vui lòng thử lại.';
-
 /** Thất bại trả 402 như sơ đồ tuần tự; `code` để frontend phân biệt với các lỗi khác. */
 function paymentFailed(payment: Payment) {
   return new HttpException(
-    { message: payment.failureReason ?? FAILURE_REASON, code: 'PAYMENT_FAILED', payment: toPaymentView(payment) },
+    { message: payment.failureReason, code: 'PAYMENT_FAILED', payment: toPaymentView(payment) },
     HttpStatus.PAYMENT_REQUIRED,
   );
+}
+
+function isExpired(expiry: string, now = new Date()): boolean {
+  const [mm, yy] = expiry.split('/').map(Number);
+  return new Date(2000 + yy, mm, 1) <= now; // ngày 1 của tháng kế tiếp
 }
 
 @Injectable()
@@ -23,10 +26,11 @@ export class PaymentService {
 
   /**
    * Thanh toán mô phỏng cho đơn PENDING_PAYMENT.
-   * Idempotent theo (userId, Idempotency-Key): gửi lại cùng key trả lại kết quả cũ, không xử lý lần 2.
-   *   - MOMO, VNPAY: kết quả lấy từ màn hình cổng giả lập. Thành công → đơn PAID.
-   *     Thất bại → 402, huỷ đơn và trả kho; khách thử lại sẽ tạo đơn mới (theo sơ đồ tuần tự).
-   *   - CASH: ghi giao dịch PENDING, đơn vẫn giữ hàng chờ nhân viên xác nhận đã thu tiền tại quầy.
+   * Idempotent theo (userId, Idempotency-Key): gửi lại cùng key trả lại kết quả cũ, không trừ tiền lần 2.
+   *   - WALLET: trừ số dư ví; không đủ → thất bại.
+   *   - CARD: số thẻ bắt đầu 4000 hoặc kết thúc 0002 → từ chối; kết thúc 0003 → mô phỏng timeout; còn lại thành công.
+   *   - CASH (mở rộng): ghi giao dịch PENDING, đơn giữ hàng chờ nhân viên xác nhận đã thu tiền tại quầy.
+   * Thất bại → 402, huỷ đơn và trả kho; khách thử lại sẽ tạo đơn mới (theo sơ đồ tuần tự).
    */
   async pay(user: AuthUser, idempotencyKey: string | undefined, dto: PayDto) {
     if (!idempotencyKey || idempotencyKey.length < 8 || idempotencyKey.length > 100) {
@@ -35,6 +39,13 @@ export class PaymentService {
 
     const existing = await this.findByKey(user.id, idempotencyKey);
     if (existing) return this.replay(existing, dto);
+
+    let cardDigits: string | null = null;
+    if (dto.method === PaymentMethod.CARD) {
+      cardDigits = dto.card!.number.replace(/\D/g, '');
+      if (cardDigits.length < 13 || cardDigits.length > 19) throw new BadRequestException('Số thẻ không hợp lệ');
+      if (isExpired(dto.card!.expiry)) throw new BadRequestException('Thẻ đã hết hạn');
+    }
 
     try {
       await releaseExpiredOrders(this.prisma);
@@ -51,6 +62,7 @@ export class PaymentService {
         amount: order.totalAmount,
         idempotencyKey,
         transactionRef: `TXN-${randomUUID().replace(/-/g, '').slice(0, 16).toUpperCase()}`,
+        cardLast4: cardDigits ? cardDigits.slice(-4) : null,
       };
 
       const payment = await this.prisma.$transaction(async (tx) => {
@@ -62,20 +74,19 @@ export class PaymentService {
           return tx.payment.create({ data: { ...base, status: PaymentStatus.PENDING } });
         }
 
-        const failed = dto.simulate === 'FAILED';
-        // "Giành" đơn: chỉ 1 request đổi được trạng thái khỏi PENDING_PAYMENT
+        // "Giành" đơn trước khi trừ tiền: chỉ 1 request đổi được PENDING_PAYMENT → PAID
         const claimed = await tx.order.updateMany({
           where: { id: order.id, status: OrderStatus.PENDING_PAYMENT },
-          data: { status: failed ? OrderStatus.CANCELLED : OrderStatus.PAID },
+          data: { status: OrderStatus.PAID },
         });
         if (claimed.count === 0) throw new ConflictException('Đơn hàng vừa được xử lý bởi yêu cầu khác');
 
-        if (failed) await restockOrder(tx, order.id);
-        return tx.payment.create({
-          data: failed
-            ? { ...base, status: PaymentStatus.FAILED, failureReason: FAILURE_REASON }
-            : { ...base, status: PaymentStatus.SUCCESS },
-        });
+        const failureReason = await this.charge(tx, user.id, dto.method, cardDigits, order.totalAmount);
+        if (!failureReason) return tx.payment.create({ data: { ...base, status: PaymentStatus.SUCCESS } });
+
+        await tx.order.update({ where: { id: order.id }, data: { status: OrderStatus.CANCELLED } });
+        await restockOrder(tx, order.id);
+        return tx.payment.create({ data: { ...base, status: PaymentStatus.FAILED, failureReason } });
       });
       if (payment.status === PaymentStatus.FAILED) throw paymentFailed(payment);
       return toPaymentView(payment);
@@ -100,5 +111,25 @@ export class PaymentService {
     }
     if (payment.status === PaymentStatus.FAILED) throw paymentFailed(payment);
     return toPaymentView(payment);
+  }
+
+  /** Trả về lý do thất bại, hoặc null nếu thành công. */
+  private async charge(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    method: PaymentMethod,
+    cardDigits: string | null,
+    amount: number,
+  ): Promise<string | null> {
+    if (method === PaymentMethod.WALLET) {
+      const res = await tx.user.updateMany({
+        where: { id: userId, walletBalance: { gte: amount } },
+        data: { walletBalance: { decrement: amount } },
+      });
+      return res.count === 0 ? 'Số dư ví không đủ' : null;
+    }
+    if (cardDigits!.startsWith('4000') || cardDigits!.endsWith('0002')) return 'Thẻ bị từ chối. Vui lòng dùng thẻ khác.';
+    if (cardDigits!.endsWith('0003')) return 'Hết thời gian chờ từ cổng thanh toán';
+    return null;
   }
 }
