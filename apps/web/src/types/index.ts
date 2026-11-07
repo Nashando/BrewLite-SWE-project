@@ -78,7 +78,7 @@ export interface Order {
   customer?: { name: string; email: string };
 }
 
-export type PaymentMethod = 'MOMO' | 'VNPAY' | 'CASH';
+export type PaymentMethod = 'WALLET' | 'CARD' | 'CASH';
 
 /** PENDING: tiền mặt đang chờ thu tại quầy. */
 export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';

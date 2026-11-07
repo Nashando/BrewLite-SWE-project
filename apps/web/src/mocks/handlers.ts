@@ -15,6 +15,7 @@ import { mockProductDetails, mockProducts } from './data';
 
 // ---- "Backend" giả trong bộ nhớ, dùng khi dev (NEXT_PUBLIC_API_MOCKING=enabled) và cho test ----
 // Tài khoản có sẵn: demo@brewlite.vn, staff@brewlite.vn, manager@brewlite.vn / 123456
+// Thẻ bắt đầu bằng 4000 bị từ chối, ví thiếu tiền thì thất bại.
 
 interface MockUser {
   id: string;
@@ -22,12 +23,13 @@ interface MockUser {
   email: string;
   password: string;
   role: Role;
+  walletBalance: number;
 }
 
 const users: MockUser[] = [
-  { id: 'u-1', name: 'Khách demo', email: 'demo@brewlite.vn', password: '123456', role: 'CUSTOMER' },
-  { id: 'u-2', name: 'Nhân viên demo', email: 'staff@brewlite.vn', password: '123456', role: 'STAFF' },
-  { id: 'u-3', name: 'Quản lý demo', email: 'manager@brewlite.vn', password: '123456', role: 'MANAGER' },
+  { id: 'u-1', name: 'Khách demo', email: 'demo@brewlite.vn', password: '123456', role: 'CUSTOMER', walletBalance: 500000 },
+  { id: 'u-2', name: 'Nhân viên demo', email: 'staff@brewlite.vn', password: '123456', role: 'STAFF', walletBalance: 500000 },
+  { id: 'u-3', name: 'Quản lý demo', email: 'manager@brewlite.vn', password: '123456', role: 'MANAGER', walletBalance: 500000 },
 ];
 const orders: Order[] = [];
 const paymentsByKey = new Map<string, Payment>();
@@ -85,14 +87,12 @@ interface OrderBody {
 interface PaymentBody {
   orderId: string;
   method: PaymentMethod;
-  simulate?: 'SUCCESS' | 'FAILED';
+  card?: { number: string };
 }
-
-const FAILURE_REASON = 'Thanh toán thất bại, vui lòng thử lại.';
 
 const paymentFailed = (payment: Payment) =>
   HttpResponse.json(
-    { statusCode: 402, code: 'PAYMENT_FAILED', message: FAILURE_REASON, payment },
+    { statusCode: 402, code: 'PAYMENT_FAILED', message: payment.failureReason, payment },
     { status: 402 },
   );
 
@@ -116,11 +116,17 @@ export const handlers = [
   }),
 
   http.post(`${API_URL}/auth/register`, async ({ request }) => {
-    const { name, email, password } = (await request.json()) as Omit<MockUser, 'id' | 'role'>;
+    const { name, email, password } = (await request.json()) as Pick<MockUser, 'name' | 'email' | 'password'>;
     if (users.some((u) => u.email === email)) return conflict('Email đã được đăng ký');
-    const user: MockUser = { id: `u-${users.length + 1}`, name, email, password, role: 'CUSTOMER' };
+    const user: MockUser = { id: `u-${users.length + 1}`, name, email, password, role: 'CUSTOMER', walletBalance: 500000 };
     users.push(user);
     return HttpResponse.json(toSession(user), { status: 201 });
+  }),
+
+  http.get(`${API_URL}/auth/me`, ({ request }) => {
+    const user = currentUser(request);
+    if (!user) return unauthorized();
+    return HttpResponse.json({ ...toSession(user).user, walletBalance: user.walletBalance });
   }),
 
   http.post(`${API_URL}/orders`, async ({ request }) => {
@@ -181,13 +187,20 @@ export const handlers = [
     if (!order) return notFound('Không tìm thấy đơn');
     if (order.status !== 'PENDING_PAYMENT') return conflict('Đơn hàng đã được xử lý');
 
-    const failed = body.method !== 'CASH' && body.simulate === 'FAILED';
+    const user = currentUser(request)!;
+    let failureReason: string | null = null;
+    if (body.method === 'WALLET' && user.walletBalance < order.total) failureReason = 'Số dư ví không đủ';
+    if (body.method === 'CARD' && body.card?.number.startsWith('4000')) {
+      failureReason = 'Thẻ bị từ chối. Vui lòng dùng thẻ khác.';
+    }
+    const failed = failureReason !== null;
+    if (body.method === 'WALLET' && !failed) user.walletBalance -= order.total;
     const payment: Payment = {
       id: `pay-${paymentsByKey.size + 1}`,
       orderId: order.id,
       method: body.method,
       status: body.method === 'CASH' ? 'PENDING' : failed ? 'FAILED' : 'SUCCESS',
-      failureReason: failed ? FAILURE_REASON : null,
+      failureReason,
     };
     order.payments = [payment, ...(order.payments ?? [])];
     if (body.method !== 'CASH') order.status = failed ? 'CANCELLED' : 'PAID';

@@ -26,8 +26,8 @@ export const ORDER_STATUS: Record<OrderStatus, { label: string; hint: string; st
 };
 
 export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
-  MOMO: 'MoMo',
-  VNPAY: 'VNPAY',
+  WALLET: 'Ví BrewLite',
+  CARD: 'Thẻ ngân hàng',
   CASH: 'Tiền mặt tại quầy',
 };
 

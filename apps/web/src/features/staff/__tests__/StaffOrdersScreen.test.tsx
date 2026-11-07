@@ -17,7 +17,7 @@ const base: Order = {
   createdAt: '2026-10-31T03:00:00.000Z',
   customer: { name: 'Khách A', email: 'a@b.vn' },
   items: [{ productName: 'Cà phê sữa đá', sizeName: 'M', toppings: ['Kem cheese'], quantity: 2, unitPrice: 28500 }],
-  payments: [{ id: 'p1', orderId: 'o-1', method: 'MOMO', status: 'SUCCESS' }],
+  payments: [{ id: 'p1', orderId: 'o-1', method: 'WALLET', status: 'SUCCESS' }],
 };
 const cash: Order = {
   ...base,
@@ -56,7 +56,7 @@ describe('StaffOrdersScreen', () => {
     const paid = within(await screen.findByText('BL-1001').then((el) => el.closest('li') as HTMLElement));
     expect(paid.getByText(/Khách A/)).toBeInTheDocument();
     expect(paid.getByText(/2 × Cà phê sữa đá \(M\), Kem cheese/)).toBeInTheDocument();
-    expect(paid.getByText(/MoMo/)).toBeInTheDocument();
+    expect(paid.getByText(/Ví BrewLite/)).toBeInTheDocument();
     expect(screen.getByText('BL-1002')).toBeInTheDocument();
     expect(screen.queryByText('BL-1003')).not.toBeInTheDocument(); // khách còn ở cổng thanh toán
     expect(screen.queryByText('BL-1004')).not.toBeInTheDocument(); // đã xong

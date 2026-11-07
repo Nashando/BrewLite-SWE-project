@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
+import { meKey } from '@/features/auth/api';
 import { useCartStore } from '@/features/cart/store';
 import { productKeys } from '@/features/menu/api';
 import { fetchOrder, ordersKey } from '@/features/orders/api';
 import { ApiError } from '@/lib/errors';
 import type { Order, PaymentMethod } from '@/types';
-import { createOrder, pay, type SimulatedResult } from '../api';
+import { createOrder, pay, type CardInput } from '../api';
 import { createIdempotencyKey } from '../utils/idempotency';
 
 /** Đơn đang giữ không còn thanh toán được (hết hạn giữ hàng hoặc đã hủy). */
@@ -18,19 +19,20 @@ export class OrderExpiredError extends Error {
 
 interface CheckoutInput {
   method: PaymentMethod;
-  /** Có giá trị khi khách đã chọn kết quả trên màn hình cổng giả lập. */
-  simulate?: SimulatedResult;
+  /** true khi khách đã xác nhận trên màn hình cổng thanh toán mô phỏng. */
+  confirmed?: boolean;
+  card?: CardInput;
 }
 
-/** `gateway`: đơn đã tạo, cần hiện cổng giả lập. `done`: chuyển sang trang đơn hàng được rồi. */
+/** `gateway`: đơn đã tạo, cần hiện cổng thanh toán. `done`: chuyển sang trang đơn hàng được rồi. */
 type CheckoutResult = { stage: 'gateway' } | { stage: 'done'; orderId: string };
 
 /**
  * Tạo đơn và giữ hàng trước, rồi thanh toán (theo sơ đồ tuần tự).
- * - MOMO, VNPAY: dừng ở màn hình cổng giả lập, khách chọn kết quả rồi mới gọi thanh toán.
+ * - WALLET, CARD: dừng ở màn hình cổng thanh toán mô phỏng, khách xác nhận rồi mới gọi thanh toán.
  * - CASH: ghi nhận trả tại quầy, đơn chờ nhân viên xác nhận.
  * - Thanh toán thất bại (402): API đã hủy đơn và trả kho, nên lần thử sau tạo đơn mới.
- * - Lỗi mạng hoặc 5xx: giữ nguyên Idempotency-Key để gửi lại không bị xử lý hai lần.
+ * - Lỗi mạng hoặc 5xx: giữ nguyên Idempotency-Key để gửi lại không bị trừ tiền hai lần.
  * - API trả 409: đọc trạng thái thật của đơn, vì 409 dùng chung cho đơn đã trả và đơn hết hạn.
  *   Đã trả thì coi như thành công (không tạo đơn mới để tránh thu tiền hai lần);
  *   đã hủy thì báo lỗi và lần thử sau mới tạo đơn mới, để khách biết trước khi trả tiền.
@@ -44,7 +46,7 @@ export function useCheckout() {
   const keyRef = useRef<string | null>(null);
   const inFlightRef = useRef<Promise<CheckoutResult> | null>(null);
 
-  async function run({ method, simulate }: CheckoutInput): Promise<CheckoutResult> {
+  async function run({ method, confirmed, card }: CheckoutInput): Promise<CheckoutResult> {
     orderRef.current ??= await createOrder({
       items: items.map((item) => ({
         productId: item.productId,
@@ -55,14 +57,14 @@ export function useCheckout() {
     });
     const order = orderRef.current;
 
-    if (method !== 'CASH' && !simulate) {
+    if (method !== 'CASH' && !confirmed) {
       setGatewayOrder(order);
       return { stage: 'gateway' };
     }
 
     const key = (keyRef.current ??= createIdempotencyKey());
     try {
-      await pay({ orderId: order.id, method, simulate }, key);
+      await pay({ orderId: order.id, method, card }, key);
       return { stage: 'done', orderId: order.id };
     } catch (error) {
       // Lỗi 4xx là kết quả đã rõ, lần thử sau là yêu cầu mới nên đổi khóa
@@ -95,6 +97,7 @@ export function useCheckout() {
     onSettled: () => {
       void client.invalidateQueries({ queryKey: ordersKey });
       void client.invalidateQueries({ queryKey: productKeys.all }); // tồn kho có thể đã đổi
+      void client.invalidateQueries({ queryKey: meKey }); // số dư ví có thể đã đổi
     },
   });
 

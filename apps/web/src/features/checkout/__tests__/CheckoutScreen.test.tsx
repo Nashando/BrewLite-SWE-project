@@ -52,20 +52,17 @@ const order: Order = {
 interface PaymentBody {
   orderId: string;
   method: string;
-  simulate?: string;
+  card?: { number: string };
 }
 
 // Ghi lại các request để kiểm tra số đơn đã tạo và khóa idempotency.
 const calls = { orders: 0, payments: [] as { key: string | null; body: PaymentBody }[] };
 
 const paid = () =>
-  HttpResponse.json({ id: 'pay-1', orderId: 'o-1', method: 'MOMO', status: 'SUCCESS' }, { status: 201 });
+  HttpResponse.json({ id: 'pay-1', orderId: 'o-1', method: 'WALLET', status: 'SUCCESS' }, { status: 201 });
 
-const declined = () =>
-  HttpResponse.json(
-    { statusCode: 402, code: 'PAYMENT_FAILED', message: 'Thanh toán thất bại, vui lòng thử lại.' },
-    { status: 402 },
-  );
+const declined = (message = 'Thẻ bị từ chối. Vui lòng dùng thẻ khác.') =>
+  HttpResponse.json({ statusCode: 402, code: 'PAYMENT_FAILED', message }, { status: 402 });
 
 function onPayment(responder: (callNumber: number, body: PaymentBody) => Response) {
   server.use(
@@ -81,6 +78,15 @@ const submitButton = () => screen.getByRole('button', { name: /^Xác nhận đ�
 const retryButton = () => screen.getByRole('button', { name: 'Thử thanh toán lại' });
 const gateway = () => screen.findByRole('region', { name: 'Cổng thanh toán mô phỏng' });
 const confirmOnGateway = () => screen.getByRole('button', { name: 'Xác nhận thanh toán' });
+
+async function fillCard(user: ReturnType<typeof userEvent.setup>, number: string) {
+  await user.clear(screen.getByLabelText('Số thẻ'));
+  await user.type(screen.getByLabelText('Số thẻ'), number);
+  await user.clear(screen.getByLabelText('Hạn dùng (MM/YY)'));
+  await user.type(screen.getByLabelText('Hạn dùng (MM/YY)'), '12/40');
+  await user.clear(screen.getByLabelText('CVV'));
+  await user.type(screen.getByLabelText('CVV'), '123');
+}
 
 beforeEach(() => {
   localStorage.clear();
@@ -98,6 +104,9 @@ beforeEach(() => {
       calls.orders += 1;
       return HttpResponse.json(order, { status: 201 });
     }),
+    http.get(`${API_URL}/auth/me`, () =>
+      HttpResponse.json({ id: 'u-1', name: 'Khách demo', email: 'demo@brewlite.vn', walletBalance: 500000 }),
+    ),
   );
 });
 
@@ -109,7 +118,7 @@ describe('CheckoutScreen', () => {
     expect(within(summary).getByText('2 × Cà phê sữa đá')).toBeInTheDocument();
     expect(within(summary).getByText('Lớn, Kem cheese')).toBeInTheDocument();
     expect(within(summary).getByText(/153\.000\s₫/)).toBeInTheDocument(); // 57.000 x 2 + 39.000
-    for (const name of ['MoMo', 'VNPAY', 'Tiền mặt tại quầy']) {
+    for (const name of ['Ví BrewLite', 'Thẻ ngân hàng', 'Tiền mặt tại quầy']) {
       expect(screen.getByRole('radio', { name })).toBeInTheDocument();
     }
   });
@@ -129,33 +138,59 @@ describe('CheckoutScreen', () => {
     expect(screen.getByText('Giỏ hàng đang trống')).toBeInTheDocument();
   });
 
-  it.each(['MoMo', 'VNPAY'])('%s: tạo đơn, qua cổng giả lập, xóa giỏ và chuyển tới đơn hàng', async (name) => {
+  it('ví: tạo đơn, hiện số dư ở cổng mô phỏng, xác nhận rồi mới thanh toán', async () => {
     const user = userEvent.setup();
     onPayment(paid);
     renderWithProviders(<CheckoutScreen />);
 
-    await user.click(screen.getByRole('radio', { name }));
     await user.click(submitButton());
 
     const screenGateway = await gateway();
     expect(within(screenGateway).getByText('BL-1001')).toBeInTheDocument();
-    expect(within(screenGateway).getByText(name)).toBeInTheDocument();
+    expect(await within(screenGateway).findByText(/500\.000\s₫/)).toBeInTheDocument();
     expect(calls.orders).toBe(1);
     expect(calls.payments).toHaveLength(0); // chưa thanh toán khi khách chưa xác nhận
 
     await user.click(confirmOnGateway());
 
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
-    expect(calls.payments[0].body).toMatchObject({
-      orderId: 'o-1',
-      method: name === 'MoMo' ? 'MOMO' : 'VNPAY',
-      simulate: 'SUCCESS',
-    });
+    expect(calls.payments[0].body).toMatchObject({ orderId: 'o-1', method: 'WALLET' });
     expect(calls.payments[0].key).toBeTruthy();
     expect(useCartStore.getState().items).toHaveLength(0);
   });
 
-  it('tiền mặt: không qua cổng giả lập, đơn chờ thu tại quầy', async () => {
+  it('ví không đủ tiền: cảnh báo ngay trên cổng mô phỏng', async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get(`${API_URL}/auth/me`, () =>
+        HttpResponse.json({ id: 'u-1', name: 'K', email: 'demo@brewlite.vn', walletBalance: 1000 }),
+      ),
+    );
+    renderWithProviders(<CheckoutScreen />);
+
+    await user.click(submitButton());
+
+    expect(await screen.findByText('Số dư không đủ, thanh toán sẽ thất bại.')).toBeInTheDocument();
+  });
+
+  it('thẻ: không gửi request khi thông tin thẻ không hợp lệ', async () => {
+    const user = userEvent.setup();
+    onPayment(paid);
+    renderWithProviders(<CheckoutScreen />);
+
+    await user.click(screen.getByRole('radio', { name: 'Thẻ ngân hàng' }));
+    await user.click(submitButton());
+    await gateway();
+    await user.type(screen.getByLabelText('Số thẻ'), '1234');
+    await user.click(confirmOnGateway());
+
+    expect(await screen.findByText('Số thẻ gồm 16 chữ số')).toBeInTheDocument();
+    expect(screen.getByText('Nhập hạn dùng dạng MM/YY')).toBeInTheDocument();
+    expect(screen.getByText('CVV gồm 3 hoặc 4 chữ số')).toBeInTheDocument();
+    expect(calls.payments).toHaveLength(0);
+  });
+
+  it('tiền mặt: không qua cổng mô phỏng, đơn chờ thu tại quầy', async () => {
     const user = userEvent.setup();
     onPayment(() =>
       HttpResponse.json({ id: 'pay-1', orderId: 'o-1', method: 'CASH', status: 'PENDING' }, { status: 201 }),
@@ -171,31 +206,37 @@ describe('CheckoutScreen', () => {
     expect(useCartStore.getState().items).toHaveLength(0);
   });
 
-  it('thất bại: báo lỗi, giữ giỏ, thử lại tạo đơn mới với khóa mới', async () => {
+  it('thẻ bị từ chối: báo lỗi, giữ giỏ, thử lại tạo đơn mới với khóa mới', async () => {
     const user = userEvent.setup();
-    onPayment((_, body) => (body.simulate === 'FAILED' ? declined() : paid()));
+    onPayment((_, body) => (body.card?.number.startsWith('4000') ? declined() : paid()));
     renderWithProviders(<CheckoutScreen />);
 
+    await user.click(screen.getByRole('radio', { name: 'Thẻ ngân hàng' }));
     await user.click(submitButton());
     await gateway();
-    await user.click(screen.getByRole('button', { name: 'Mô phỏng thất bại' }));
+    await fillCard(user, '4000 0000 0000 0002');
+    await user.click(confirmOnGateway());
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Thanh toán thất bại, vui lòng thử lại.');
-    expect(screen.getByRole('alert')).toHaveTextContent('chưa bị trừ tiền');
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Thanh toán thất bại, vui lòng thử lại.');
+    expect(alert).toHaveTextContent('Thẻ bị từ chối');
+    expect(alert).toHaveTextContent('chưa bị trừ tiền');
     expect(nav.push).not.toHaveBeenCalled();
     expect(useCartStore.getState().items).toHaveLength(2);
+    expect(calls.payments[0].body.card?.number).toBe('4000000000000002'); // đã bỏ khoảng trắng
     expect(calls.orders).toBe(1);
 
     await user.click(retryButton());
     await gateway();
     expect(calls.orders).toBe(2);
+    await fillCard(user, '4242 4242 4242 4242');
     await user.click(confirmOnGateway());
 
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith('/orders/o-1'));
     expect(calls.payments[1].key).not.toBe(calls.payments[0].key);
   });
 
-  it('lỗi mạng: ở lại cổng giả lập, thử lại dùng đúng khóa và không tạo đơn mới', async () => {
+  it('lỗi mạng: ở lại cổng mô phỏng, thử lại dùng đúng khóa và không tạo đơn mới', async () => {
     const user = userEvent.setup();
     onPayment((callNumber) => (callNumber === 1 ? HttpResponse.error() : paid()));
     renderWithProviders(<CheckoutScreen />);
@@ -213,7 +254,7 @@ describe('CheckoutScreen', () => {
     expect(calls.payments[1].key).toBe(calls.payments[0].key);
   });
 
-  it('chọn phương thức khác từ cổng giả lập: dùng lại đơn đang giữ', async () => {
+  it('chọn phương thức khác từ cổng mô phỏng: dùng lại đơn đang giữ', async () => {
     const user = userEvent.setup();
     onPayment(paid);
     renderWithProviders(<CheckoutScreen />);

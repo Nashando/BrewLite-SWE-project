@@ -12,13 +12,13 @@ import { calculateLineTotal, calculateTotal } from '@/features/cart/utils/calcul
 import { ApiError, getErrorMessage } from '@/lib/errors';
 import { formatVND } from '@/lib/format';
 import type { PaymentMethod } from '@/types';
-import type { SimulatedResult } from '../api';
+import type { CardInput } from '../api';
 import { OrderExpiredError, useCheckout } from '../hooks/useCheckout';
 import { MockGateway } from './MockGateway';
 
 const METHODS: { value: PaymentMethod; label: string }[] = [
-  { value: 'MOMO', label: 'MoMo' },
-  { value: 'VNPAY', label: 'VNPAY' },
+  { value: 'WALLET', label: 'Ví BrewLite' },
+  { value: 'CARD', label: 'Thẻ ngân hàng' },
   { value: 'CASH', label: 'Tiền mặt tại quầy' },
 ];
 
@@ -28,7 +28,7 @@ function CheckoutError({ error }: { error: unknown }) {
   if (error instanceof ApiError && error.code === 'PAYMENT_FAILED') {
     return (
       <div role="alert" className={box}>
-        <p className="font-semibold text-danger">Thanh toán không thành công</p>
+        <p className="font-semibold text-danger">Thanh toán thất bại, vui lòng thử lại.</p>
         <p className="mt-1">{error.message}</p>
         <p className="mt-1 text-ink/70">
           Đơn vừa rồi đã được hủy và bạn chưa bị trừ tiền. Giỏ hàng vẫn còn, bấm thử lại để tạo đơn mới.
@@ -72,7 +72,7 @@ function CheckoutForm() {
   const hydrated = useCartStore((s) => s.hydrated);
   const items = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clear);
-  const [method, setMethod] = useState<PaymentMethod>('MOMO');
+  const [method, setMethod] = useState<PaymentMethod>('WALLET');
   const checkout = useCheckout();
 
   if (checkout.isSuccess && checkout.data.stage === 'done') {
@@ -107,9 +107,9 @@ function CheckoutForm() {
   const outOfStock =
     checkout.error instanceof ApiError && checkout.error.code === 'OUT_OF_STOCK';
 
-  const submit = (simulate?: SimulatedResult) =>
+  const submit = (confirmed: boolean, card?: CardInput) =>
     checkout.mutate(
-      { method, simulate },
+      { method, confirmed, card },
       {
         onSuccess: (result) => {
           if (result.stage !== 'done') return;
@@ -121,7 +121,7 @@ function CheckoutForm() {
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    submit();
+    submit(false);
   };
 
   const buttonLabel = checkout.isPending
@@ -137,7 +137,7 @@ function CheckoutForm() {
           order={checkout.gatewayOrder}
           method={method}
           pending={checkout.isPending}
-          onResult={submit}
+          onConfirm={(card) => submit(true, card)}
           onBack={() => {
             checkout.reset();
             checkout.closeGateway();

@@ -1,5 +1,12 @@
 import { apiFetch } from '@/lib/apiClient';
-import type { AuthSession } from '@/types';
+import type { AuthSession, AuthUser } from '@/types';
+
+export const meKey = ['me'] as const;
+
+/** Tài khoản đang đăng nhập, kèm số dư ví mô phỏng. */
+export function fetchMe() {
+  return apiFetch<AuthUser & { walletBalance: number }>('/auth/me');
+}
 
 export function login(body: { email: string; password: string }) {
   return apiFetch<AuthSession>('/auth/login', { method: 'POST', body });
