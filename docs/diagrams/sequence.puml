@@ -1,4 +1,4 @@
-@startuml sequence-checkout
+@startuml sequence
 title Sequence - Đặt và thanh toán đơn hàng bằng Ví / Thẻ (UC-CHECKOUT)
 autonumber
 skinparam responseMessageBelowArrow true

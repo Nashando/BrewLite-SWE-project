@@ -1,4 +1,4 @@
-@startuml activity-checkout
+@startuml activity
 title Activity - Luồng đặt và thanh toán đơn hàng (end-to-end)
 
 |Khách hàng|

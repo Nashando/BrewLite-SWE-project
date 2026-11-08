@@ -1,4 +1,4 @@
-@startuml usecase-overview
+@startuml usecase
 title Use-case tổng quát - Hệ thống BrewLite
 left to right direction
 skinparam packageStyle rectangle

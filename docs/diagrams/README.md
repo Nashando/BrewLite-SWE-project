@@ -4,11 +4,11 @@ Mỗi sơ đồ có file nguồn PlantUML (`.puml`) và ảnh xuất ra (`.svg`)
 
 | Sơ đồ | Nguồn | Ảnh |
 |---|---|---|
-| Use-case tổng quát | [usecase-overview.puml](usecase-overview.puml) | [usecase-overview.svg](usecase-overview.svg) |
+| Use-case tổng quát | [usecase.puml](usecase.puml) | [usecase.svg](usecase.svg) |
 | Use-case UC-CHECKOUT | [usecase-checkout.puml](usecase-checkout.puml) | [usecase-checkout.svg](usecase-checkout.svg) |
-| Activity: đặt và thanh toán | [activity-checkout.puml](activity-checkout.puml) | [activity-checkout.svg](activity-checkout.svg) |
-| Sequence: đặt và thanh toán | [sequence-checkout.puml](sequence-checkout.puml) | [sequence-checkout.svg](sequence-checkout.svg) |
-| Class: domain model | [class-domain.puml](class-domain.puml) | [class-domain.svg](class-domain.svg) |
+| Activity: đặt và thanh toán | [activity.puml](activity.puml) | [activity.svg](activity.svg) |
+| Sequence: đặt và thanh toán | [sequence.puml](sequence.puml) | [sequence.svg](sequence.svg) |
+| Class: domain model | [class.puml](class.puml) | [class.svg](class.svg) |
 
 Đặc tả use-case nằm ở [`docs/requirements/use-case-checkout.md`](../requirements/use-case-checkout.md).
 

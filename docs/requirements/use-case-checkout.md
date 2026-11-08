@@ -1,6 +1,6 @@
 # Đặc tả use-case: Đặt và thanh toán đơn hàng (UC-CHECKOUT)
 
-Sơ đồ: [use-case](../diagrams/usecase-checkout.svg), [activity](../diagrams/activity-checkout.svg), [sequence](../diagrams/sequence-checkout.svg).
+Sơ đồ: [use-case](../diagrams/usecase-checkout.svg), [activity](../diagrams/activity.svg), [sequence](../diagrams/sequence.svg).
 
 ## 1. Thông tin chung
 

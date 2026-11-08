@@ -1,4 +1,4 @@
-@startuml class-domain
+@startuml class
 title Class - Domain model BrewLite
 hide empty methods
 skinparam classAttributeIconSize 0
