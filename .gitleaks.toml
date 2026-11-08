@@ -1,0 +1,11 @@
+# Cấu hình gitleaks: dùng bộ luật mặc định, chỉ bỏ qua các file MẪU chứa giá trị giả.
+title = "BrewLite gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "File mẫu chứa placeholder, không phải secret thật"
+paths = [
+  '''(^|/)\.env\.example$''',
+]
