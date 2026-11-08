@@ -12,8 +12,10 @@
 
 Sử dụng **JSON Web Token (JWT)** làm phương thức xác thực chuẩn (Stateless Authentication):
 
-* Khi đăng nhập thành công, Backend NestJS sẽ cấp phát một cặp **Access Token** (thời hạn ngắn) và **Refresh Token**.
-* Frontend Next.js gửi Access Token qua HTTP Header `Authorization: Bearer
+* Khi đăng nhập thành công, Backend NestJS sẽ cấp phát một cặp **Access Token** (thời hạn ngắn, mặc định 1 ngày) và **Refresh Token** (thời hạn 7 ngày).
+* Frontend Next.js lưu token và tự động gửi kèm Access Token qua HTTP Header `Authorization: Bearer <token>` trong các yêu cầu gọi tới Backend API (`apiClient.ts`).
+* Backend NestJS sử dụng Passport JWT Strategy (`JwtAuthGuard`) và `RolesGuard` để xác thực danh tính, phân quyền người dùng (`CUSTOMER`, `STAFF`, `MANAGER`).
+* Khi Access Token hết hạn (API trả về HTTP 401), hệ thống hỗ trợ cơ chế cấp mới token qua Refresh Token mà không bắt người dùng phải đăng nhập lại thủ công.
 
 ## 3\. Các phương án đã cân nhắc (Considered Options)
 
