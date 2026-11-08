@@ -4,7 +4,7 @@
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 |---|---|---|---|
-| FR-01 | Xem menu | Must | Hiển thị danh sách món có tên, giá, ảnh |
+| FR-01 | Xem menu | Must | Hiển thị danh sách món có tên, giá |
 | FR-02 | Xem chi tiết sản phẩm | Must | Hiển thị mô tả, size, topping |
 | FR-03 | Giỏ hàng | Must | Thêm/sửa/xoá món, tính tổng tiền |
 | FR-04 | Đăng ký / Đăng nhập | Must | Tạo tài khoản, đăng nhập bằng JWT |
