@@ -1,0 +1,96 @@
+@startuml sequence-checkout
+title Sequence - Đặt và thanh toán đơn hàng bằng Ví / Thẻ (UC-CHECKOUT)
+autonumber
+skinparam responseMessageBelowArrow true
+
+actor "Customer" as Customer
+participant "Next.js UI" as UI
+participant "NestJS API" as API
+database "Database\n(PostgreSQL)" as DB
+participant "Payment Service\n(mô phỏng)" as Pay
+
+== Tạo đơn và giữ tồn kho ==
+Customer -> UI : Chọn Ví hoặc Thẻ, nhấn "Xác nhận đặt hàng"
+activate UI
+UI -> API : POST /orders\nAuthorization: Bearer <JWT>\n{ items: [productId, sizeId, toppingIds, quantity] }
+activate API
+API -> API : Kiểm tra JWT, vai trò CUSTOMER\nvà validate DTO
+
+alt JWT không hợp lệ hoặc hết hạn
+  API --> UI : 401 Unauthorized
+  UI --> Customer : Yêu cầu đăng nhập lại
+else Dữ liệu sai định dạng
+  API --> UI : 400 Bad Request
+  UI --> Customer : Báo lỗi dữ liệu
+else Hợp lệ
+  API -> DB : BEGIN TRANSACTION
+  activate DB
+  API -> DB : Đọc món, size, topping; tính lại giá ở server
+  API -> DB : UPDATE Product SET stock = stock - qty\nWHERE stock >= qty (theo thứ tự id)
+  alt Không đủ tồn kho
+    API -> DB : ROLLBACK
+    API --> UI : 400 OUT_OF_STOCK
+    UI --> Customer : "Sản phẩm ... không đủ số lượng tồn kho"\nvà dẫn về giỏ hàng
+  else Đủ tồn kho
+    API -> DB : INSERT Order (PENDING_PAYMENT), OrderItem
+    API -> DB : COMMIT
+    deactivate DB
+    API --> UI : 201 Created (id, mã đơn, tổng tiền)
+    deactivate API
+    UI --> Customer : Hiện cổng thanh toán mô phỏng
+
+    == Thanh toán ==
+    Customer -> UI : Nhấn "Xác nhận thanh toán"
+    UI -> API : POST /payments\nIdempotency-Key: <UUID>\n{ orderId, method, card? }
+    activate API
+    API -> DB : Tìm Payment theo (userId, Idempotency-Key)
+    activate DB
+    DB --> API : Kết quả
+    deactivate DB
+
+    alt Khóa đã được xử lý (client gửi lại)
+      API --> UI : Trả lại kết quả cũ\n(201 hoặc 402), không trừ tiền lần 2
+      UI --> Customer : Hiện kết quả của lần trước
+    else Yêu cầu mới
+      API -> DB : BEGIN TRANSACTION
+      activate DB
+      API -> DB : UPDATE Order SET status = PAID\nWHERE id = ? AND status = PENDING_PAYMENT
+      note right : Chỉ một request "giành" được đơn,\nrequest song song nhận 409
+      API -> Pay : Xử lý thanh toán (method, amount, card)
+      activate Pay
+      opt Phương thức Ví
+        Pay -> DB : UPDATE User SET walletBalance -= amount\nWHERE walletBalance >= amount
+      end
+      alt Thanh toán thành công
+        Pay --> API : Thành công
+        deactivate Pay
+        API -> DB : INSERT Payment (SUCCESS, transactionRef)
+        API -> DB : COMMIT
+        deactivate DB
+        API --> UI : 201 Created (status SUCCESS)
+        UI -> UI : Làm rỗng giỏ hàng
+        UI --> Customer : "Đặt hàng thành công" kèm mã đơn
+      else Thanh toán thất bại (ví không đủ, thẻ bị từ chối)
+        activate Pay
+        Pay --> API : Lý do thất bại
+        deactivate Pay
+        activate DB
+        API -> DB : UPDATE Order SET status = CANCELLED
+        API -> DB : UPDATE Product SET stock = stock + qty (trả kho)
+        API -> DB : INSERT Payment (FAILED, failureReason)
+        API -> DB : COMMIT
+        deactivate DB
+        API --> UI : 402 PAYMENT_FAILED
+        UI --> Customer : "Thanh toán thất bại, vui lòng thử lại"\n(giỏ hàng còn nguyên, thử lại sẽ tạo đơn mới)
+      end
+    end
+    deactivate API
+  end
+end
+deactivate UI
+
+note over UI, API
+  Lỗi mạng hoặc 5xx: UI gửi lại cùng Idempotency-Key, nên không bị trừ tiền hai lần.
+  Tiền mặt (phần mở rộng): API ghi giao dịch PENDING, nhân viên xác nhận thì đơn PAID.
+end note
+@enduml

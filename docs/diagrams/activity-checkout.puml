@@ -1,0 +1,74 @@
+@startuml activity-checkout
+title Activity - Luồng đặt và thanh toán đơn hàng (end-to-end)
+
+|Khách hàng|
+start
+:Xem menu, tìm món;
+:Chọn món, size, topping;
+:Thêm vào giỏ hàng\n(lưu trong trình duyệt);
+:Nhấn "Thanh toán";
+
+|Next.js UI|
+if (Đã đăng nhập?) then (Chưa)
+  :Chuyển sang trang đăng nhập;
+  |Khách hàng|
+  :Đăng nhập hoặc đăng ký;
+  |NestJS API|
+  :Xác thực, cấp JWT;
+  |Next.js UI|
+else (Rồi)
+endif
+:Đối chiếu giỏ với menu:\nbỏ món không còn bán, cập nhật giá mới;
+
+|Khách hàng|
+:Chọn phương thức thanh toán (Ví hoặc Thẻ);
+:Nhấn "Xác nhận đặt hàng";
+
+|NestJS API|
+:Kiểm tra JWT, vai trò CUSTOMER, dữ liệu;
+:Transaction: tính lại giá,\ntrừ tồn kho có điều kiện (stock >= số lượng);
+if (Đủ tồn kho?) then (Không)
+  :Rollback, trả 400 OUT_OF_STOCK;
+  |Next.js UI|
+  :Báo "Sản phẩm ... không đủ số lượng tồn kho",\ndẫn về giỏ hàng để điều chỉnh;
+  stop
+else (Đủ)
+endif
+:Tạo đơn PENDING_PAYMENT,\ngiữ hàng tối đa 15 phút;
+
+|Next.js UI|
+:Hiện cổng thanh toán mô phỏng\n(số dư ví hoặc form thẻ);
+
+|Khách hàng|
+:Nhập thẻ nếu cần, nhấn "Xác nhận thanh toán";
+
+|NestJS API|
+:Kiểm tra Idempotency-Key\n(gửi lại cùng khóa thì trả kết quả cũ);
+
+|Payment Service|
+:Trừ số dư ví hoặc xử lý thẻ mô phỏng;
+
+|NestJS API|
+if (Thanh toán thành công?) then (Không)
+  :Hủy đơn, trả lại tồn kho,\nlưu giao dịch FAILED, trả 402;
+  |Next.js UI|
+  :Báo "Thanh toán thất bại, vui lòng thử lại",\ngiữ giỏ hàng, lần thử sau tạo đơn mới;
+  stop
+else (Có)
+endif
+:Lưu giao dịch SUCCESS, đơn PAID;
+
+|Next.js UI|
+:Làm rỗng giỏ, hiện "Đặt hàng thành công"\nkèm mã đơn;
+
+|Khách hàng|
+:Theo dõi trạng thái đơn:\nđã thanh toán → đang pha chế → sẵn sàng → hoàn tất;
+stop
+
+floating note right
+  <b>Tiền mặt tại quầy (phần mở rộng)</b>
+  Đơn vẫn PENDING_PAYMENT, giao dịch CASH ở trạng thái PENDING.
+  Nhân viên bấm "Đã thu tiền mặt" thì đơn PAID.
+  Quá 15 phút chưa thu thì đơn tự hủy, trả lại tồn kho.
+end note
+@enduml

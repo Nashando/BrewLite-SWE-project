@@ -1,0 +1,37 @@
+@startuml usecase-checkout
+title Use-case trọng tâm - Đặt và thanh toán đơn hàng (UC-CHECKOUT)
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle outline
+skinparam usecase {
+  BackgroundColor<<mở rộng>> #F5F5F5
+  BorderColor<<mở rộng>> #9E9E9E
+  FontColor<<mở rộng>> #616161
+}
+
+actor "Khách hàng\n(CUSTOMER)" as Customer
+actor "Nhân viên quầy\n(STAFF)" as Staff
+actor "Dịch vụ thanh toán\nmô phỏng" as PaymentService
+
+rectangle "UC-CHECKOUT" {
+  usecase "Đặt và thanh toán đơn hàng\n(FR-05)" as UC_Checkout #LightSkyBlue
+  usecase "Xác thực đăng nhập (JWT)\n(FR-04, NFR-02)" as UC_Jwt
+  usecase "Tạo đơn, kiểm tra và\ngiữ tồn kho (15 phút)" as UC_Stock
+  usecase "Thanh toán đơn" as UC_Pay
+  usecase "Thanh toán Ví / Thẻ mô phỏng\n(chống gửi trùng bằng Idempotency-Key)" as UC_Online
+  usecase "Trả tiền mặt tại quầy" as UC_Cash <<mở rộng>>
+  usecase "Xác nhận đã thu tiền mặt\n(FR-07)" as UC_ConfirmCash
+  usecase "Áp dụng khuyến mãi, tích điểm" as UC_Promo <<mở rộng>>
+}
+
+Customer --> UC_Checkout
+UC_Checkout ..> UC_Jwt : <<include>>
+UC_Checkout ..> UC_Stock : <<include>>
+UC_Checkout ..> UC_Pay : <<include>>
+UC_Pay <|-- UC_Online
+UC_Pay <|-- UC_Cash
+UC_Online --> PaymentService
+UC_Cash ..> UC_ConfirmCash : <<include>>
+Staff --> UC_ConfirmCash
+UC_Promo ..> UC_Checkout : <<extend>>
+@enduml
