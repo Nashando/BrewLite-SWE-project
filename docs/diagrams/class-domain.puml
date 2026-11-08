@@ -59,6 +59,8 @@ class Product {
   {field} + basePrice: Integer (VND)
   + stock: Integer
   + isActive: Boolean
+  + imageUrl: String
+  + createdAt: DateTime
 }
 
 class ProductSize {
@@ -107,6 +109,7 @@ class OrderItem {
 
 class Payment {
   + id: UUID
+  + userId: UUID
   + method: PaymentMethod
   + status: PaymentStatus
   {field} + amount: Integer (VND)
@@ -165,6 +168,11 @@ note bottom of Payment
   Một đơn có thể có nhiều lần thanh toán (thử lại).
   Duy nhất theo (userId, idempotencyKey).
   Thẻ chỉ lưu 4 số cuối.
+end note
+
+note left of Product
+  imageUrl có trong cơ sở dữ liệu nhưng hiện không dùng:
+  menu hiển thị ảnh minh họa chung.
 end note
 
 note bottom of Promotion

@@ -45,8 +45,8 @@ Khách đặt các món trong giỏ và thanh toán bằng ví hoặc thẻ mô 
 ## 6. Luồng thay thế
 
 ### 6.1. Chưa đăng nhập (tại bước 1)
-1. Hệ thống chuyển sang trang đăng nhập.
-2. Khách đăng nhập hoặc đăng ký; hệ thống cấp JWT.
+1. Hệ thống hiện "Bạn cần đăng nhập" kèm nút **Đăng nhập**.
+2. Khách nhấn nút, đăng nhập hoặc đăng ký; hệ thống cấp JWT.
 3. Hệ thống quay lại trang thanh toán, giỏ hàng còn nguyên; tiếp tục bước 2.
 
 ### 6.2. Trả tiền mặt tại quầy (tại bước 3, phần mở rộng)

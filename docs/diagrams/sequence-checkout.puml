@@ -91,6 +91,8 @@ deactivate UI
 
 note over UI, API
   Lỗi mạng hoặc 5xx: UI gửi lại cùng Idempotency-Key, nên không bị trừ tiền hai lần.
+  Đơn đã thanh toán, đã hủy hoặc quá 15 phút giữ hàng: API trả 409, UI đọc lại trạng thái đơn.
+  Thẻ sai định dạng hoặc hết hạn: API trả 400 trước khi xử lý thanh toán.
   Tiền mặt (phần mở rộng): API ghi giao dịch PENDING, nhân viên xác nhận thì đơn PAID.
 end note
 @enduml

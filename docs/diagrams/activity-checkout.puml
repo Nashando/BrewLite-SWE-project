@@ -10,7 +10,7 @@ start
 
 |Next.js UI|
 if (Đã đăng nhập?) then (Chưa)
-  :Chuyển sang trang đăng nhập;
+  :Hiện "Bạn cần đăng nhập" kèm nút Đăng nhập;
   |Khách hàng|
   :Đăng nhập hoặc đăng ký;
   |NestJS API|
