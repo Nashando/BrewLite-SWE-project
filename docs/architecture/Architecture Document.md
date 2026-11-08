@@ -17,7 +17,7 @@
 Sơ đồ bối cảnh mô tả tương tác giữa các tác nhân người dùng và hệ thống bên ngoài với BrewLite:
 
 - **Tác nhân (Actors)**:
-  - **Khách hàng (Customer)**: Xem menu, chọn đồ uống với các tùy chọn linh hoạt (Size, độ ngọt, lượng đá, loại sữa, toppings/extra shots), quản lý giỏ hàng, đặt đơn hàng "Order Ahead & Pickup", thanh toán và theo dõi lịch sử tích điểm đổi quà .
+  - **Khách hàng (Customer)**: Xem menu, chọn đồ uống với các tùy chọn linh hoạt (Size, Toppings), quản lý giỏ hàng, đặt đơn hàng "Order Ahead & Pickup", thanh toán và theo dõi trạng thái đơn hàng (tính năng tích điểm đổi quà là định hướng mở rộng).
   - **Nhân viên / Quản lý quầy (Store Staff / Manager)**: Xem danh sách đơn hàng theo thời gian thực, tiếp nhận và cập nhật trạng thái đơn (Mới tạo -> Đang pha chế -> Sẵn sàng lấy đồ -> Hoàn thành).
 - **Hệ thống BrewLite (BrewLite System)**: Tiếp nhận yêu cầu từ người dùng, xử lý logic đặt đồ uống, quản lý tồn kho và lưu trữ lịch sử giao dịch.
 - **Hệ thống bên ngoài (External Systems)**:
@@ -31,28 +31,28 @@ Hệ thống được chia thành 3 container chính hoạt động độc lập
    - **Nhiệm vụ**: Render giao diện người dùng di động, quản lý client state (Giỏ hàng, JWT Auth Token), thực hiện validate dữ liệu phía client và giao tiếp với Backend API qua giao thức HTTPS.
 2. **Backend Application Container (`apps/api`)**:
    - **Công nghệ**: NestJS (TypeScript Framework).
-   - **Nhiệm vụ**: Cung cấp RESTful API, thực thi nghiệp vụ đặt hàng (Database Transactions), xác thực người dùng bằng JWT Guard, tích hợp cơ chế Idempotency cho thanh toán và cung cấp endpoint Health Check [1, 5].
+   - **Nhiệm vụ**: Cung cấp RESTful API, thực thi nghiệp vụ đặt hàng (Database Transactions), xác thực người dùng bằng JWT Guard, tích hợp cơ chế Idempotency cho thanh toán và cung cấp endpoint Health Check.
 3. **Database Container (`PostgreSQL Container`)**:
    - **Công nghệ**: PostgreSQL (chạy trên persistent storage).
-   - **Nhiệm vụ**: Lưu trữ toàn bộ dữ liệu quan hệ (User, Product, ProductOption, Order, OrderItem, Payment, Promotion, LoyaltyTransaction) và thực thi script migration tự động.
+   - **Nhiệm vụ**: Lưu trữ toàn bộ dữ liệu quan hệ (User, Product, ProductSize, Topping, Cart, CartItem, Order, OrderItem, Payment) và thực thi script migration tự động qua Prisma.
 
 ---
 
 ## 3. Kiến trúc Chi tiết Backend NestJS (`apps/api`)
 Backend NestJS được thiết kế theo dạng **Module-based** tương ứng với từng miền nghiệp vụ (Domain-Driven Modules):
 
-- **Auth Module**: Đăng ký, đăng nhập, mã hóa mật khẩu (bcrypt), phát hành và kiểm tra **JWT Access Token**.
-- **Products Module**: Cung cấp danh mục đồ uống (Cà phê, Trà, Freeze), danh mục Size (Tall, Grande, Venti), mức độ ngọt/đá, lựa chọn loại sữa (sữa tươi, sữa hạt) và danh sách Topping/Extra Shots bổ sung theo mô hình Starbucks.
-- **Cart Module**: Quản lý giỏ hàng tạm thời, tính toán tổng tiền dựa trên các tùy chọn món và áp dụng voucher/mã giảm giá.
-- **Order Module**: Tiếp nhận đơn hàng, thực thi **Database Transaction** để đảm bảo tính toàn vẹn khi kiểm tra/trừ số lượng tồn kho và cập nhật trạng thái đơn.
+- **Auth Module**: Đăng ký, đăng nhập, mã hóa mật khẩu (bcrypt), phát hành và kiểm tra **JWT Access Token & Refresh Token**.
+- **Products Module**: Cung cấp danh mục đồ uống theo phân loại, danh mục Size (Tall, Grande, Venti) và danh sách Topping bổ sung theo mô hình chuỗi cà phê.
+- **Cart Module**: Quản lý giỏ hàng của người dùng, tính toán tổng tiền dựa trên size và topping đã chọn.
+- **Order Module**: Tiếp nhận đơn hàng, thực thi **Database Transaction** để đảm bảo tính toàn vẹn khi kiểm tra/trừ số lượng tồn kho, cập nhật trạng thái đơn và cơ chế tự động huỷ/hoàn tồn kho khi đơn quá hạn thanh toán (TTL 15 phút).
 - **Payment Module**: Xử lý giao dịch qua Cổng thanh toán mô phỏng (Ví/Thẻ), áp dụng cơ chế **Idempotency Key** để chống thanh toán trùng lặp khi người dùng gửi lại request.
-- **Loyalty & Promotion Module**: Quản lý tích điểm thưởng (Starbucks Rewards) sau khi hoàn thành đơn hàng và quản lý danh mục mã ưu đãi.
-- **Health & Monitoring Module**: Cung cấp đường dẫn `GET /health` kiểm tra tình trạng sống của API và kết nối Database.
+- **Health Module**: Cung cấp đường dẫn `GET /health` kiểm tra tình trạng sống của API và kết nối Database qua NestJS Terminus.
+- **Định hướng mở rộng (Future Scope - Loyalty & Promotion)**: Quản lý tích điểm thưởng (Starbucks Rewards) và danh mục mã ưu đãi / voucher giảm giá trong các giai đoạn phát triển tiếp theo khi hệ thống mở rộng quy mô.
 
 ---
 
 ## 4. Quản lý Cơ sở Dữ liệu & Cơ chế Migration
-- **ORM / Query Builder**: Sử dụng **Prisma ORM** (hoặc TypeORM) để định nghĩa Schema type-safe và tương tác với cơ sở dữ liệu PostgreSQL.
+- **ORM / Query Builder**: Sử dụng **Prisma ORM** để định nghĩa Schema type-safe và tương tác với cơ sở dữ liệu PostgreSQL.
 - **Cơ chế Migration (Database Migration)**:
   - Mọi thay đổi về cấu trúc bảng/cột phải được ghi lại dưới dạng các tệp migration có đánh số phiên bản trong thư mục `apps/api/prisma/migrations`.
   - Pipeline CD sẽ tự động kích hoạt lệnh migration (`npx prisma migrate deploy`) trong quá trình triển khai Production để đảm bảo dữ liệu luôn đồng bộ và không bị thất thoát.
