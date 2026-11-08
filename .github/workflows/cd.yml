@@ -1,0 +1,98 @@
+name: CD
+
+# Push tag vX.Y.Z -> Lint & Test -> Build Docker image -> Push GHCR -> Deploy API (Render) -> Smoke test
+# - Web (Vercel) tự deploy khi merge vào main nhờ Git integration; pipeline này kiểm tra lại web sau khi deploy API.
+# - Rollback: xem docs/deployment.md (bấm Rollback trên Render/Vercel hoặc deploy lại tag cũ).
+# - Chỉ cần 1 secret: RENDER_DEPLOY_HOOK_URL (Settings -> Environments -> production -> Secrets).
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_NAME: brewlite-api
+  API_URL: https://brewlite-swe-project.onrender.com
+  WEB_URL: https://brewlite-swe-project-web.vercel.app
+
+jobs:
+  # 1) Quality gate: dùng lại đúng pipeline CI (Install, Lint, Test, Build)
+  quality:
+    uses: ./.github/workflows/ci.yml
+
+  # 2) Build image Docker và push lên GitHub Container Registry
+  build-push:
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tính tên image (GHCR bắt buộc chữ thường)
+        id: meta
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "image=ghcr.io/${OWNER}/${IMAGE_NAME}:${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          echo "image_sha=ghcr.io/${OWNER}/${IMAGE_NAME}:sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build và push (tag theo semver và commit SHA)
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/api
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}
+            ${{ steps.meta.outputs.image_sha }}
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # 3) Deploy API: báo Render kéo đúng image vừa push (migration chạy khi container khởi động)
+  deploy-api:
+    needs: build-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - name: Gọi Render Deploy Hook
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          IMAGE: ${{ needs.build-push.outputs.image }}
+        run: |
+          [ -n "$HOOK" ] || { echo "::error::Thiếu secret RENDER_DEPLOY_HOOK_URL"; exit 1; }
+          ENC="$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$IMAGE")"
+          curl --fail --silent --show-error --max-time 30 -X POST "${HOOK}&imgURL=${ENC}" > /dev/null
+          echo "Đã yêu cầu Render deploy: $IMAGE"
+
+  # 4) Smoke test: chờ Render thay bản mới rồi kiểm tra health, danh sách sản phẩm và trang menu
+  smoke-test:
+    needs: deploy-api
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Chờ Render thay bản mới
+        run: sleep 90
+
+      - name: API /health (200 nghĩa là API và PostgreSQL đều sống)
+        run: curl --fail --silent --show-error --retry 30 --retry-delay 10 --retry-all-errors --max-time 20 "$API_URL/health"
+
+      - name: API /products
+        run: curl --fail --silent --show-error --retry 5 --retry-delay 10 --retry-all-errors --max-time 20 -o /dev/null "$API_URL/products"
+
+      - name: Web /menu
+        run: curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors --max-time 20 -o /dev/null "$WEB_URL/menu"
