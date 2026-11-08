@@ -10,18 +10,20 @@
 
 ## 2. Chạy ở local
 
-Cần **Docker** và **Node.js 22 trở lên**. Các cổng 3000, 3001 và 5432 phải đang trống.
+Chỉ cần cài **Docker** (Windows và Mac dùng Docker Desktop, mở lên trước khi chạy). Không cần Node.js hay PostgreSQL. Các cổng 3000, 3001 và 5432 phải đang trống.
 
 ```bash
+git clone https://github.com/Nashando/BrewLite-SWE-project.git
+cd BrewLite-SWE-project
+
 # 1. Bật web, API và database; API tự chạy migration khi khởi động
 docker compose up --build -d
 
-# 2. Nạp dữ liệu mẫu (làm một lần)
-cd apps/api
-npm ci
-DATABASE_URL=postgresql://brewlite:brewlite@localhost:5432/brewlite npm run prisma:seed
-cd ../..
+# 2. Nạp dữ liệu mẫu; chạy lại không mất dữ liệu đang có
+docker compose exec api npm run seed
 ```
+
+Các lệnh giống nhau trên Windows, Mac và Linux. Lần chạy đầu cần Internet để tải image.
 
 | Địa chỉ | Dùng để |
 |---|---|

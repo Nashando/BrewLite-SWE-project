@@ -8,7 +8,7 @@ cd apps/api
 # tạo apps/api/.env (xem mục Biến môi trường)
 npm install
 npx prisma migrate dev --name init   # tạo migration + áp dụng (commit thư mục prisma/migrations)
-npm run prisma:seed                  # dữ liệu mẫu
+npm run prisma:seed                  # dữ liệu mẫu (trong Docker: docker compose exec api npm run seed)
 npm run start:dev                    # http://localhost:3001
 npm test                             # unit + e2e (mock DB, không cần Postgres)
 ```

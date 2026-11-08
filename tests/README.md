@@ -21,7 +21,7 @@ Các test này chạy trên hệ thống thật (web, API, PostgreSQL), không d
 ```bash
 # 1. Chạy hệ thống và nạp dữ liệu mẫu (cần tài khoản seed)
 docker compose up --build -d
-(cd apps/api && npm ci && DATABASE_URL=postgresql://brewlite:brewlite@localhost:5432/brewlite npm run prisma:seed)
+docker compose exec api npm run seed
 
 # 2. Chạy test
 cd tests
