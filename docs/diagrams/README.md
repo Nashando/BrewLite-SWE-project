@@ -9,6 +9,7 @@ Mỗi sơ đồ có file nguồn PlantUML (`.puml`) và ảnh xuất ra (`.svg`)
 | Activity: đặt và thanh toán | [activity.puml](activity.puml) | [activity.svg](activity.svg) |
 | Sequence: đặt và thanh toán | [sequence.puml](sequence.puml) | [sequence.svg](sequence.svg) |
 | Class: domain model | [class.puml](class.puml) | [class.svg](class.svg) |
+| Deployment (TV3) | [deployment-diagram.puml](deployment-diagram.puml) | [deployment-diagram.svg](deployment-diagram.svg) |
 
 Đặc tả use-case nằm ở [`docs/requirements/use-case-checkout.md`](../requirements/use-case-checkout.md).
 
