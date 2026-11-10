@@ -32,14 +32,13 @@ BrewLite-SWE-project/
 │   ├── architecture/            # Kiến trúc hệ thống C4 & ADRs
 │   │   ├── Architecture Document.md
 │   │   └── adr/                 # 6 Bản ghi Quyết định Kiến trúc (ADR 001 -> 006)
-│   ├── diagrams/                # Bộ sơ đồ UML (Use-case, Activity, Sequence, Class)
-│   ├── issue-board/             # Bảng quản lý User Stories & Tasks Sprint 1, 2
-│   ├── screenshots/             # Thư mục lưu trữ ảnh chụp Issue Board offline
+│   ├── diagrams/                # Sơ đồ UML: nguồn .puml và ảnh .svg (Use-case, Activity, Sequence, Class, Deployment)
+│   ├── requirements/            # SRS, phạm vi, đặc tả use-case UC-CHECKOUT
 │   ├── commit-and-dod.md        # Quy chuẩn Commit & Definition of Done (DoD)
 │   ├── deployment.md            # Hướng dẫn triển khai, secrets, rollback
 │   ├── release-notes.md         # Ghi chú phát hành
-│   ├── security-audit.md        # Biên bản kiểm tra secret
-│   └── Deployment Diagram.md    # Sơ đồ triển khai hạ tầng UML
+│   └── security-audit.md        # Biên bản kiểm tra secret
+├── tests/                       # Integration test và end-to-end test (Playwright)
 ├── .github/workflows/           # CI/CD (ci.yml, cd.yml, secret-scan.yml)
 ├── docker-compose.yml           # Cấu hình môi trường chạy toàn bộ hệ thống ở Local
 ├── .env.example                 # Mẫu khai báo biến môi trường chuẩn
@@ -80,36 +79,47 @@ cp .env.example .env
 
 ### Cách 1: Khởi chạy nhanh bằng Docker Compose (Khuyên dùng)
 
-Yêu cầu: Đã cài đặt **Docker Desktop**.
+Chỉ cần cài **Docker** (Windows và Mac dùng Docker Desktop, mở lên trước khi chạy). Không cần Node.js hay PostgreSQL. Các cổng 3000, 3001 và 5432 phải đang trống.
 
 ```bash
-# 1. Tạo file .env từ file mẫu
-cp .env.example .env
+git clone https://github.com/Nashando/BrewLite-SWE-project.git
+cd BrewLite-SWE-project
 
-# 2. Build và khởi chạy toàn bộ 3 services (db, api, web)
-docker compose up --build
+# 1. Bật web, API và database; API tự chạy migration khi khởi động
+docker compose up --build -d
+
+# 2. Nạp dữ liệu mẫu (bắt buộc lần đầu, nếu không menu sẽ trống); chạy lại không mất dữ liệu đang có
+docker compose exec api npm run seed
 ```
+
+Các lệnh giống nhau trên Windows, Mac và Linux. Lần chạy đầu cần Internet để tải image. Muốn đổi cấu hình thì sao chép `.env.example` thành `.env` trước khi chạy.
 
 - **Frontend Web**: [http://localhost:3000](http://localhost:3000)
 - **Backend API**: [http://localhost:3001](http://localhost:3001) (ví dụ [/products](http://localhost:3001/products))
 - **API Health Check**: [http://localhost:3001/health](http://localhost:3001/health)
 - **PostgreSQL Database**: `localhost:5432` (User: `brewlite`, DB: `brewlite`)
 
-> ⚠️ **Nạp dữ liệu mẫu (bắt buộc lần đầu, nếu không menu sẽ trống).** Migration tự chạy khi container `api` khởi động, nhưng dữ liệu mẫu thì không. Khi 3 service đã chạy, mở terminal khác:
->
-> ```bash
-> cd apps/api
-> npm ci
-> DATABASE_URL=postgresql://brewlite:brewlite@localhost:5432/brewlite npx prisma db seed
-> ```
->
-> Tài khoản mẫu (chỉ dùng local/demo): `manager@brewlite.vn / Manager@123`, `staff@brewlite.vn / Staff@123`, `khach@brewlite.vn / Customer@123`.
+Tài khoản mẫu (chỉ dùng local/demo):
+
+| Vai trò | Email | Mật khẩu |
+|---|---|---|
+| Khách hàng | `khach@brewlite.vn` | `Customer@123` |
+| Nhân viên | `staff@brewlite.vn` | `Staff@123` |
+| Quản lý | `manager@brewlite.vn` | `Manager@123` |
+
+Thanh toán chỉ là mô phỏng: tài khoản mới có sẵn 200.000 ₫ trong ví; thẻ `4242 4242 4242 4242` thành công, thẻ `4000 0000 0000 1234` bị từ chối.
+
+```bash
+docker compose logs -f api   # xem log API
+docker compose down          # tắt, giữ dữ liệu
+docker compose down -v       # tắt và xoá sạch dữ liệu
+```
 
 ---
 
 ### Cách 2: Khởi chạy thủ công từng phần (Dành cho Lập trình viên)
 
-Yêu cầu: **Node.js v20+** và cơ sở dữ liệu **PostgreSQL** đang chạy ở cổng 5432.
+Yêu cầu: **Node.js 22+** và cơ sở dữ liệu **PostgreSQL** đang chạy ở cổng 5432.
 
 #### 1. Khởi chạy Database
 Nếu dùng Docker chỉ để chạy riêng database:
@@ -165,6 +175,8 @@ Các lệnh dưới đây trùng với pipeline CI (`.github/workflows/ci.yml`),
 
 Test của API dùng mock Prisma nên **không cần PostgreSQL**. Build image Docker: `docker compose build`.
 
+Integration và end-to-end test cần hệ thống đang chạy, xem [`tests/README.md`](./tests/README.md).
+
 ---
 
 ## ☁️ 7. Triển Khai Production, Release & Rollback
@@ -208,8 +220,9 @@ Dự án áp dụng quy chuẩn phát triển và kiểm soát chất lượng n
 
 Toàn bộ tài liệu kỹ thuật được lưu trữ trong thư mục `docs/`:
 
-- 📜 [Đặc tả Use-case & Yêu cầu UC-CHECKOUT](./docs/diagrams/Đặc_tả_Usecase.md)
-- 🗺️ [Sơ đồ Use-case Tổng thể Hệ thống](./docs/diagrams/Usecase_Diagram.md)
+- 📋 [Đặc tả Yêu cầu Phần mềm (SRS)](./docs/requirements/SRS.md) và [Ma trận truy vết](./docs/traceability-matrix.md)
+- 📜 [Đặc tả Use-case UC-CHECKOUT](./docs/requirements/use-case-checkout.md)
+- 🗺️ [Bộ sơ đồ UML: Use-case, Activity, Sequence, Class](./docs/diagrams/README.md)
 - 🏗️ [Tài liệu Thiết kế Kiến trúc Hệ thống (Architecture Document - C4 Model)](./docs/architecture/Architecture%20Document.md)
 - 📝 [Danh mục 6 Bản ghi Quyết định Kiến trúc (ADRs)](./docs/architecture/adr/)
   - [ADR 001: Cấu trúc Monorepo](./docs/architecture/adr/001-monorepo.md)
@@ -218,10 +231,7 @@ Toàn bộ tài liệu kỹ thuật được lưu trữ trong thư mục `docs/`
   - [ADR 004: Dịch vụ Thanh toán Mô phỏng & Idempotency Key](./docs/architecture/adr/004-mock-payment-service.md)
   - [ADR 005: Ứng dụng Web PWA Mobile-first](./docs/architecture/adr/005-nextjs-pwa-mobile-first.md)
   - [ADR 006: Quản lý Cấu hình, Health Check & Logging](./docs/architecture/adr/006-healthcheck-logging-config.md)
-- 📊 [Sơ đồ Triển khai Hạ tầng UML (Deployment Diagram)](./docs/Deployment%20Diagram.md)
-- 🔄 [Sơ đồ Trình tự Nghiệp vụ Đặt hàng & Thanh toán (Sequence Diagram)](./docs/diagrams/Sequence_Diagram.md)
-- 🔁 [Sơ đồ Luồng Hoạt động End-to-End (Activity Diagram)](./docs/diagrams/Activity_Diagram.md)
-- 🏛️ [Sơ đồ Lớp Miền Dữ liệu (Domain Class Diagram)](./docs/diagrams/Class_Diagram.md)
+- 📊 [Sơ đồ Triển khai Hạ tầng (Deployment Diagram)](./docs/diagrams/deployment-diagram.svg)
 
 ---
 

@@ -1,0 +1,63 @@
+@startuml usecase
+title Use-case tổng quát - Hệ thống BrewLite
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle outline
+skinparam usecase {
+  BackgroundColor<<mở rộng>> #F5F5F5
+  BorderColor<<mở rộng>> #9E9E9E
+  FontColor<<mở rộng>> #616161
+}
+
+actor "Khách vãng lai\n(chưa đăng nhập)" as Guest
+actor "Khách hàng\n(CUSTOMER)" as Customer
+actor "Nhân viên quầy\n(STAFF)" as Staff
+actor "Quản lý\n(MANAGER)" as Manager
+actor "Dịch vụ thanh toán\nmô phỏng" as PaymentService
+
+' Khách hàng làm được mọi việc của khách vãng lai; quản lý làm được mọi việc của nhân viên
+Guest <|-- Customer
+Staff <|-- Manager
+
+rectangle "Hệ thống BrewLite" {
+  usecase "Xem menu, tìm món\n(FR-01, FR-09)" as UC_Menu
+  usecase "Xem chi tiết, chọn size, topping\n(FR-02)" as UC_Detail
+  usecase "Quản lý giỏ hàng\n(FR-03)" as UC_Cart
+  usecase "Đăng ký, đăng nhập\n(FR-04)" as UC_Auth
+  usecase "Đặt và thanh toán đơn hàng\n(UC-CHECKOUT, FR-05)" as UC_Checkout #LightSkyBlue
+  usecase "Xem lịch sử, theo dõi đơn\n(FR-06)" as UC_History
+  usecase "Hủy đơn chưa pha chế\n(FR-08)" as UC_Cancel
+  usecase "Xử lý đơn tại quầy:\nđổi trạng thái, xác nhận tiền mặt\n(FR-07)" as UC_Counter
+  usecase "Quản lý món, size, topping, tồn kho\n(FR-10)" as UC_Catalog
+  usecase "Xem thống kê doanh thu\n(FR-11)" as UC_Revenue
+  usecase "Áp dụng khuyến mãi, tích điểm" as UC_Promo <<mở rộng>>
+}
+
+Guest --> UC_Menu
+Guest --> UC_Detail
+Guest --> UC_Cart
+Guest --> UC_Auth
+
+Customer --> UC_Checkout
+Customer --> UC_History
+Customer --> UC_Cancel
+
+Staff --> UC_Counter
+Staff --> UC_Cancel
+Manager --> UC_Catalog
+Manager --> UC_Revenue
+
+UC_Checkout ..> UC_Auth : <<include>>
+UC_Promo ..> UC_Checkout : <<extend>>
+UC_Checkout --> PaymentService
+
+note bottom of UC_Promo
+  Phần mở rộng: có trong mô hình domain,
+  chưa hiện thực trong Sprint 1, 2.
+end note
+
+note right of Staff
+  Nhân viên, quản lý chỉ xem menu,
+  không đặt đơn (API trả 403).
+end note
+@enduml
