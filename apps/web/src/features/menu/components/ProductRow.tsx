@@ -9,11 +9,12 @@ export function ProductRow({ product }: { product: Product }) {
   // Món hết hàng vẫn mở được trang chi tiết, nhưng không thêm được vào giỏ.
   return (
     <li>
-      <Link href={`/products/${product.id}`} className="flex gap-4 py-4">
-        <ProductTile
-          imageUrl={product.imageUrl}
-          dimmed={unavailable}
-        />
+      {/* Điện thoại: danh sách dòng; máy tính: thẻ trong lưới */}
+      <Link
+        href={`/products/${product.id}`}
+        className="flex gap-4 py-4 md:h-full md:rounded-2xl md:border md:border-line md:bg-white md:p-4 md:transition-colors md:hover:border-pine"
+      >
+        <ProductTile imageUrl={product.imageUrl} dimmed={unavailable} />
 
         <div className="min-w-0 flex-1">
           <h2 className="font-display text-lg font-semibold leading-snug">{product.name}</h2>
