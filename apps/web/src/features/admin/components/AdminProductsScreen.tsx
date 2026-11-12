@@ -60,9 +60,12 @@ function ProductList() {
           Chưa có món nào.
         </p>
       ) : (
-        <ul className="mt-2 divide-y divide-line">
+        <ul className="mt-2 divide-y divide-line md:mt-4 md:grid md:grid-cols-2 md:gap-3 md:divide-y-0 xl:grid-cols-3">
           {data.map((product) => (
-            <li key={product.id} className="flex items-center justify-between gap-4 py-3">
+            <li
+              key={product.id}
+              className="flex items-center justify-between gap-4 py-3 md:rounded-xl md:border md:border-line md:bg-white md:px-4"
+            >
               <div className="min-w-0">
                 <p className="font-medium">
                   {product.name}

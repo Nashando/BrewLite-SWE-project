@@ -81,7 +81,7 @@ function Revenue() {
       <section aria-label="Tổng quan" className="mt-5">
         <p className="text-sm text-ink/70">Doanh thu</p>
         <p className="font-display text-4xl font-bold tabular-nums">{formatVND(data.revenue)}</p>
-        <dl className="mt-3 grid grid-cols-2 gap-4">
+        <dl className="mt-3 grid max-w-xl grid-cols-2 gap-4">
           <Stat label="Số đơn" value={String(data.orderCount)} />
           <Stat label="Trung bình mỗi đơn" value={formatVND(data.averageOrder)} />
         </dl>
@@ -93,10 +93,11 @@ function Revenue() {
           Chưa có đơn đã thanh toán trong khoảng này.
         </p>
       ) : (
-        <>
+        // Máy tính: biểu đồ bên trái, món bán chạy bên phải
+        <div className={data.days > 1 ? 'lg:grid lg:grid-cols-5 lg:gap-10' : 'max-w-xl'}>
           {/* Một ngày chỉ có một cột, các chỉ số phía trên đã đủ nên không vẽ biểu đồ */}
           {data.days > 1 && (
-            <section aria-label="Doanh thu theo ngày" className="mt-8">
+            <section aria-label="Doanh thu theo ngày" className="mt-8 lg:col-span-3">
               <h2 className="font-display text-lg font-semibold">Doanh thu theo ngày</h2>
               <div className="mt-3">
                 <RevenueChart daily={data.daily} />
@@ -125,7 +126,7 @@ function Revenue() {
             </section>
           )}
 
-          <section aria-label="Món bán chạy" className="mt-8">
+          <section aria-label="Món bán chạy" className="mt-8 lg:col-span-2">
             <h2 className="font-display text-lg font-semibold">Món bán chạy</h2>
             <table className="mt-2 w-full text-sm">
               <thead>
@@ -146,7 +147,7 @@ function Revenue() {
               </tbody>
             </table>
           </section>
-        </>
+        </div>
       )}
     </>
   );

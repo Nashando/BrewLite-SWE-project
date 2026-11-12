@@ -105,7 +105,8 @@ export function ProductForm({ product, categories, onDone }: ProductFormProps) {
   });
 
   return (
-    <div className="pt-4">
+    // Form giữ cột hẹp cho dễ điền, kể cả khi trang quản lý rộng trên máy tính
+    <div className="max-w-xl pt-4">
       <h2 className="font-display text-xl font-semibold">{product ? `Sửa ${product.name}` : 'Thêm món'}</h2>
 
       {product && <StockAdjuster product={product} />}

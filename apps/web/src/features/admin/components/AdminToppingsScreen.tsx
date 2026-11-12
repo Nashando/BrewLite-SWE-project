@@ -45,7 +45,11 @@ function ToppingForm({ topping, onDone }: { topping?: AdminTopping; onDone: () =
   });
 
   return (
-    <form onSubmit={handleSubmit((values) => save.mutate(values))} noValidate className="space-y-3 py-3">
+    <form
+      onSubmit={handleSubmit((values) => save.mutate(values))}
+      noValidate
+      className="max-w-xl space-y-3 py-3"
+    >
       <TextField label="Tên topping" error={errors.name?.message} {...register('name')} />
       <TextField
         label="Giá (₫)"
@@ -82,14 +86,14 @@ function ToppingRow({ topping }: { topping: AdminTopping }) {
 
   if (editing) {
     return (
-      <li>
+      <li className="md:rounded-xl md:border md:border-line md:bg-white md:px-4">
         <ToppingForm topping={topping} onDone={() => setEditing(false)} />
       </li>
     );
   }
 
   return (
-    <li className="py-3">
+    <li className="py-3 md:rounded-xl md:border md:border-line md:bg-white md:px-4">
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="font-medium">
@@ -157,7 +161,7 @@ function ToppingList() {
           Chưa có topping nào.
         </p>
       ) : (
-        <ul className="mt-2 divide-y divide-line">
+        <ul className="mt-2 divide-y divide-line md:mt-4 md:grid md:grid-cols-2 md:items-start md:gap-3 md:divide-y-0 xl:grid-cols-3">
           {data.map((topping) => (
             <ToppingRow key={topping.id} topping={topping} />
           ))}

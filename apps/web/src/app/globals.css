@@ -5,6 +5,8 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    /* Giữ chỗ cho thanh cuộn: nội dung không xô lệch khi đổi giữa trang ngắn và trang dài */
+    scrollbar-gutter: stable;
   }
 
   body {

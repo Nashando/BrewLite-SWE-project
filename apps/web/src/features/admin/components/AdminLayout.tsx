@@ -17,9 +17,9 @@ export function AdminLayout({ title, children }: { title: string; children: Reac
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <BackHeader title={title} backHref="/menu" backLabel="Menu" />
+      <BackHeader title={title} backHref="/menu" backLabel="Menu" wide />
       <nav aria-label="Quản lý" className="border-b border-line">
-        <div className="page flex gap-2 px-4 py-2">
+        <div className="page-wide flex gap-2 px-4 py-2">
           {TABS.map((tab) => {
             const active = pathname === tab.href;
             return (
@@ -37,7 +37,7 @@ export function AdminLayout({ title, children }: { title: string; children: Reac
           })}
         </div>
       </nav>
-      <main className="page flex-1 px-4 pb-8">
+      <main className="page-wide flex-1 px-4 pb-8">
         <RequireRole roles={['MANAGER']} next={pathname}>
           {children}
         </RequireRole>
