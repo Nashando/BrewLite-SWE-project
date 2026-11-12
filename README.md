@@ -141,7 +141,7 @@ npm install
 npx prisma generate
 npx prisma migrate deploy
 
-# Nạp dữ liệu mẫu (Starbucks Menu seed)
+# Nạp dữ liệu mẫu (menu 21 món và 3 tài khoản demo)
 npm run prisma:seed
 
 # Khởi chạy API server ở chế độ dev (Port 3001)
