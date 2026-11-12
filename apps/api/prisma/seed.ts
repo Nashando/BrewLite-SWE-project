@@ -27,6 +27,17 @@ const products = [
   { name: 'Cookie & Cream Freeze', category: 'Freeze', basePrice: 55000, stock: 60, withSizes: true, description: 'Đá xay cookie, kem tươi và sốt sô-cô-la.' },
   { name: 'Matcha Freeze', category: 'Freeze', basePrice: 55000, stock: 60, withSizes: true, description: 'Matcha đá xay mát lạnh phủ kem.' },
   { name: 'Bánh croissant', category: 'Bánh', basePrice: 30000, stock: 40, withSizes: false, description: 'Bánh sừng bò bơ nướng giòn.' },
+  { name: 'Americano', category: 'Cà phê', basePrice: 35000, stock: 100, withSizes: true, description: 'Espresso pha loãng với nước, vị đậm, ít đắng.' },
+  { name: 'Cappuccino', category: 'Cà phê', basePrice: 45000, stock: 80, withSizes: true, description: 'Espresso, sữa nóng và lớp bọt sữa dày.' },
+  { name: 'Latte caramel', category: 'Cà phê', basePrice: 49000, stock: 80, withSizes: true, description: 'Espresso, sữa tươi và sốt caramel.' },
+  { name: 'Cà phê dừa', category: 'Cà phê', basePrice: 39000, stock: 70, withSizes: true, description: 'Cà phê phin với cốt dừa đá xay béo thơm.' },
+  { name: 'Trà chanh mật ong', category: 'Trà', basePrice: 29000, stock: 100, withSizes: true, description: 'Trà xanh, chanh tươi và mật ong.' },
+  { name: 'Trà ô long sữa', category: 'Trà', basePrice: 42000, stock: 80, withSizes: true, description: 'Trà ô long rang pha sữa tươi.' },
+  { name: 'Caramel Freeze', category: 'Freeze', basePrice: 55000, stock: 60, withSizes: true, description: 'Cà phê đá xay với sốt caramel và kem tươi.' },
+  { name: 'Chocolate đá xay', category: 'Freeze', basePrice: 52000, stock: 60, withSizes: true, description: 'Sô-cô-la đá xay phủ kem và vụn bánh.' },
+  { name: 'Bánh tiramisu', category: 'Bánh', basePrice: 39000, stock: 30, withSizes: false, description: 'Bánh kem cà phê và mascarpone kiểu Ý.' },
+  { name: 'Bánh chuối nướng', category: 'Bánh', basePrice: 32000, stock: 30, withSizes: false, description: 'Bánh chuối nướng mềm, thơm bơ.' },
+  { name: 'Bánh phô mai chanh dây', category: 'Bánh', basePrice: 42000, stock: 30, withSizes: false, description: 'Bánh phô mai mát lạnh, sốt chanh dây chua nhẹ.' },
 ];
 
 async function main() {
