@@ -55,7 +55,7 @@ export function MenuScreen() {
     );
   } else {
     content = (
-      <ul className="divide-y divide-line md:grid md:grid-cols-2 md:gap-4 md:divide-y-0 md:pt-4 lg:grid-cols-3">
+      <ul className="divide-y divide-line md:grid md:auto-rows-fr md:grid-cols-2 md:gap-4 md:divide-y-0 md:pt-4 lg:grid-cols-3">
         {visible.map((product) => (
           <ProductRow key={product.id} product={product} />
         ))}

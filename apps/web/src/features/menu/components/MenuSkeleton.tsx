@@ -1,6 +1,6 @@
 export function MenuSkeleton() {
   return (
-    <div role="status" aria-live="polite" className="divide-y divide-line md:grid md:grid-cols-2 md:gap-4 md:divide-y-0 md:pt-4 lg:grid-cols-3">
+    <div role="status" aria-live="polite" className="divide-y divide-line md:grid md:auto-rows-fr md:grid-cols-2 md:gap-4 md:divide-y-0 md:pt-4 lg:grid-cols-3">
       <span className="sr-only">Đang tải menu</span>
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} aria-hidden="true" className="flex gap-4 py-4 motion-safe:animate-pulse md:rounded-2xl md:border md:border-line md:bg-white md:p-4">
