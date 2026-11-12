@@ -153,7 +153,7 @@ export function StaffOrdersScreen() {
   return (
     <div className="flex min-h-dvh flex-col">
       <BackHeader title="Quầy" backHref="/menu" backLabel="Menu" />
-      <main className="flex-1 px-4 pb-8">
+      <main className="page flex-1 px-4 pb-8">
         <RequireRole roles={['STAFF', 'MANAGER']} next="/staff">
           <OrderBoard />
         </RequireRole>

@@ -18,24 +18,26 @@ export function AdminLayout({ title, children }: { title: string; children: Reac
   return (
     <div className="flex min-h-dvh flex-col">
       <BackHeader title={title} backHref="/menu" backLabel="Menu" />
-      <nav aria-label="Quản lý" className="flex gap-2 border-b border-line px-4 py-2">
-        {TABS.map((tab) => {
-          const active = pathname === tab.href;
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              aria-current={active ? 'page' : undefined}
-              className={`inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-medium ${
-                active ? 'bg-pine text-mist' : 'border border-line text-ink'
-              }`}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
+      <nav aria-label="Quản lý" className="border-b border-line">
+        <div className="page flex gap-2 px-4 py-2">
+          {TABS.map((tab) => {
+            const active = pathname === tab.href;
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                aria-current={active ? 'page' : undefined}
+                className={`inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-medium ${
+                  active ? 'bg-pine text-mist' : 'border border-line text-ink'
+                }`}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
-      <main className="flex-1 px-4 pb-8">
+      <main className="page flex-1 px-4 pb-8">
         <RequireRole roles={['MANAGER']} next={pathname}>
           {children}
         </RequireRole>

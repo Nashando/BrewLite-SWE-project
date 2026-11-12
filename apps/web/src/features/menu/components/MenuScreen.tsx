@@ -79,7 +79,7 @@ export function MenuScreen() {
         }
       />
       {showTabs && (
-        <div className="px-4 pb-1 pt-3">
+        <div className="page px-4 pb-1 pt-3">
           <input
             type="search"
             aria-label="Tìm món"
@@ -92,7 +92,7 @@ export function MenuScreen() {
         </div>
       )}
       {showTabs && <CategoryTabs categories={categories} active={category} onChange={setSelected} />}
-      <main className="px-4 pb-[max(env(safe-area-inset-bottom),2rem)]">{content}</main>
+      <main className="page px-4 pb-[max(env(safe-area-inset-bottom),2rem)]">{content}</main>
     </>
   );
 }

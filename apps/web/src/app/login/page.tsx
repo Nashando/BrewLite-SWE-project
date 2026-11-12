@@ -13,7 +13,7 @@ export default async function LoginPage({
   return (
     <div className="flex min-h-dvh flex-col">
       <BackHeader title="Đăng nhập" backHref="/menu" backLabel="Menu" />
-      <main className="flex-1 px-4 py-6">
+      <main className="page flex-1 px-4 py-6">
         <LoginForm next={next} />
       </main>
     </div>

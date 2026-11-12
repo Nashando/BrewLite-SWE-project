@@ -33,7 +33,7 @@ export function CategoryTabs({ categories, active, onChange }: CategoryTabsProps
       <div
         role="group"
         aria-label="Danh mục"
-        className="flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]"
+        className="page flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]"
       >
         <Chip label="Tất cả" selected={active === null} onClick={() => onChange(null)} />
         {categories.map((category) => (

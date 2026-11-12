@@ -36,7 +36,7 @@ export function ProductDetailScreen({ id }: { id: string }) {
     return (
       <div className="flex min-h-dvh flex-col">
         {header}
-        <main className="flex-1">
+        <main className="page flex-1">
           <ProductDetailSkeleton />
         </main>
       </div>
@@ -47,7 +47,7 @@ export function ProductDetailScreen({ id }: { id: string }) {
     return (
       <div className="flex min-h-dvh flex-col">
         {header}
-        <main className="flex-1">
+        <main className="page flex-1">
           {isNotFoundError(error) ? (
             <ProductNotFound />
           ) : (
@@ -109,7 +109,7 @@ export function ProductDetailScreen({ id }: { id: string }) {
     <div className="flex min-h-dvh flex-col">
       {header}
 
-      <main className="flex-1 px-4 pb-8">
+      <main className="page flex-1 px-4 pb-8">
         <div className="flex items-end gap-4 pt-5">
           <ProductTile
             imageUrl={product.imageUrl}
@@ -141,6 +141,7 @@ export function ProductDetailScreen({ id }: { id: string }) {
         aria-label="Số lượng và giá"
         className="sticky bottom-0 border-t border-line bg-mist/95 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 backdrop-blur"
       >
+        <div className="page">
         {addedMessage && (
           <div
             role="status"
@@ -170,10 +171,11 @@ export function ProductDetailScreen({ id }: { id: string }) {
             )}
           </Button>
         </div>
+        </div>
       </section>
       ) : (
         <p className="border-t border-line px-4 py-3 text-sm text-ink/70">
-          Tài khoản nhân viên, quản lý chỉ xem được món, không đặt đơn.
+          <span className="page block">Tài khoản nhân viên, quản lý chỉ xem được món, không đặt đơn.</span>
         </p>
       )}
     </div>

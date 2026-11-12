@@ -38,7 +38,7 @@ export function CartScreen() {
     return (
       <div className="flex min-h-dvh flex-col">
         <BackHeader title="Giỏ hàng" backHref="/menu" backLabel="Menu" />
-        <main className="flex-1 px-4">
+        <main className="page flex-1 px-4">
           <RequireCustomer>{null}</RequireCustomer>
         </main>
       </div>
@@ -49,7 +49,7 @@ export function CartScreen() {
     <div className="flex min-h-dvh flex-col">
       <BackHeader title="Giỏ hàng" backHref="/menu" backLabel="Menu" />
 
-      <main className="flex-1 px-4">
+      <main className="page flex-1 px-4">
         <CartSyncMessage notice={notice} />
         {!hydrated ? (
           <CartSkeleton />

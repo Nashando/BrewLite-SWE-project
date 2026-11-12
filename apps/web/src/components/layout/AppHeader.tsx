@@ -1,16 +1,25 @@
 import type { ReactNode } from 'react';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 
-export function AppHeader({ title, actions }: { title: string; actions?: ReactNode }) {
+interface AppHeaderProps {
+  title: string;
+  actions?: ReactNode;
+  /** Trang danh sách: nội dung header rộng theo trang trên máy tính. */
+  wide?: boolean;
+}
+
+export function AppHeader({ title, actions, wide = false }: AppHeaderProps) {
   return (
-    <header className="bg-pine px-4 pb-7 pt-[max(env(safe-area-inset-top),1rem)] text-mist">
-      <div className="flex flex-wrap items-center">
-        <div className="mr-auto">
-          <BrandLogo />
+    <header className="bg-pine pb-7 pt-[max(env(safe-area-inset-top),1rem)] text-mist">
+      <div className={`${wide ? 'page-wide' : 'page'} px-4`}>
+        <div className="flex flex-wrap items-center">
+          <div className="mr-auto">
+            <BrandLogo />
+          </div>
+          {actions}
         </div>
-        {actions}
+        <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05]">{title}</h1>
       </div>
-      <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05]">{title}</h1>
     </header>
   );
 }

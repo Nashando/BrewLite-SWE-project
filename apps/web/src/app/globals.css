@@ -21,3 +21,15 @@
     outline-color: theme('colors.crema');
   }
 }
+
+@layer components {
+  /* Độ rộng nội dung: trang form và chi tiết giữ cột hẹp, trang danh sách mở rộng trên máy tính.
+     Nền header, tab và thanh dính đáy vẫn trải hết chiều ngang, chỉ phần bên trong theo độ rộng này. */
+  .page {
+    @apply mx-auto w-full max-w-xl;
+  }
+
+  .page-wide {
+    @apply mx-auto w-full max-w-6xl;
+  }
+}

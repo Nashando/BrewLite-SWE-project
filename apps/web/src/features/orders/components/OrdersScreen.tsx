@@ -79,7 +79,7 @@ export function OrdersScreen() {
   return (
     <div className="flex min-h-dvh flex-col">
       <BackHeader title="Đơn của tôi" backHref="/menu" backLabel="Menu" />
-      <main className="flex-1 px-4">
+      <main className="page flex-1 px-4">
         <RequireAuth next="/orders">
           <OrderList />
         </RequireAuth>
