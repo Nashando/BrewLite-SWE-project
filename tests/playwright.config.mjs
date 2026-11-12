@@ -9,11 +9,13 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: process.env.WEB_URL ?? 'http://localhost:3000',
-    // Ứng dụng theo hướng mobile-first nên test ở cỡ màn hình điện thoại
-    ...devices['Pixel 7'],
     locale: 'vi-VN',
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'mobile-chromium' }],
+  // Mobile-first nên luôn test cỡ điện thoại; thêm cỡ máy tính vì giao diện đổi bố cục từ 1024px
+  projects: [
+    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
+    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
+  ],
 });

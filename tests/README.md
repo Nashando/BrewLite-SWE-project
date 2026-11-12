@@ -30,4 +30,6 @@ npx playwright install chromium
 npm test                 # hoặc test:integration, test:e2e
 ```
 
+E2E chạy mỗi kịch bản hai lần: cỡ điện thoại (Pixel 7) và cỡ máy tính (1440×900), vì giao diện đổi bố cục từ 1024px. Chạy riêng một cỡ: `npx playwright test --project=mobile-chromium` hoặc `--project=desktop-chromium`.
+
 Mặc định trỏ tới hệ thống local. Đổi bằng biến môi trường `API_URL`, `WEB_URL`, `DATABASE_URL`. Test tự tạo tài khoản và món riêng, xong thì ẩn món đó, nên chạy lại nhiều lần được; các test chạy tuần tự vì có phép so sánh tổng doanh thu. Riêng `DATABASE_URL` chỉ dùng để giả lập đơn quá hạn; **không chạy các test này trên production**.
