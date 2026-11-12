@@ -32,6 +32,20 @@ const REFRESH_MS = 15_000;
 /** Đơn quầy cần làm. Đơn chờ thanh toán online chưa cần xử lý, khách còn ở cổng thanh toán. */
 const needsAction = (order: Order) => isWaitingCash(order) || order.status in NEXT_STEP;
 
+/**
+ * Máy tính: đơn xếp vào các cột theo bước xử lý, kiểu bảng Kanban. Vẫn là một danh sách duy nhất,
+ * chỉ dùng CSS grid đặt thẻ vào cột, nên thẻ không bị dựng lại khi đơn đổi cột (giữ thông báo lỗi).
+ * Điện thoại: danh sách theo thời gian như cũ. Tên lớp viết đầy đủ để Tailwind sinh được CSS.
+ */
+const COLUMNS = [
+  { title: 'Chờ xử lý', statuses: ['PENDING_PAYMENT', 'PAID'], className: 'lg:col-start-1' },
+  { title: 'Đang làm', statuses: ['PREPARING'], className: 'lg:col-start-2' },
+  { title: 'Chờ khách lấy', statuses: ['READY'], className: 'lg:col-start-3' },
+  { title: 'Đã xong', statuses: ['COMPLETED', 'CANCELLED'], className: 'lg:col-start-4', onlyAll: true },
+] satisfies { title: string; statuses: OrderStatus[]; className: string; onlyAll?: boolean }[];
+
+const columnOf = (status: OrderStatus) => COLUMNS.find((c) => (c.statuses as OrderStatus[]).includes(status));
+
 function OrderCard({ order }: { order: Order }) {
   const client = useQueryClient();
   const refresh = () => {
@@ -49,7 +63,11 @@ function OrderCard({ order }: { order: Order }) {
   const payment = order.payments?.find((p) => p.status !== 'FAILED');
 
   return (
-    <li className="py-4">
+    <li
+      className={`py-4 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:p-4 ${
+        columnOf(order.status)?.className ?? ''
+      }`}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="font-display text-lg font-semibold">{order.code}</p>
@@ -120,6 +138,7 @@ function OrderBoard() {
   }
 
   const orders = showAll ? data : data.filter(needsAction);
+  const columns = COLUMNS.filter((column) => showAll || !column.onlyAll);
 
   return (
     <>
@@ -139,11 +158,30 @@ function OrderBoard() {
           {showAll ? 'Chưa có đơn nào.' : 'Không có đơn cần xử lý.'}
         </p>
       ) : (
-        <ul className="divide-y divide-line">
-          {orders.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
-        </ul>
+        <>
+          <div
+            aria-hidden="true"
+            className={`hidden gap-4 pb-3 pt-6 lg:grid ${showAll ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}
+          >
+            {columns.map((column) => (
+              <p key={column.title} className="border-b-2 border-pine pb-2 font-display text-lg font-semibold">
+                {column.title}{' '}
+                <span className="font-body text-sm font-normal text-ink/60">
+                  ({orders.filter((o) => (column.statuses as OrderStatus[]).includes(o.status)).length})
+                </span>
+              </p>
+            ))}
+          </div>
+          <ul
+            className={`divide-y divide-line lg:grid lg:grid-flow-dense lg:items-start lg:gap-4 lg:divide-y-0 ${
+              showAll ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
+            }`}
+          >
+            {orders.map((order) => (
+              <OrderCard key={order.id} order={order} />
+            ))}
+          </ul>
+        </>
       )}
     </>
   );
@@ -152,8 +190,8 @@ function OrderBoard() {
 export function StaffOrdersScreen() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <BackHeader title="Quầy" backHref="/menu" backLabel="Menu" />
-      <main className="page flex-1 px-4 pb-8">
+      <BackHeader title="Quầy" backHref="/menu" backLabel="Menu" wide />
+      <main className="page-wide flex-1 px-4 pb-8">
         <RequireRole roles={['STAFF', 'MANAGER']} next="/staff">
           <OrderBoard />
         </RequireRole>
