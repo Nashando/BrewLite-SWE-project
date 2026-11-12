@@ -145,7 +145,7 @@ export function OrderDetailScreen({ id }: { id: string }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <BackHeader backHref="/orders" backLabel="Đơn của tôi" />
-      <main className="flex-1 px-4 pb-8">
+      <main className="page flex-1 px-4 pb-8">
         <RequireAuth next={`/orders/${id}`}>
           <OrderDetail id={id} />
         </RequireAuth>

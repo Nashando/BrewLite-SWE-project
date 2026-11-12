@@ -139,7 +139,7 @@ function CheckoutForm() {
 
   if (checkout.gatewayOrder) {
     return (
-      <>
+      <div className="mx-auto max-w-xl">
         <MockGateway
           order={checkout.gatewayOrder}
           method={method}
@@ -151,74 +151,77 @@ function CheckoutForm() {
           }}
         />
         {checkout.isError && <CheckoutError error={checkout.error} />}
-      </>
+      </div>
     );
   }
 
   return (
+    // Máy tính: tóm tắt đơn bên trái, phương thức thanh toán và nút xác nhận bên phải
     <>
       <CartSyncMessage notice={notice} />
-      <section aria-label="Tóm tắt đơn hàng" className="pt-4">
-        <ul className="divide-y divide-line">
-          {items.map((item) => {
-            const options = [item.sizeName, ...item.toppings.map((t) => t.name)]
-              .filter(Boolean)
-              .join(', ');
-            return (
-              <li key={item.lineId} className="flex justify-between gap-4 py-3">
-                <div className="min-w-0">
-                  <p className="font-medium">
-                    {item.quantity} × {item.name}
-                  </p>
-                  {options && <p className="text-sm text-ink/70">{options}</p>}
-                </div>
-                <p className="shrink-0 tabular-nums">{formatVND(calculateLineTotal(item))}</p>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="flex items-baseline justify-between border-t border-line pt-3">
-          <span className="text-ink/70">Tổng cộng</span>
-          <span className="font-display text-2xl font-bold tabular-nums">{formatVND(total)}</span>
-        </div>
-      </section>
-
-      <form onSubmit={onSubmit} noValidate>
-        <fieldset className="mt-8">
-          <legend className="font-display text-lg font-semibold">Phương thức thanh toán</legend>
-          <div className="mt-3 space-y-2">
-            {METHODS.map((m) => (
-              <label
-                key={m.value}
-                className="flex min-h-[52px] cursor-pointer items-center gap-3 rounded-xl border border-line px-4 py-2 has-[:checked]:border-pine has-[:checked]:bg-pine/5"
-              >
-                <input
-                  type="radio"
-                  name="method"
-                  value={m.value}
-                  checked={method === m.value}
-                  onChange={() => setMethod(m.value)}
-                  className="h-5 w-5 accent-pine"
-                />
-                <span className="flex-1 font-medium">{m.label}</span>
-              </label>
-            ))}
+      <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-12 lg:pt-2">
+        <section aria-label="Tóm tắt đơn hàng" className="pt-4">
+          <ul className="divide-y divide-line">
+            {items.map((item) => {
+              const options = [item.sizeName, ...item.toppings.map((t) => t.name)]
+                .filter(Boolean)
+                .join(', ');
+              return (
+                <li key={item.lineId} className="flex justify-between gap-4 py-3">
+                  <div className="min-w-0">
+                    <p className="font-medium">
+                      {item.quantity} × {item.name}
+                    </p>
+                    {options && <p className="text-sm text-ink/70">{options}</p>}
+                  </div>
+                  <p className="shrink-0 tabular-nums">{formatVND(calculateLineTotal(item))}</p>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="flex items-baseline justify-between border-t border-line pt-3">
+            <span className="text-ink/70">Tổng cộng</span>
+            <span className="font-display text-2xl font-bold tabular-nums">{formatVND(total)}</span>
           </div>
-          <p className="mt-2 text-sm text-ink/70">
-            {method === 'CASH'
-              ? 'Đơn được giữ 15 phút, mời bạn ra quầy trả tiền.'
-              : 'Thanh toán mô phỏng, không trừ tiền thật.'}
-          </p>
-        </fieldset>
+        </section>
 
-        {checkout.isError && <CheckoutError error={checkout.error} />}
+        <form onSubmit={onSubmit} noValidate>
+          <fieldset className="mt-8 lg:mt-4">
+            <legend className="font-display text-lg font-semibold">Phương thức thanh toán</legend>
+            <div className="mt-3 space-y-2">
+              {METHODS.map((m) => (
+                <label
+                  key={m.value}
+                  className="flex min-h-[52px] cursor-pointer items-center gap-3 rounded-xl border border-line px-4 py-2 has-[:checked]:border-pine has-[:checked]:bg-pine/5"
+                >
+                  <input
+                    type="radio"
+                    name="method"
+                    value={m.value}
+                    checked={method === m.value}
+                    onChange={() => setMethod(m.value)}
+                    className="h-5 w-5 accent-pine"
+                  />
+                  <span className="flex-1 font-medium">{m.label}</span>
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-sm text-ink/70">
+              {method === 'CASH'
+                ? 'Đơn được giữ 15 phút, mời bạn ra quầy trả tiền.'
+                : 'Thanh toán mô phỏng, không trừ tiền thật.'}
+            </p>
+          </fieldset>
 
-        <div className="sticky bottom-0 -mx-4 mt-8 border-t border-line bg-mist/95 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 backdrop-blur">
-          <Button type="submit" className="w-full" disabled={checkout.isPending || outOfStock || checking}>
-            {buttonLabel}
-          </Button>
-        </div>
-      </form>
+          {checkout.isError && <CheckoutError error={checkout.error} />}
+
+          <div className="sticky bottom-0 -mx-4 mt-8 border-t border-line bg-mist/95 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 backdrop-blur lg:static lg:mx-0 lg:mt-6 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+            <Button type="submit" className="w-full" disabled={checkout.isPending || outOfStock || checking}>
+              {buttonLabel}
+            </Button>
+          </div>
+        </form>
+      </div>
     </>
   );
 }
@@ -226,8 +229,8 @@ function CheckoutForm() {
 export function CheckoutScreen() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <BackHeader title="Thanh toán" backHref="/cart" backLabel="Giỏ hàng" />
-      <main className="flex-1 px-4">
+      <BackHeader title="Thanh toán" backHref="/cart" backLabel="Giỏ hàng" wide />
+      <main className="page-wide flex-1 px-4">
         <RequireAuth next="/checkout">
           <RequireCustomer>
             <CheckoutForm />

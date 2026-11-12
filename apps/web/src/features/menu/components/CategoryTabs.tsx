@@ -2,6 +2,8 @@ interface CategoryTabsProps {
   categories: string[];
   active: string | null;
   onChange: (category: string | null) => void;
+  /** Theo độ rộng trang danh sách trên máy tính. */
+  wide?: boolean;
 }
 
 function Chip({
@@ -27,13 +29,13 @@ function Chip({
   );
 }
 
-export function CategoryTabs({ categories, active, onChange }: CategoryTabsProps) {
+export function CategoryTabs({ categories, active, onChange, wide = false }: CategoryTabsProps) {
   return (
     <div className="sticky top-0 z-10 border-b border-line bg-mist/95 backdrop-blur">
       <div
         role="group"
         aria-label="Danh mục"
-        className="flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]"
+        className={`${wide ? 'page-wide' : 'page'} flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]`}
       >
         <Chip label="Tất cả" selected={active === null} onClick={() => onChange(null)} />
         {categories.map((category) => (

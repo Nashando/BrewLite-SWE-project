@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="vi" className={`${display.variable} ${body.variable}`}>
       <body>
         <Providers>
-          <div className="mx-auto min-h-dvh max-w-xl">{children}</div>
+          <div className="min-h-dvh">{children}</div>
         </Providers>
       </body>
     </html>

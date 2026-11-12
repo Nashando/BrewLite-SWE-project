@@ -37,45 +37,55 @@ export function CartScreen() {
   if (!canOrder(role)) {
     return (
       <div className="flex min-h-dvh flex-col">
-        <BackHeader title="Giỏ hàng" backHref="/menu" backLabel="Menu" />
-        <main className="flex-1 px-4">
+        <BackHeader title="Giỏ hàng" backHref="/menu" backLabel="Menu" wide />
+        <main className="page-wide flex-1 px-4">
           <RequireCustomer>{null}</RequireCustomer>
         </main>
       </div>
     );
   }
 
+  const hasItems = hydrated && items.length > 0;
+
+  // Máy tính: danh sách món bên trái, khung tổng tiền bên phải.
+  // Điện thoại: khung tổng tiền dính đáy màn hình (mt-auto đẩy xuống đáy khi giỏ ít món).
   return (
     <div className="flex min-h-dvh flex-col">
-      <BackHeader title="Giỏ hàng" backHref="/menu" backLabel="Menu" />
+      <BackHeader title="Giỏ hàng" backHref="/menu" backLabel="Menu" wide />
 
-      <main className="flex-1 px-4">
-        <CartSyncMessage notice={notice} />
-        {!hydrated ? (
-          <CartSkeleton />
-        ) : items.length === 0 ? (
-          <CartEmpty />
-        ) : (
-          <>
-            <ul className="divide-y divide-line">
-              {items.map((item) => (
-                <CartItemRow key={item.lineId} item={item} />
-              ))}
-            </ul>
-            <ButtonLink href="/menu" variant="secondary" className="mt-4">
-              Thêm món khác
-            </ButtonLink>
-          </>
+      <main
+        className={`page-wide flex flex-1 flex-col px-4 ${
+          hasItems ? 'lg:grid lg:grid-cols-[1fr_22rem] lg:items-start lg:gap-10 lg:pt-6' : ''
+        }`}
+      >
+        <div>
+          <CartSyncMessage notice={notice} />
+          {!hydrated ? (
+            <CartSkeleton />
+          ) : items.length === 0 ? (
+            <CartEmpty />
+          ) : (
+            <>
+              <ul className="divide-y divide-line">
+                {items.map((item) => (
+                  <CartItemRow key={item.lineId} item={item} />
+                ))}
+              </ul>
+              <ButtonLink href="/menu" variant="secondary" className="mb-4 mt-4">
+                Thêm món khác
+              </ButtonLink>
+            </>
+          )}
+        </div>
+
+        {hasItems && (
+          <CartSummary
+            total={calculateTotal(items)}
+            count={countItems(items)}
+            checkoutHref="/checkout"
+          />
         )}
       </main>
-
-      {hydrated && items.length > 0 && (
-        <CartSummary
-          total={calculateTotal(items)}
-          count={countItems(items)}
-          checkoutHref="/checkout"
-        />
-      )}
     </div>
   );
 }

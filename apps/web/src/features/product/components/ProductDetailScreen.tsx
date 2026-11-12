@@ -30,13 +30,13 @@ export function ProductDetailScreen({ id }: { id: string }) {
   const [quantity, setQuantity] = useState(1);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
 
-  const header = <BackHeader backHref="/menu" backLabel="Menu" actions={<CartLink />} />;
+  const header = <BackHeader backHref="/menu" backLabel="Menu" actions={<CartLink />} wide />;
 
   if (isPending) {
     return (
       <div className="flex min-h-dvh flex-col">
         {header}
-        <main className="flex-1">
+        <main className="page-wide flex-1">
           <ProductDetailSkeleton />
         </main>
       </div>
@@ -47,7 +47,7 @@ export function ProductDetailScreen({ id }: { id: string }) {
     return (
       <div className="flex min-h-dvh flex-col">
         {header}
-        <main className="flex-1">
+        <main className="page-wide flex-1">
           {isNotFoundError(error) ? (
             <ProductNotFound />
           ) : (
@@ -105,77 +105,83 @@ export function ProductDetailScreen({ id }: { id: string }) {
     setAddedMessage(`Đã thêm ${quantity} ${product.name} vào giỏ`);
   };
 
+  // Máy tính: thông tin món bên trái, tuỳ chọn và nút thêm vào giỏ bên phải.
+  // Điện thoại: một cột, thanh số lượng và giá dính ở đáy màn hình.
   return (
     <div className="flex min-h-dvh flex-col">
       {header}
 
-      <main className="flex-1 px-4 pb-8">
-        <div className="flex items-end gap-4 pt-5">
-          <ProductTile
-            imageUrl={product.imageUrl}
-            size="lg"
-            dimmed={unavailable}
-          />
-          <div className="min-w-0 pb-1">
-            <h1 className="font-display text-3xl font-bold leading-tight">{product.name}</h1>
-            {unavailable && <p className="mt-1 text-sm font-medium text-danger">Hết hàng</p>}
+      <main className="page-wide flex-1 px-4 pb-8 lg:grid lg:grid-cols-2 lg:gap-12 lg:pt-6">
+        <div className="lg:sticky lg:top-6 lg:self-start">
+          <div className="flex items-end gap-4 pt-5 lg:block">
+            <ProductTile imageUrl={product.imageUrl} size="lg" dimmed={unavailable} />
+            <div className="min-w-0 pb-1 lg:mt-5">
+              <h1 className="font-display text-3xl font-bold leading-tight lg:text-4xl">{product.name}</h1>
+              {unavailable && <p className="mt-1 text-sm font-medium text-danger">Hết hàng</p>}
+            </div>
           </div>
+
+          <p className="mt-5 max-w-prose text-ink/80">{product.description}</p>
         </div>
 
-        <p className="mt-5 max-w-prose text-ink/80">{product.description}</p>
+        <div className="flex flex-col">
+          {product.sizes.length > 0 && (
+            <SizeSelector sizes={product.sizes} value={size?.id ?? ''} onChange={changeSize} />
+          )}
+          {product.toppings.length > 0 && (
+            <ToppingSelector
+              toppings={product.toppings}
+              selectedIds={toppingIds}
+              onToggle={toggleTopping}
+            />
+          )}
 
-        {product.sizes.length > 0 && (
-          <SizeSelector sizes={product.sizes} value={size?.id ?? ''} onChange={changeSize} />
-        )}
-        {product.toppings.length > 0 && (
-          <ToppingSelector
-            toppings={product.toppings}
-            selectedIds={toppingIds}
-            onToggle={toggleTopping}
-          />
-        )}
+          {canOrder(role) ? (
+            <section
+              aria-label="Số lượng và giá"
+              className="sticky bottom-0 -mx-4 mt-6 border-t border-line bg-mist/95 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 backdrop-blur lg:static lg:mx-0 lg:rounded-2xl lg:border lg:bg-white lg:p-4 lg:backdrop-blur-none"
+            >
+              {addedMessage && (
+                <div
+                  role="status"
+                  className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-crema/40 px-4 py-2 text-sm"
+                >
+                  <span>{addedMessage}</span>
+                  <Link href="/cart" className="shrink-0 font-semibold text-pine underline">
+                    Xem giỏ hàng
+                  </Link>
+                </div>
+              )}
+              <div className="flex items-center gap-3">
+                <QuantityStepper
+                  label={product.name}
+                  value={quantity}
+                  onChange={changeQuantity}
+                  disabled={unavailable}
+                />
+                <Button
+                  className="flex-1 justify-between gap-3 px-5"
+                  onClick={handleAdd}
+                  disabled={unavailable}
+                >
+                  {unavailable ? (
+                    'Hết hàng'
+                  ) : (
+                    <>
+                      <span className="whitespace-nowrap">Thêm vào giỏ</span>
+                      <span className="tabular-nums">{formatVND(total)}</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </section>
+          ) : (
+            <p className="-mx-4 mt-6 border-t border-line px-4 py-3 text-sm text-ink/70 lg:mx-0 lg:rounded-2xl lg:border lg:bg-white">
+              Tài khoản nhân viên, quản lý chỉ xem được món, không đặt đơn.
+            </p>
+          )}
+        </div>
       </main>
-
-      {canOrder(role) ? (
-      <section
-        aria-label="Số lượng và giá"
-        className="sticky bottom-0 border-t border-line bg-mist/95 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 backdrop-blur"
-      >
-        {addedMessage && (
-          <div
-            role="status"
-            className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-crema/40 px-4 py-2 text-sm"
-          >
-            <span>{addedMessage}</span>
-            <Link href="/cart" className="shrink-0 font-semibold text-pine underline">
-              Xem giỏ hàng
-            </Link>
-          </div>
-        )}
-        <div className="flex items-center gap-3">
-          <QuantityStepper
-            label={product.name}
-            value={quantity}
-            onChange={changeQuantity}
-            disabled={unavailable}
-          />
-          <Button className="flex-1 justify-between gap-3 px-5" onClick={handleAdd} disabled={unavailable}>
-            {unavailable ? (
-              'Hết hàng'
-            ) : (
-              <>
-                <span>Thêm vào giỏ</span>
-                <span className="tabular-nums">{formatVND(total)}</span>
-              </>
-            )}
-          </Button>
-        </div>
-      </section>
-      ) : (
-        <p className="border-t border-line px-4 py-3 text-sm text-ink/70">
-          Tài khoản nhân viên, quản lý chỉ xem được món, không đặt đơn.
-        </p>
-      )}
     </div>
   );
 }

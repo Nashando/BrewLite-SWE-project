@@ -55,7 +55,7 @@ export function MenuScreen() {
     );
   } else {
     content = (
-      <ul className="divide-y divide-line">
+      <ul className="divide-y divide-line md:grid md:auto-rows-fr md:grid-cols-2 md:gap-4 md:divide-y-0 md:pt-4 lg:grid-cols-3">
         {visible.map((product) => (
           <ProductRow key={product.id} product={product} />
         ))}
@@ -69,6 +69,7 @@ export function MenuScreen() {
     <>
       <AppHeader
         title="Hôm nay uống gì?"
+        wide
         actions={
           <>
             <UserActions />
@@ -79,7 +80,7 @@ export function MenuScreen() {
         }
       />
       {showTabs && (
-        <div className="px-4 pb-1 pt-3">
+        <div className="page-wide px-4 pb-1 pt-3">
           <input
             type="search"
             aria-label="Tìm món"
@@ -87,12 +88,12 @@ export function MenuScreen() {
             spellCheck={false}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="min-h-[44px] w-full rounded-full border border-line bg-white px-4 text-base"
+            className="min-h-[44px] w-full rounded-full border border-line bg-white px-4 text-base md:max-w-md"
           />
         </div>
       )}
-      {showTabs && <CategoryTabs categories={categories} active={category} onChange={setSelected} />}
-      <main className="px-4 pb-[max(env(safe-area-inset-bottom),2rem)]">{content}</main>
+      {showTabs && <CategoryTabs categories={categories} active={category} onChange={setSelected} wide />}
+      <main className="page-wide px-4 pb-[max(env(safe-area-inset-bottom),2rem)]">{content}</main>
     </>
   );
 }

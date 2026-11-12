@@ -42,7 +42,7 @@ export const canCancel = (status: OrderStatus) => status === 'PENDING_PAYMENT' |
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
-      className={`inline-block rounded-full px-3 py-1 text-sm font-medium ${ORDER_STATUS[status].style}`}
+      className={`inline-block shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-sm font-medium ${ORDER_STATUS[status].style}`}
     >
       {ORDER_STATUS[status].label}
     </span>
