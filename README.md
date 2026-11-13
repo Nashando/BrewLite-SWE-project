@@ -184,7 +184,7 @@ Integration và end-to-end test cần hệ thống đang chạy, xem [`tests/REA
 | Thành phần | Nền tảng | URL |
 |---|---|---|
 | **Frontend (Next.js)** | Vercel | `[https://brewlite-swe-project-web.vercel.app](https://brewlite-swe-project-web.vercel.app)` |
-| **Backend API (NestJS)** | Render (image từ GHCR) | `[https://brewlite-swe-project.onrender.com](https://brewlite-swe-project.onrender.com)` |
+| **Backend API (NestJS)** | Render (Deploy Hook) | `[https://brewlite-swe-project.onrender.com](https://brewlite-swe-project.onrender.com)` |
 | **Health check** | | `[https://brewlite-swe-project.onrender.com/health](https://brewlite-swe-project.onrender.com/health)` |
 | **Database** | Render PostgreSQL (không public, chỉ kết nối nội bộ) | — |
 
@@ -194,8 +194,20 @@ Integration và end-to-end test cần hệ thống đang chạy, xem [`tests/REA
   git tag -a v1.0.0 -m "BrewLite v1.0.0"
   git push origin v1.0.0
   ```
-  Pipeline CD (`.github/workflows/cd.yml`) tự chạy: Lint & Test ➔ Build Docker image ➔ Push GHCR ➔ Deploy API ➔ Smoke test ➔ Deploy Web ➔ Smoke test.
+ - **CI/CD Pipeline:** GitHub Actions tự động hóa quy trình:
+  1. **CI Quality Gate:** Chạy Lint, Test và Build trên mọi Pull Request.
+  2. **CD Release Flow (khi push Git Tag):** Chạy Quality Gate ➔ Kích hoạt Render Deploy Hook (Render tự động build mã nguồn Node trực tiếp từ Git) ➔ Chạy tự động Smoke Test (`/health`, `/products`, `/menu`).
+  *(Lưu ý: Ứng dụng Frontend trên Vercel tự động deploy thông qua Git Integration ngay khi merge code vào nhánh `main`).*
 - **Hướng dẫn đầy đủ** (cấu hình lần đầu, secrets, migration, xử lý sự cố): [docs/deployment.md](./docs/deployment.md). Ghi chú phát hành: [docs/release-notes.md](./docs/release-notes.md).
+
+### Hướng dẫn Rollback
+
+1. **API (Render):** Mở service API, vào lịch sử deploy và chọn deploy ổn định trước đó để redeploy. Sau khi hoàn tất, kiểm tra `/health` và `/products`.
+2. **Web (Vercel):** Mở trang Deployments, chọn deployment ổn định trước đó và chọn **Promote to Production**. Kiểm tra trang `/menu` và khả năng gọi API.
+3. **Database:** Rollback ứng dụng không tự hoàn tác migration. Ưu tiên sửa lỗi bằng một migration mới tương thích ngược; chỉ khôi phục database từ backup khi đã đánh giá ảnh hưởng và chấp nhận mất dữ liệu phát sinh sau thời điểm backup. Không dùng `prisma migrate reset` trên production.
+4. **Xác minh:** Kiểm tra health check, đăng nhập và luồng đặt hàng/thanh toán; theo dõi log API sau khi rollback.
+
+> Nếu bản phát hành đã chạy migration, hãy xác nhận phiên bản ứng dụng cũ tương thích với schema hiện tại trước khi redeploy.
 
 ---
 

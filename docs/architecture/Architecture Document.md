@@ -1,27 +1,27 @@
 # Tài liệu Thiết kế Kiến trúc Hệ thống BrewLite (Architecture Document)
 
-## 1. Tổng quan & Phương pháp Kiến trúc
-- **Dự án**: BrewLite – Hệ thống đặt cà phê & đồ uống trực tuyến theo mô hình chuỗi cửa hàng Starbucks.
+1. ## Tổng quan & Phương pháp Kiến trúc
+- **Dự án**: BrewLite – Hệ thống đặt cà phê & đồ uống trực tuyến theo mô hình chuỗi cửa hàng.
 - **Mục tiêu**: Cung cấp kiến trúc hệ thống hiện đại, linh hoạt, đảm bảo tính mở rộng, bảo mật, khả năng bảo trì và hỗ trợ luồng nghiệp vụ end-to-end từ xem menu đến đặt đơn và thanh toán.
 - **Phương pháp thiết kế**: Áp dụng **Mô hình C4 (C4 Model)** (Level 1 & Level 2) kết hợp với **Kiến trúc Phân lớp theo Domain/Module (Modular Layered Architecture)** cho Backend.
 - **Bộ công nghệ cốt lõi**:
   - **Frontend**: Next.js (phát triển theo hướng Mobile-first / PWA).
   - **Backend**: NestJS (Node.js framework chia theo module/domain).
-  - **Database**: PostgreSQL quản lý qua cơ chế Migration.
+  - **Database**: PostgreSQL quản lý qua cơ chế Migration với Prisma ORM.
 
 ---
 
 ## 2. Mô hình Kiến trúc C4 (C4 Model)
 
 ### 2.1 Level 1: System Context Diagram (Bối cảnh hệ thống)
-Sơ đồ bối cảnh mô tả tương tác giữa các tác nhân người dùng và hệ thống bên ngoài với BrewLite:
+Sơ đồ bối cảnh mô tả tương tác giữa các tác nhân người dùng với hệ thống BrewLite:
 
 - **Tác nhân (Actors)**:
-  - **Khách hàng (Customer)**: Xem menu, chọn đồ uống với các tùy chọn linh hoạt (Size, Toppings), quản lý giỏ hàng, đặt đơn hàng "Order Ahead & Pickup", thanh toán và theo dõi trạng thái đơn hàng (tính năng tích điểm đổi quà là định hướng mở rộng).
-  - **Nhân viên / Quản lý quầy (Store Staff / Manager)**: Xem danh sách đơn hàng theo thời gian thực, tiếp nhận và cập nhật trạng thái đơn (Mới tạo -> Đang pha chế -> Sẵn sàng lấy đồ -> Hoàn thành).
-- **Hệ thống BrewLite (BrewLite System)**: Tiếp nhận yêu cầu từ người dùng, xử lý logic đặt đồ uống, quản lý tồn kho và lưu trữ lịch sử giao dịch.
-- **Hệ thống bên ngoài (External Systems)**:
-  - **Dịch vụ Thanh toán Mô phỏng (Mock Payment Gateway)**: Xử lý các giao dịch Ví điện tử / Thẻ mô phỏng, phản hồi trạng thái giao dịch và đảm bảo tính an toàn giao dịch.
+  - **Khách hàng (Customer)**: Xem menu, chọn đồ uống với các tùy chọn linh hoạt (Size S/M/L, Toppings), quản lý giỏ hàng, đặt đơn hàng "Order Ahead & Pickup", lựa chọn hình thức thanh toán (CASH, Ví, Thẻ mô phỏng nội bộ) và theo dõi trạng thái đơn hàng.
+  - **Nhân viên / Quản lý quầy (Store Staff / Manager)**: Xem danh sách đơn hàng qua giao diện quản lý, tiếp nhận và cập nhật trạng thái đơn qua API (`PAID` ➔ `PREPARING` ➔ `READY` ➔ `COMPLETED`).
+- **Hệ thống BrewLite (BrewLite System)**: Tiếp nhận yêu cầu từ người dùng, xử lý logic đặt đồ uống, quản lý tồn kho, xử lý giao dịch thanh toán mô phỏng nội bộ và lưu trữ lịch sử giao dịch.
+- **Hệ thống bên ngoài (External Systems)**: 
+  - *Không có hệ thống thanh toán bên ngoài (hệ thống vận hành hoàn toàn độc lập với cổng thanh toán thực tế, sử dụng cơ chế mô phỏng nội bộ tích hợp sẵn trong Backend).*
 
 ### 2.2 Level 2: Container Diagram (Các thành phần Container)
 Hệ thống được chia thành 3 container chính hoạt động độc lập:
@@ -41,13 +41,13 @@ Hệ thống được chia thành 3 container chính hoạt động độc lập
 ## 3. Kiến trúc Chi tiết Backend NestJS (`apps/api`)
 Backend NestJS được thiết kế theo dạng **Module-based** tương ứng với từng miền nghiệp vụ (Domain-Driven Modules):
 
-- **Auth Module**: Đăng ký, đăng nhập, mã hóa mật khẩu (bcrypt), phát hành và kiểm tra **JWT Access Token & Refresh Token**.
-- **Products Module**: Cung cấp danh mục đồ uống theo phân loại, danh mục Size (Tall, Grande, Venti) và danh sách Topping bổ sung theo mô hình chuỗi cà phê.
+- **Auth Module**: Đăng ký, đăng nhập, mã hóa mật khẩu (bcrypt), phát hành và kiểm tra **JWT Access Token & Refresh Token**, phân quyền khách / nhân viên / quản lý.
+- **Products Module**: Cung cấp danh mục đồ uống theo phân loại, danh mục Size (`S`, `M`, `L`) và danh sách Topping bổ sung theo mô hình chuỗi cửa hàng.
 - **Cart Module**: Quản lý giỏ hàng của người dùng, tính toán tổng tiền dựa trên size và topping đã chọn.
-- **Order Module**: Tiếp nhận đơn hàng, thực thi **Database Transaction** để đảm bảo tính toàn vẹn khi kiểm tra/trừ số lượng tồn kho, cập nhật trạng thái đơn và cơ chế tự động huỷ/hoàn tồn kho khi đơn quá hạn thanh toán (TTL 15 phút).
-- **Payment Module**: Xử lý giao dịch qua Cổng thanh toán mô phỏng (Ví/Thẻ), áp dụng cơ chế **Idempotency Key** để chống thanh toán trùng lặp khi người dùng gửi lại request.
+- **Order Module**: Tiếp nhận đơn hàng, thực thi **Database Transaction** để đảm bảo tính toàn vẹn khi kiểm tra/trừ số lượng tồn kho, báo hết hàng, cập nhật trạng thái đơn và cơ chế tự động huỷ/hoàn tồn kho khi đơn quá hạn thanh toán (TTL 15 phút).
+- **Payment Module**: Xử lý giao dịch qua cổng thanh toán mô phỏng nội bộ (Hỗ trợ **CASH, Ví, Thẻ**), áp dụng cơ chế **Idempotency-Key** để tránh trừ tiền trùng lặp; trường hợp thanh toán thất bại sẽ tự động hủy đơn và hoàn trả tồn kho.
 - **Health Module**: Cung cấp đường dẫn `GET /health` kiểm tra tình trạng sống của API và kết nối Database qua NestJS Terminus.
-- **Định hướng mở rộng (Future Scope - Loyalty & Promotion)**: Quản lý tích điểm thưởng (Starbucks Rewards) và danh mục mã ưu đãi / voucher giảm giá trong các giai đoạn phát triển tiếp theo khi hệ thống mở rộng quy mô.
+- **Định hướng mở rộng (Future Scope - Loyalty & Promotion)**: Quản lý tích điểm thưởng và danh mục mã ưu đãi / voucher giảm giá trong các giai đoạn phát triển tiếp theo.
 
 ---
 
@@ -55,14 +55,14 @@ Backend NestJS được thiết kế theo dạng **Module-based** tương ứng 
 - **ORM / Query Builder**: Sử dụng **Prisma ORM** để định nghĩa Schema type-safe và tương tác với cơ sở dữ liệu PostgreSQL.
 - **Cơ chế Migration (Database Migration)**:
   - Mọi thay đổi về cấu trúc bảng/cột phải được ghi lại dưới dạng các tệp migration có đánh số phiên bản trong thư mục `apps/api/prisma/migrations`.
-  - Pipeline CD sẽ tự động kích hoạt lệnh migration (`npx prisma migrate deploy`) trong quá trình triển khai Production để đảm bảo dữ liệu luôn đồng bộ và không bị thất thoát.
-- **Dữ liệu khởi tạo (Data Seeding)**: Cung cấp tệp `seed.ts` để nạp sẵn dữ liệu mẫu về thực đơn đồ uống Starbucks (giá, biến thể size, toppings) phục vụ quá trình phát triển local và kiểm thử.
+  - Pipeline CI/CD sẽ tự động kích hoạt lệnh migration (`prisma migrate deploy`) trong quá trình khởi chạy ứng dụng Production để đảm bảo dữ liệu luôn đồng bộ.
+- **Dữ liệu khởi tạo (Data Seeding)**: Cung cấp tệp `seed.ts` để nạp sẵn dữ liệu mẫu về thực đơn đồ uống (giá, biến thể size S/M/L, toppings) phục vụ quá trình phát triển local và kiểm thử.
 
 ---
 
 ## 5. Quản lý Cấu hình, Health Check & Logging
 - **Quản lý Cấu hình (Environment Variables)**:
-  - Tất cả cấu hình hệ thống và thông tin nhạy cảm (`DATABASE_URL`, `JWT_SECRET`, `PORT`) được lưu trong tệp `.env` local (mẫu cung cấp tại `.env.example`) và truyền qua biến môi trường của nền tảng Cloud khi triển khai Production.
+  - Tất cả cấu hình hệ thống và thông tin nhạy cảm (`DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`, `PORT`) được quản lý bảo mật qua biến môi trường của nền tảng Cloud khi triển khai Production.
 - **Health Check Endpoint**:
   - Tích hợp NestJS Terminus tại endpoint `GET /health` phản hồi trạng thái hoạt động của dịch vụ API và khả năng kết nối tới PostgreSQL Database.
 - **Logging & Monitoring**:
@@ -76,6 +76,6 @@ Backend NestJS được thiết kế theo dạng **Module-based** tương ứng 
   - *Đánh đổi (Trade-off)*: Dung lượng repo lớn hơn, đòi hỏi cấu hình CI pipeline nhận biết thay đổi theo từng ứng dụng để tối ưu thời gian build.
 - **Dịch vụ Thanh toán Mô phỏng (Mock Payment Service)**:
   - *Lý do lựa chọn*: Giúp nhóm chủ động phát triển và kiểm thử toàn bộ luồng thanh toán mà không bị phụ thuộc vào thủ tục đăng ký cổng thanh toán thật.
-  - *Đánh đổi (Trade-off)*: Không xử lý tiền thật, nhưng vẫn đảm bảo áp dụng đầy đủ các chuẩn kỹ thuật như Idempotency, mã giao dịch ngẫu nhiên và phản hồi Webhook.
+  - *Đánh đổi (Trade-off)*: Không xử lý tiền thật, nhưng vẫn đảm bảo áp dụng đầy đủ các chuẩn kỹ thuật như Idempotency, mã giao dịch ngẫu nhiên và quản lý trạng thái đơn hàng chặt chẽ.
 - **Ứng dụng Web PWA (Mobile-first)**:
   - *Lý do lựa chọn*: Giúp khách hàng có trải nghiệm đặt cà phê mượt mà trên thiết bị di động như app native mà không cần cài đặt từ App Store.
