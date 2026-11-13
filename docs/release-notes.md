@@ -12,15 +12,15 @@ Phiên bản đầu tiên chạy được toàn bộ luồng: **Xem menu ➔ Ch�
 - Image: `ghcr.io/nashando/brewlite-api:1.0.0`
 
 ### Tính năng
-- **Menu và chi tiết sản phẩm:** danh sách đồ uống theo danh mục, tìm kiếm, chọn size (Tall/Grande/Venti) và topping; trạng thái loading, empty, error.
+- **Menu và chi tiết sản phẩm:** danh sách đồ uống theo danh mục, tìm kiếm, chọn size (S / M / L) và topping; trạng thái loading, empty, error.
 - **Giỏ hàng:** thêm/sửa/xoá món, tính tổng tiền; máy chủ luôn tính lại giá khi đặt đơn.
 - **Tài khoản:** đăng ký, đăng nhập, JWT (access token và refresh token), phân quyền khách / nhân viên / quản lý.
 - **Đặt đơn:** tạo đơn trong một transaction, trừ tồn kho; báo hết hàng; đơn chờ thanh toán giữ hàng 15 phút rồi tự huỷ và hoàn tồn kho.
-- **Thanh toán mô phỏng:** Ví và Thẻ, có `Idempotency-Key` để gửi lại không bị trừ tiền hai lần; thất bại vẫn giữ đơn để thử lại.
+- **Thanh toán mô phỏng:** Ví và Thẻ, có `Idempotency-Key` để gửi lại không bị trừ tiền hai lần; thanh toán thất bại sẽ tự động hủy đơn và hoàn trả tồn kho, khách hàng cần tạo đơn mới để thử lại.
 - **Theo dõi đơn:** lịch sử đơn, chi tiết đơn, tra cứu theo mã đơn, huỷ đơn (hoàn kho và hoàn tiền nếu đã thanh toán).
 - **Quản lý đơn (API):** nhân viên/quản lý xem tất cả đơn và chuyển trạng thái PAID ➔ PREPARING ➔ READY ➔ COMPLETED.
 - **Vận hành:** `GET /health` (kiểm tra cả PostgreSQL), logging, cấu hình qua biến môi trường, `docker-compose.yml` chạy web + API + database ở local.
-- **CI/CD:** GitHub Actions chạy Install ➔ Lint ➔ Test ➔ Build cho mọi PR; push tag tự động build image, push GHCR, deploy, smoke test và rollback khi lỗi.
+- **CI/CD:** GitHub Actions chạy Install ➔ Lint ➔ Test ➔ Build cho mọi PR; push tag kích hoạt Render Deploy Hook và chạy Smoke Test xác thực API (`/health`, `/products`) và Web (`/menu`).
 
 ### Hạn chế đã biết
 - Thanh toán là **mô phỏng**, không có cổng thanh toán thật (ADR 004).
@@ -35,4 +35,4 @@ Phiên bản đầu tiên chạy được toàn bộ luồng: **Xem menu ➔ Ch�
 
 ### Nâng cấp / Rollback
 - Migration chạy tự động khi API khởi động (`prisma migrate deploy`), không có thay đổi phá vỡ.
-- Rollback: xem mục 8 trong `docs/deployment.md`.
+- Rollback: xem mục 5 trong `docs/deployment.md`.
