@@ -10,7 +10,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432" # chỉ mở cho máy local, không public
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432" # chỉ mở cho máy local, không public
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-brewlite} -d ${POSTGRES_DB:-brewlite}"]
       interval: 5s
@@ -26,13 +26,21 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-brewlite}:${POSTGRES_PASSWORD:-brewlite}@db:5432/${POSTGRES_DB:-brewlite}
       JWT_SECRET: ${JWT_SECRET:-change-me-in-local-only}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
-      # Trình duyệt ở http://localhost:3000 gọi API ở :3001 => API phải bật CORS cho origin này
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-refresh-local-only}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      ORDER_PAYMENT_TTL_MINUTES: ${ORDER_PAYMENT_TTL_MINUTES:-15}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      start_period: 60s
+      retries: 24
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "3001:3001"
+      - "127.0.0.1:${API_PORT:-3001}:3001"
 
   web:
     build:
@@ -42,9 +50,10 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
         NEXT_PUBLIC_API_MOCKING: disabled
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
-      - "3000:3000"
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
 
 volumes:
   pgdata:

@@ -1,0 +1,64 @@
+{
+  "testedBaseCommit": "4c171df567be0b0b29045876b7bc1d2385d33760",
+  "sourceState": "main 4c171df plus scoped TV6 QA changes; no app/workflow changes",
+  "applicationSourceUnchangedFromBase": true,
+  "startedAt": "2026-11-14T17:30:32.000Z",
+  "finishedAt": "2026-11-14T17:37:55.665Z",
+  "timezone": "Asia/Saigon",
+  "node": "v22.23.5",
+  "webMode": "Next.js production",
+  "database": "PostgreSQL 16.15 temporary; timezone UTC",
+  "apiJest": {
+    "passed": 56,
+    "failed": 0
+  },
+  "webVitest": {
+    "passed": 163,
+    "failed": 0
+  },
+  "qaUnit": {
+    "passed": 8,
+    "failed": 0
+  },
+  "integration": {
+    "passed": 38,
+    "failed": 0
+  },
+  "e2e": {
+    "startTime": "2026-11-14T17:37:04.090Z",
+    "duration": 48838.437999999995,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "mobileViewport": "375x812",
+  "desktopViewport": "1440x900",
+  "retries": 0,
+  "seedProducts": 21,
+  "migrations": 4,
+  "smoke": {
+    "database": "up",
+    "products": 21,
+    "webVerified": true,
+    "commitVerified": false,
+    "expectedCommit": null
+  },
+  "measurement": {
+    "exitCode": 1,
+    "performancePassed": true,
+    "layoutPassed": false,
+    "medianLcpMs": 76,
+    "manifestValid": true
+  },
+  "cleanup": {
+    "databaseStopped": true,
+    "databaseDirectoryRemoved": true
+  },
+  "limitations": [
+    "No Docker runtime on this machine; Compose not executed",
+    "Application/UI/workflow fixes from another local checkout are not included",
+    "Measurement is diagnostic and does not assert every NFR passed",
+    "No production transaction or deployment verification"
+  ]
+}

@@ -1,0 +1,76 @@
+1
+00:00:00,000 --> 00:00:06,512
+BrewLite bản ba3b7f6 · Demo local với API và PostgreSQL thật; thanh toán mô phỏng.
+
+2
+00:00:06,512 --> 00:00:21,243
+01 · Khách duyệt menu 21 món, tìm Bạc xỉu và chọn tùy chọn.
+
+3
+00:00:21,243 --> 00:00:30,071
+Chọn size L + trân châu đen, số lượng 2: tổng 96.000 đồng.
+
+4
+00:00:30,071 --> 00:00:41,976
+Khách chưa đăng nhập được yêu cầu xác thực trước khi đặt đơn. Giỏ hàng vẫn được giữ.
+
+5
+00:00:41,976 --> 00:00:46,648
+Tạo tài khoản demo trên database tạm; đăng ký xong quay lại bước thanh toán.
+
+6
+00:00:46,648 --> 00:00:54,509
+Ví BrewLite có 200.000 đồng mô phỏng; xác nhận trả 96.000 đồng cho đơn này.
+
+7
+00:00:54,509 --> 00:01:02,210
+Đơn BL-2F99E497 đã thanh toán bằng Ví. Mã đơn này được theo dõi xuyên suốt phần quầy.
+
+8
+00:01:02,210 --> 00:01:15,378
+Nhân viên đăng nhập màn hình Quầy và xử lý đúng mã đơn vừa tạo.
+
+9
+00:01:15,378 --> 00:01:18,945
+Đơn BL-2F99E497: Đã thanh toán → Đang pha chế.
+
+10
+00:01:18,945 --> 00:01:42,293
+Đơn BL-2F99E497: Đồ uống đã sẵn sàng để khách nhận tại quầy.
+
+11
+00:01:42,293 --> 00:01:46,520
+Khách xem lại BL-2F99E497: Hoàn tất. Kết thúc một luồng đặt → trả tiền → pha chế → nhận hàng.
+
+12
+00:01:46,520 --> 00:02:47,112
+02 · Thanh toán Thẻ: minh họa lỗi bị từ chối và giữ giỏ để thử lại.
+
+13
+00:02:47,112 --> 00:02:55,536
+Thẻ demo bị từ chối: hệ thống báo lỗi, hủy đơn và hoàn kho; giỏ hàng vẫn còn.
+
+14
+00:02:55,536 --> 00:03:02,725
+Thử lại tạo đơn mới. Dùng thẻ mô phỏng hợp lệ và xác nhận thanh toán.
+
+15
+00:03:02,725 --> 00:03:05,838
+Đơn mới BL-CF641706 đã thanh toán bằng Thẻ. Không dùng thông tin thẻ thật.
+
+16
+00:03:05,838 --> 00:03:31,372
+03 · Tiền mặt là phần mở rộng: chỉ ghi đã thanh toán sau khi nhân viên xác nhận thu tiền.
+
+17
+00:03:31,372 --> 00:03:45,224
+Đơn BL-0AF4A1A6 đang Chờ thanh toán; khách được nhắc ra quầy trả tiền mặt.
+
+18
+00:03:45,224 --> 00:03:48,583
+Quầy xác nhận đã thu tiền: BL-0AF4A1A6 chuyển sang Đã thanh toán.
+
+19
+00:03:48,583 --> 00:03:56,151
+Kết quả được đối chiếu với API thật: đơn Ví Hoàn tất, Thẻ thử lại và tiền mặt đều Đã thanh toán.
+

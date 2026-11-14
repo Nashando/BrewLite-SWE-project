@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="INT-T01: đăng ký rồi đăng nhập nhận JWT, ví khởi tạo 200.000đ" time="0.511546" classname="test"/>
+	<testcase name="INT-T01: đăng ký sai dữ liệu hoặc trùng email bị từ chối" time="0.144124" classname="test"/>
+	<testcase name="INT-T01: sai mật khẩu và token không hợp lệ đều 401" time="0.349611" classname="test"/>
+	<testcase name="INT-T04: tiền mặt: đơn chờ thu, nhân viên xác nhận thì đơn PAID" time="0.466763" classname="test"/>
+	<testcase name="INT-T04: đang chờ tiền mặt thì không trả thêm bằng ví, thẻ" time="0.181365" classname="test"/>
+	<testcase name="INT-T04: xác nhận tiền mặt: nhiều nhân viên cùng lúc chỉ một lần được, đơn không chọn tiền mặt bị từ chối" time="0.423747" classname="test"/>
+	<testcase name="INT-T04: đơn quá 15 phút chưa thanh toán tự huỷ, trả kho, không xác nhận được nữa" time="0.263141" classname="test"/>
+	<testcase name="INT-T04: huỷ đơn đã trả bằng ví: hoàn số dư, trả kho, chỉ hoàn một lần" time="0.210576" classname="test"/>
+	<testcase name="INT-T04: huỷ đơn đã trả bằng thẻ: giao dịch REFUNDED, số dư ví không đổi" time="0.172280" classname="test"/>
+	<testcase name="INT-T04: không huỷ được đơn của người khác và đơn đã bắt đầu pha chế" time="0.260555" classname="test"/>
+	<testcase name="INT-T02: tạo đơn cần đăng nhập" time="0.142124" classname="test"/>
+	<testcase name="INT-T02: tạo đơn trong transaction: tính giá ở server, trừ kho, trạng thái chờ thanh toán" time="0.148642" classname="test"/>
+	<testcase name="INT-T02: dữ liệu sai bị từ chối và không trừ kho" time="0.141188" classname="test"/>
+	<testcase name="INT-T02: id sai định dạng từ giỏ cũ: báo tiếng Việt, không lộ lỗi kỹ thuật" time="0.114665" classname="test"/>
+	<testcase name="INT-T02: hết hàng trả 400 OUT_OF_STOCK, rollback cả các món khác trong đơn" time="0.147248" classname="test"/>
+	<testcase name="INT-T02: nhiều người đặt cùng lúc không làm âm kho" time="0.983413" classname="test"/>
+	<testcase name="INT-T02: đơn đồng thời có thứ tự món ngược nhau không bị deadlock" time="0.950079" classname="test"/>
+	<testcase name="INT-T03: trả bằng ví thành công: trừ số dư, đơn PAID" time="0.272361" classname="test"/>
+	<testcase name="INT-T03: ví không đủ tiền: 402, huỷ đơn, trả kho, không trừ số dư" time="0.181603" classname="test"/>
+	<testcase name="INT-T03: trả bằng thẻ thành công, không đụng tới ví" time="0.120363" classname="test"/>
+	<testcase name="INT-T03: thẻ bị từ chối: 402, huỷ đơn, trả kho; thử lại bằng đơn mới thì thành công" time="0.154600" classname="test"/>
+	<testcase name="INT-T03: dữ liệu thanh toán sai bị từ chối, đơn vẫn chờ" time="0.149838" classname="test"/>
+	<testcase name="INT-T03: không trả được đơn của người khác" time="0.231621" classname="test"/>
+	<testcase name="INT-T03: gửi lại cùng Idempotency-Key trả kết quả cũ, không trừ tiền lần 2" time="0.130205" classname="test"/>
+	<testcase name="INT-T03: gửi lại key của lần thất bại vẫn trả 402" time="0.120589" classname="test"/>
+	<testcase name="INT-T03: cùng key cho đơn khác bị từ chối" time="0.128110" classname="test"/>
+	<testcase name="INT-T03: 8 request song song cùng key: mọi request nhận kết quả cũ, trừ tiền một lần" time="0.156283" classname="test"/>
+	<testcase name="INT-T03: 8 request song song khác key: chỉ một lần thành công" time="0.168268" classname="test"/>
+	<testcase name="INT-T03: 8 request thất bại song song cùng key: chỉ trả kho một lần" time="0.183666" classname="test"/>
+	<testcase name="INT-T03: ví chỉ đủ một đơn: hai đơn trả song song không làm âm số dư" time="0.146684" classname="test"/>
+	<testcase name="INT-T05: nhân viên chuyển trạng thái đơn đúng thứ tự, khách không đổi được" time="0.395127" classname="test"/>
+	<testcase name="INT-T05: chỉ khách hàng mới đặt được đơn và thanh toán" time="0.158011" classname="test"/>
+	<testcase name="INT-T05: khách chỉ thấy đơn của mình; nhân viên thấy tất cả, kèm tên khách" time="0.263742" classname="test"/>
+	<testcase name="INT-T05: trang quản lý chỉ dành cho quản lý" time="0.152474" classname="test"/>
+	<testcase name="INT-T05: quản lý thêm, sửa, ẩn món; món cập nhật trên menu khách" time="0.057741" classname="test"/>
+	<testcase name="INT-T05: chỉnh kho không làm âm và an toàn khi đồng thời" time="0.104558" classname="test"/>
+	<testcase name="INT-T05: topping ẩn không còn chọn được khi đặt đơn" time="0.156582" classname="test"/>
+	<testcase name="INT-T05: doanh thu chỉ tính đơn đã trả, không tính đơn chờ và đơn huỷ" time="0.170605" classname="test"/>
+	<!-- tests 38 -->
+	<!-- suites 0 -->
+	<!-- pass 38 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 10617.3063 -->
+</testsuites>

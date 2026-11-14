@@ -15,7 +15,7 @@ export default defineConfig({
   },
   // Mobile-first nên luôn test cỡ điện thoại; thêm cỡ máy tính vì giao diện đổi bố cục từ 1024px
   projects: [
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
+    { name: 'mobile-chromium', use: { ...devices['Pixel 7'], viewport: { width: 375, height: 812 } } },
     { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
   ],
 });

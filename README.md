@@ -177,6 +177,12 @@ Test của API dùng mock Prisma nên **không cần PostgreSQL**. Build image D
 
 Integration và end-to-end test cần hệ thống đang chạy, xem [`tests/README.md`](./tests/README.md).
 
+**Bổ sung TV6 — Task 5.2:** unit công cụ QA nằm ở tests/unit; integration ở tests/integration và E2E ở tests/e2e. Trong tests, npm test chạy unit QA → integration → E2E; ứng dụng vẫn có unit nghiệp vụ riêng trong apps/api và apps/web.
+
+**Kiểm chứng Compose và lưu log:** từ root, chạy `powershell -NoProfile -File tests/scripts/verify-compose.ps1 -OutputDirectory ./compose-evidence -RunTests` sau khi cài dependency tests và Chromium. Script yêu cầu Docker/Compose v2 + Node 22, dùng project/ports/DB tạm và dọn project thử sau chạy. Nếu chưa cài Docker, kết quả là BLOCKED, không phải PASS. Cổng host có thể đặt qua API_PORT, WEB_PORT, POSTGRES_PORT; NEXT_PUBLIC_API_URL/CORS_ORIGIN phải khớp cổng trình duyệt.
+
+[Hướng dẫn QA và đo giao diện/hiệu năng](tests/README.md), [báo cáo test](docs/testing/qa-report-2026-11-15.md), [video demo Task 5.4](docs/delivery/demo-evidence.md). Video/phụ đề được nộp cùng repo trong docs/delivery/demo.
+
 ---
 
 ## ☁️ 7. Triển Khai Production, Release & Rollback
@@ -191,8 +197,9 @@ Integration và end-to-end test cần hệ thống đang chạy, xem [`tests/REA
 - **Phát hành (deploy):** merge code vào `main`, rồi gắn tag phiên bản trên `main`:
   ```bash
   git checkout main && git pull
-  git tag -a v1.0.0 -m "BrewLite v1.0.0"
-  git push origin v1.0.0
+  # Ví dụ: chọn tag mới chưa tồn tại sau khi review source, không ghi đè tag cũ
+  git tag -a v1.0.2 -m "BrewLite v1.0.2"
+  git push origin v1.0.2
   ```
  - **CI/CD Pipeline:** GitHub Actions tự động hóa quy trình:
   1. **CI Quality Gate:** Chạy Lint, Test và Build trên mọi Pull Request.

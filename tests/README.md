@@ -30,6 +30,35 @@ npx playwright install chromium
 npm test                 # hoặc test:integration, test:e2e
 ```
 
-E2E chạy mỗi kịch bản hai lần: cỡ điện thoại (Pixel 7) và cỡ máy tính (1440×900), vì giao diện đổi bố cục từ 1024px. Chạy riêng một cỡ: `npx playwright test --project=mobile-chromium` hoặc `--project=desktop-chromium`.
+E2E chạy mỗi kịch bản hai lần: mobile 375×812 (thiết lập touch/scale từ Pixel 7, viewport override theo SRS) và desktop 1440×900. Chạy riêng: `npx playwright test --project=mobile-chromium` hoặc `--project=desktop-chromium`. Kết quả chạy phải ghi phiên bản/patch và môi trường web dev hay production. Bộ QA không tự bao gồm bản sửa UI của thành viên frontend.
 
 Mặc định trỏ tới hệ thống local. Đổi bằng biến môi trường `API_URL`, `WEB_URL`, `DATABASE_URL`. Test tự tạo tài khoản và món riêng, xong thì ẩn món đó, nên chạy lại nhiều lần được; các test chạy tuần tự vì có phép so sánh tổng doanh thu. Riêng `DATABASE_URL` chỉ dùng để giả lập đơn quá hạn; **không chạy các test này trên production**.
+
+## Unit test công cụ QA
+
+Từ tests chạy `npm run test:unit`: 8 test smoke helper, không cần API/DB. `npm test` chạy lần lượt unit QA → integration → E2E. Unit nghiệp vụ ứng dụng vẫn ở apps/api và apps/web theo README gốc; không di chuyển test đã có.
+
+`helpers/smoke.mjs` chỉ gửi GET /health, /products, /menu. Nếu cung cấp EXPECTED_COMMIT thì kiểm thêm /version và /api/version và fail khi lệch SHA. Main chưa có các endpoint này thì bỏ EXPECTED_COMMIT; kết quả ghi commitVerified=false, không giả nhận đã xác minh deployment SHA. Không gọi Deploy Hook hoặc thay cấu hình production.
+
+## Kiểm chứng Compose và lưu log (Windows/PowerShell)
+
+Chạy từ root repo, yêu cầu Docker engine/Compose v2 hỗ trợ up --wait và Node.js 22. Cài dependency trong tests và Chromium trước khi dùng -RunTests:
+
+```powershell
+powershell -NoProfile -File tests/scripts/verify-compose.ps1 -OutputDirectory ./compose-evidence -RunTests
+```
+
+Script dùng project/ports/password tạm, build web/API, áp dụng migration khi API start, seed, smoke và test; lưu log, rồi chỉ dọn project/volume thử của nó. Không dùng database production. Nếu thiếu Docker thì exit 2/status blocked; không coi schema hợp lệ hoặc test ngoài Docker là Compose đã đạt.
+
+## Đo menu và kiểm tra tràn ngang
+
+Trỏ WEB_URL tới hệ thống local đang chạy; WEB_MODE ghi dev hay production. Từ tests:
+
+```powershell
+$env:WEB_URL = 'http://localhost:3000'
+$env:WEB_MODE = 'production'
+$env:MEASUREMENT_OUTPUT = './menu-measurement.json'
+npm run test:measure
+```
+
+Script đo 3 LCP ở context mới, viewport 375×812, không throttle, báo từng mẫu/trung vị; kiểm tra menu/chi tiết/giỏ/checkout ở 375×812 và 1440×900, manifest và lưu ảnh. LCP >=2s/tràn ngang/manifest lỗi trả exit 1. Đây là phép đo QA độc lập, không tự sửa UI hoặc khẳng định production cloud đạt. Xem [báo cáo theo phiên bản](../docs/testing/qa-report-2026-11-15.md).

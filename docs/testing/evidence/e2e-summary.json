@@ -1,0 +1,19 @@
+{
+  "stats": {
+    "startTime": "2026-11-14T17:37:04.090Z",
+    "duration": 48838.437999999995,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "projects": [
+    {
+      "name": "mobile-chromium"
+    },
+    {
+      "name": "desktop-chromium"
+    }
+  ],
+  "retries": 0
+}

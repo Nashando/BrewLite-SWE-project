@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="Healthy old API must fail when an expected SHA is requested" time="0.019948" classname="test"/>
+	<testcase name="Matching API with stale web must fail SHA verification" time="0.001732" classname="test"/>
+	<testcase name="Matching SHA cannot hide a database outage" time="0.000298" classname="test"/>
+	<testcase name="Matching API, web, database and menu succeed" time="0.000649" classname="test"/>
+	<testcase name="A successful products HTTP response with an empty catalogue is not ready" time="0.000309" classname="test"/>
+	<testcase name="HTTP 503 is not accepted as successful health" time="0.000175" classname="test"/>
+	<testcase name="Legacy application can smoke without version endpoints and never claims a verified SHA" time="0.001708" classname="test"/>
+	<testcase name="Polling stale SHA is bounded and fails instead of reporting deployment success" time="0.000927" classname="test"/>
+	<!-- tests 8 -->
+	<!-- suites 0 -->
+	<!-- pass 8 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 150.0338 -->
+</testsuites>

@@ -1,0 +1,8 @@
+﻿{
+    "startedAt":  "2026-11-14T17:31:53.3317991Z",
+    "status":  "blocked",
+    "environment":  "local Docker Compose",
+    "testsRequested":  false,
+    "error":  "Docker CLI/engine is not installed. Install/start Docker before running this verifier.",
+    "finishedAt":  "2026-11-14T17:31:58.8620958Z"
+}

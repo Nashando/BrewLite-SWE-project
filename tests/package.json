@@ -5,9 +5,11 @@
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {
+    "test:unit": "node --test unit/*.test.mjs",
     "test:integration": "node --test --test-concurrency=1 \"integration/**/*.test.mjs\"",
     "test:e2e": "playwright test",
-    "test": "npm run test:integration && npm run test:e2e"
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:measure": "node scripts/measure-menu.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
