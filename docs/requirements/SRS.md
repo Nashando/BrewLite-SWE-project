@@ -32,4 +32,4 @@
 - **Won't:** Giao hàng tận nơi, thanh toán thật qua MOMO/VNPAY.
 
 ## 4. Sơ đồ use-case tổng quát
-[Xem chi tiết sơ đồ Use-case tại đây]((https://github.com/Nashando/BrewLite-SWE-project/blob/main/docs/diagrams/usecase.svg)
+[Xem chi tiết sơ đồ Use-case tại đây](https://github.com/Nashando/BrewLite-SWE-project/blob/main/docs/diagrams/usecase.svg)
