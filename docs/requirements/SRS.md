@@ -2,22 +2,21 @@
 
 ## 1. Yêu cầu chức năng (FR)
 
-| Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận (Acceptance Criteria) |
+| Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận & Hậu điều kiện lỗi |
 |---|---|---|---|
-| FR-01 | Xem menu | Must | Hiển thị danh sách món có tên, giá. Trang tải thành công dưới 2s. |
-| FR-02 | Xem chi tiết sản phẩm | Must | Hiển thị mô tả, size, topping. Bấm chọn size/topping cập nhật giá lập tức. |
-| FR-03 | Giỏ hàng | Must | Thêm/sửa/xoá món thành công. Tổng tiền cập nhật đúng khi thay đổi số lượng. |
-| FR-04 | Đăng ký / Đăng nhập | Must | Tạo tài khoản hợp lệ. Đăng nhập bằng JWT, trả về access token. |
-| FR-05 | Đặt đơn + Thanh toán | Must | Tạo đơn, thanh toán mô phỏng (Ví/Thẻ + Tiền mặt), không âm tồn kho. Hỗ trợ Idempotency. |
-| FR-06 | Lịch sử đơn | Should | Xem danh sách đơn đã đặt, trạng thái đơn hiển thị chính xác. |
-| FR-07 | Quản lý trạng thái đơn | Should | (Staff/Admin) Cập nhật trạng thái: PENDING_PAYMENT -> PAID -> PREPARING -> READY -> COMPLETED. |
-| FR-08 | Quản lý menu & Tồn kho | Should | (Admin) Thêm/sửa/xóa món, size, topping. Cập nhật số lượng tồn kho. |
-| FR-09 | Hủy đơn hàng | Should | Khách hàng có thể hủy đơn khi đơn đang ở trạng thái "Chờ xử lý". Hoàn kho. |
-| FR-10 | Áp dụng khuyến mãi | Could | *(Tính năng mở rộng)* Nhập mã giảm giá hợp lệ, tổng tiền được trừ tương ứng. |
-| FR-11 | Xem thống kê doanh thu | Could | *(Tính năng mở rộng)* Xem báo cáo doanh thu, số lượng đơn, món bán chạy. |
+| FR-01 | Xem menu | Must | Hiển thị danh sách món. **Lỗi:** Nếu API lỗi, hiển thị màn hình thông báo "Không tải được menu" và nút Thử lại. |
+| FR-02 | Xem chi tiết sản phẩm | Must | Hiển thị mô tả, size, topping. **Lỗi:** Nếu sản phẩm không tồn tại, hiển thị trang 404. |
+| FR-03 | Giỏ hàng | Must | Thêm/sửa/xoá món thành công. **Lỗi:** Nếu món hết hàng, báo đỏ và không cho thêm vào giỏ. |
+| FR-04 | Đăng ký / Đăng nhập | Must | Đăng nhập bằng JWT. **Lỗi:** Sai mật khẩu/tài khoản, báo lỗi "Sai thông tin đăng nhập", giữ nguyên form. |
+| FR-05 | Đặt đơn + Thanh toán | Must | Tạo đơn thành công, trừ kho. **Hậu điều kiện lỗi:** Nếu thanh toán thất bại, đơn giữ trạng thái PENDING_PAYMENT, không trừ kho, cho phép thử lại thanh toán. |
+| FR-06 | Lịch sử đơn | Should | Xem danh sách đơn đã đặt. **Lỗi:** Chưa đăng nhập thì yêu cầu đăng nhập. |
+| FR-07 | Quản lý trạng thái đơn | Should | Cập nhật trạng thái: PENDING_PAYMENT -> PAID -> PREPARING -> READY -> COMPLETED. **Lỗi:** Staff không có quyền sửa đơn của chi nhánh khác. |
+| FR-08 | Quản lý món, size, topping, tồn kho | Could | (Admin) Thêm/sửa/xóa món. **Lỗi:** Không cho phép xóa món đang có trong đơn hàng PENDING. |
+| FR-09 | Hủy đơn chưa pha chế | Should | Khách hủy đơn khi chưa pha chế. Hoàn kho. **Lỗi:** Đơn đã pha chế (PREPARING) thì từ chối hủy. |
+| FR-10 | Áp dụng khuyến mãi, tích điểm | Could | *(Tính năng mở rộng - Chưa hiện thực trong MVP)*. |
+| FR-11 | Xem thống kê doanh thu | Could | *(Tính năng mở rộng)* Xem báo cáo doanh thu. |
 
 ## 2. Yêu cầu phi chức năng (NFR)
-
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận |
 |---|---|---|---|
 | NFR-01 | Hiệu năng | Should | Trang menu tải dưới 2 giây. |
@@ -28,9 +27,9 @@
 
 ## 3. Mức ưu tiên MoSCoW
 - **Must:** FR-01, FR-02, FR-03, FR-04, FR-05, NFR-02, NFR-04, NFR-05
-- **Should:** FR-06, FR-07, FR-08, FR-09, NFR-01, NFR-03
-- **Could:** FR-10, FR-11
-- **Won't:** Giao hàng tận nơi, thanh toán thật qua MOMO/VNPAY, Tích điểm thành viên.
+- **Should:** FR-06, FR-07, FR-09, NFR-01, NFR-03
+- **Could:** FR-08, FR-10, FR-11
+- **Won't:** Giao hàng tận nơi, thanh toán thật qua MOMO/VNPAY.
 
 ## 4. Sơ đồ use-case tổng quát
 [Xem chi tiết sơ đồ Use-case tại đây](https://github.com/Nashando/BrewLite-SWE-project/blob/main/docs/diagrams/usecase.svg)
