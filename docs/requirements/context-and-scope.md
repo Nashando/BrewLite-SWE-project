@@ -20,14 +20,21 @@ Khách hàng phải xếp hàng lâu để gọi đồ uống. Nhân viên quầ
 - Chọn size, topping.
 - Giỏ hàng, tính tổng tiền.
 - Đăng ký, đăng nhập.
-- Đặt hàng, thanh toán mô phỏng (Ví/Thẻ).
+- Đặt hàng, thanh toán mô phỏng (Ví/Thẻ + Tiền mặt).
 - Theo dõi trạng thái và lịch sử đơn hàng.
+- Quản lý trạng thái đơn (dành cho Staff/Admin).
+- Hủy đơn hàng (khi chưa pha chế).
+
+### Phạm vi mở rộng (Extended Scope)
+- Quản lý menu & tồn kho (Admin).
+- Áp dụng mã khuyến mãi.
+- Xem thống kê doanh thu.
 
 ### Ngoài phạm vi (Out-of-scope)
 - Giao hàng tận nơi.
 - Quản lý nhân sự.
-- Tích hợp thanh toán thật (Momo, ZaloPay).
-- Báo cáo tài chính nâng cao.
+- Tích hợp thanh toán thật (MOMO, VNPAY).
+- Tích điểm thành viên (Loyalty).
 
 ## 1.4 Giả định
 - Người dùng có điện thoại hoặc trình duyệt web.
