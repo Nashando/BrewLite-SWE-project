@@ -12,10 +12,10 @@ Khách vãng lai xem menu/chi tiết và giỏ trình duyệt; CUSTOMER tạo/th
 | Next.js | apps/web; UI React, state giỏ/JWT, gọi REST | Dockerfile web/Compose hoặc Node dev/start | Vercel Git Integration, HTTPS/SSR/static assets |
 | NestJS | apps/api; REST, phân quyền, order/payment | Dockerfile API/Compose hoặc Node | Render Web Service Node runtime build từ Git |
 | PostgreSQL | apps/api/prisma, dữ liệu quan hệ và migration | postgres:16-alpine, volume pgdata | Render PostgreSQL/persistent storage, Internal URL phải được cấu hình |
-| GitHub Actions | .github/workflows/ci.yml và cd.yml | Không giả lập thành dịch vụ ứng dụng | Runner CI quality; CD quality → deploy-api hook → smoke-test |
-| Container registry | Docker Hub cho FROM node:22-alpine và postgres:16-alpine | Nguồn base image trong Dockerfiles/Compose | Không có job push/pull app image GHCR trong cd.yml main 9808d37 |
+| GitHub Actions | .github/workflows/ci.yml và cd.yml | Không giả lập thành dịch vụ ứng dụng | Runner CI quality; CD quality → image → deploy-api hook → smoke-test, rollback-guide khi lỗi |
+| Container registry | Docker Hub cho FROM node:22-alpine và postgres:16-alpine; GHCR cho app image API | Nguồn base image trong Dockerfiles/Compose | Job `image` push `ghcr.io/nashando/brewlite-api` tag semver + `sha-<commit>`; Render mặc định build từ Git cùng commit |
 
-Sơ đồ hiện trạng không vẽ mũi tên Actions build/push GHCR hoặc Render pull image vì source hiện không có job đó. Đóng gói/tag/push app image theo Task 5.3 vẫn là phần cần hoàn thành; không thể chứng minh bằng cách thêm một node lý thuyết vào production diagram.
+Sơ đồ vẽ Actions build/push GHCR. Render pull image chỉ là tuỳ chọn (`RENDER_DEPLOY_FROM_IMAGE`) nên được vẽ nét đứt. Bằng chứng job đã chạy là run CD thật của tag mới, không phải sơ đồ.
 
 ## 3. Backend phân lớp/module
 Controller/guard/DTO → service domain → PrismaService/transaction → PostgreSQL.
@@ -46,7 +46,7 @@ Vercel/Render log phục vụ vận hành. /health DB up không xác nhận DB �
 | Payment nội bộ | Demo/test không cần gateway thật | Không xử lý tiền thật | [004](adr/004-mock-payment-service.md) |
 | Mobile-first/manifest | Một web cho điện thoại/desktop | Offline/service worker production chưa triển khai, layout 375 còn finding | [005](adr/005-nextjs-pwa-mobile-first.md) |
 | Env/health/log | Cấu hình tách code, quan sát DB | Phải kiểm Dashboard/log thật, không suy từ tài liệu | [006](adr/006-healthcheck-logging-config.md) |
-| Vercel + Render Git hook | Giữ hosting hiện có, đơn giản | Web/API deploy độc lập; CD chưa build/push app image hoặc xác nhận SHA qua endpoint | [007](adr/007-cicd-and-deployment-strategy.md) |
+| Vercel + Render Git hook | Giữ hosting hiện có, đơn giản | Web/API deploy độc lập; image GHCR và runtime Render build riêng từ cùng commit; chưa xác nhận SHA qua endpoint | [007](adr/007-cicd-and-deployment-strategy.md) |
 
 ## 6. Đối chiếu thiết kế → source
 [Traceability matrix](../traceability-matrix.md) liên kết FR/NFR tới UML/API/test; [diagram README](../diagrams/README.md) ánh xạ node deployment đến source cụ thể. [Assignment conformance](../requirements/assignment-conformance.md) ghi riêng nội dung tài liệu đã sửa và các điều kiện vận hành chưa có minh chứng.

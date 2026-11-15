@@ -1,5 +1,5 @@
 @startuml deployment-diagram
-title BrewLite - Deployment hiện trạng source 9808d37 (Task 3.2)
+title BrewLite - Deployment production (Task 3.2), CD có job build/push image
 left to right direction
 skinparam shadowing false
 skinparam defaultFontName Arial
@@ -8,16 +8,23 @@ skinparam defaultFontSize 13
 cloud "Container registry: Docker Hub\nBase images khai báo trong source" as registry {
   artifact "node:22-alpine\npostgres:16-alpine" as baseimages
 }
-node "Local (cấu hình Compose, chưa chạy Docker trên máy QA)" {
+cloud "Container registry: GHCR" as ghcr {
+  artifact "ghcr.io/nashando/brewlite-api\ntag X.Y.Z + sha-<commit>" as appimage
+}
+node "Local / dev (Docker Compose; đã chạy trên Codespaces 15/11)" {
   artifact "Web :3000 / API :3001 / DB :5432\nHost bind 127.0.0.1; cổng thay qua env" as localapps
   database "pgdata\nPersistent local volume" as localdata
 }
 node "GitHub Actions - CI/CD" as ci {
   component "quality\nInstall / Lint / Unit / Build API + web" as quality
-  component "deploy-api\nPOST Render Hook + ref SHA" as deploy
-  component "smoke-test\nGET health / products / menu" as smoke
-  quality -right-> deploy
+  component "image\nDocker build apps/api, tag semver + SHA" as image
+  component "deploy-api\nPOST Render Hook + ref SHA\n(hoặc imgURL nếu chạy từ image)" as deploy
+  component "smoke-test\nGET health(DB up) / products / menu" as smoke
+  component "rollback-guide\nchỉ chạy khi job lỗi" as rollback
+  quality -right-> image
+  image -right-> deploy
   deploy -right-> smoke
+  smoke ..> rollback : failure()
 }
 node "Production theo cấu hình repo" {
   node "Thiết bị người dùng" {
@@ -47,6 +54,9 @@ node "Production theo cấu hình repo" {
   end note
 }
 baseimages --> localapps : Dockerfiles / Compose
+baseimages --> image : FROM node:22-alpine
+image --> appimage : push HTTPS (GITHUB_TOKEN)
+appimage ..> api : tuỳ chọn RENDER_DEPLOY_FROM_IMAGE / rollback theo tag
 localapps --> localdata
 deploy --> api : HTTPS secret Deploy Hook
 smoke ..> api : /health + /products
@@ -56,9 +66,10 @@ note left of deploy
   GitHub environment production.
 end note
 note bottom of ci
-  Trigger CD: tag vX.Y.Z. Vercel deploy web độc lập.
-  Không có executable job build/push app image GHCR.
-  Task 5.3 app-image/tag/registry vẫn còn mở.
+  Trigger CD: tag vX.Y.Z. Vercel deploy web độc lập (Git Integration main).
+  Mặc định Render build Node runtime từ đúng commit của image (ref=SHA);
+  image GHCR là artifact có phiên bản để truy vết và rollback.
+  Cần một run CD thật của tag mới để có digest image làm minh chứng.
 end note
 note bottom of db
   DB private, backup và cấu hình runtime cần bằng chứng Dashboard.

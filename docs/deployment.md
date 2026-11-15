@@ -10,7 +10,7 @@
 | **Web Client (PWA)** | Vercel | `apps/web` | Frontend Next.js (ADR 005) |
 | **Backend API** | Render Web Service | `apps/api` | NestJS REST API + Mock Payment (ADR 004, 006) |
 | **Database** | Render PostgreSQL | `apps/api/prisma` | PostgreSQL + Prisma Migration (ADR 002) |
-| **CI/CD Pipeline** | GitHub Actions | `.github/workflows/` | Source hiện có quality → deploy-api → smoke-test; chưa có job build/push app image GHCR |
+| **CI/CD Pipeline** | GitHub Actions + GHCR | `.github/workflows/` | quality → image (build/push `ghcr.io/nashando/brewlite-api`, tag semver + SHA) → deploy-api → smoke-test; rollback-guide khi lỗi |
 
 *Sơ đồ chi tiết:* `docs/diagrams/deployment-diagram.svg` (hoặc `.puml`).
 
@@ -49,7 +49,12 @@
 Vào **Settings > Environments > production** và cấu hình Secret:
 - **Secrets:** `RENDER_DEPLOY_HOOK_URL` (URL deploy hook lấy từ Render ở bước 3.1).
 
-CD main 9808d37 không có executable job Docker build/tag/push GHCR; comment hoặc IMAGE_NAME trong YAML không chứng minh job đó tồn tại. Xem ADR007 để phân biệt hiện trạng Git runtime với phần image/registry Task 5.3 còn phải triển khai.
+- **Variables (tuỳ chọn):** `RENDER_DEPLOY_FROM_IMAGE=true` nếu service Render được đổi sang chạy từ image `ghcr.io/nashando/brewlite-api`. Khi đó job `deploy-api` gửi `imgURL=<image>:sha-<commit>` thay vì `ref=<commit>`. Nếu package GHCR để private, Render cần credential đọc registry.
+
+Job `image` dùng `GITHUB_TOKEN` có sẵn (quyền `packages: write`) để push image lên GHCR, không cần thêm secret. Mỗi tag `vX.Y.Z` tạo hai tag image: `X.Y.Z` và `sha-<commit đầy đủ>`. Mặc định (Hướng A trong ADR 007) Render vẫn build Node runtime từ đúng commit đó; image là artifact có phiên bản để truy vết và rollback. Minh chứng Task 5.3 là run CD thật của tag mới (log job `image` có digest), không phải nội dung YAML.
+
+### 3.4. Bảo vệ nhánh `main`
+Vào **Settings > Rules > Rulesets** (hoặc Branch protection), tạo rule cho `main`: bắt buộc pull request, ít nhất 1 approve và status check **`ci (api -> web)`** phải pass. Nhờ đó PR không merge được khi lint, test hoặc build thất bại (Task 4.4).
 
 ---
 
@@ -59,9 +64,12 @@ CD main 9808d37 không có executable job Docker build/tag/push GHCR; comment ho
 3. Gắn Git Tag phiên bản semver trên `main` và đẩy lên GitHub để kích hoạt pipeline CD:
    ```bash
    git checkout main && git pull
-   git tag -a v1.0.0 -m "Release v1.0.0"
-   git push origin v1.0.0
+   git tag -a v1.0.3 -m "Release v1.0.3"
+   git push origin v1.0.3
    ```
+4. Workflow `CD` chạy: `quality` (lint, test, build) → `image` (build và push GHCR) → `deploy-api` (Render Deploy Hook) → `smoke-test` (`/health` có database up, `/products` không rỗng, web `/menu`). Bất kỳ job nào lỗi thì pipeline dừng và job `rollback-guide` ghi hướng dẫn rollback vào summary của run.
+5. Migration chạy khi API khởi động (`prisma migrate deploy`): chỉ áp dụng migration đã commit, không reset dữ liệu. Production không tự seed; nạp dữ liệu demo có chủ đích bằng `npm run seed` trong Shell của service Render.
+6. Tạo GitHub Release cho tag mới, dán nội dung tương ứng trong [release-notes.md](release-notes.md).
 
 ---
 
