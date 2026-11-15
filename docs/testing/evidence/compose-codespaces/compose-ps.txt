@@ -1,0 +1,4 @@
+NAME                         IMAGE                      COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+brewlite-swe-project-api-1   brewlite-swe-project-api   "docker-entrypoint.s…"   api       2 minutes ago    Up 2 minutes (healthy)    127.0.0.1:3001->3001/tcp
+brewlite-swe-project-db-1    postgres:16-alpine         "docker-entrypoint.s…"   db        15 minutes ago   Up 15 minutes (healthy)   127.0.0.1:5432->5432/tcp
+brewlite-swe-project-web-1   brewlite-swe-project-web   "docker-entrypoint.s…"   web       15 minutes ago   Up 15 minutes (healthy)   127.0.0.1:3000->3000/tcp

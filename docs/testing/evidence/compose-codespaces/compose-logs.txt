@@ -1,0 +1,1041 @@
+db-1  | The files belonging to this database system will be owned by user "postgres".
+db-1  | This user must also own the server process.
+db-1  | 
+db-1  | The database cluster will be initialized with locale "en_US.utf8".
+db-1  | The default database encoding has accordingly been set to "UTF8".
+db-1  | The default text search configuration will be set to "english".
+db-1  | 
+db-1  | Data page checksums are disabled.
+db-1  | 
+db-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+db-1  | creating subdirectories ... ok
+db-1  | selecting dynamic shared memory implementation ... posix
+db-1  | selecting default max_connections ... 100
+db-1  | selecting default shared_buffers ... 128MB
+db-1  | selecting default time zone ... UTC
+db-1  | creating configuration files ... ok
+db-1  | running bootstrap script ... ok
+db-1  | sh: locale: not found
+db-1  | 2026-11-15 09:19:52.126 UTC [33] WARNING:  no usable system locales were found
+db-1  | performing post-bootstrap initialization ... ok
+db-1  | initdb: warning: enabling "trust" authentication for local connections
+db-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+db-1  | syncing data to disk ... ok
+db-1  | 
+db-1  | 
+db-1  | Success. You can now start the database server using:
+db-1  | 
+db-1  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+db-1  | 
+db-1  | waiting for server to start....2026-11-15 09:19:53.743 UTC [39] LOG:  starting PostgreSQL 16.16 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+db-1  | 2026-11-15 09:19:53.745 UTC [39] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+db-1  | 2026-11-15 09:19:53.752 UTC [42] LOG:  database system was shut down at 2026-11-15 09:19:52 UTC
+db-1  | 2026-11-15 09:19:53.759 UTC [39] LOG:  database system is ready to accept connections
+db-1  |  done
+db-1  | server started
+db-1  | CREATE DATABASE
+db-1  | 
+db-1  | 
+db-1  | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+db-1  | 
+db-1  | waiting for server to shut down...2026-11-15 09:19:54.026 UTC [39] LOG:  received fast shutdown request
+db-1  | .2026-11-15 09:19:54.029 UTC [39] LOG:  aborting any active transactions
+db-1  | 2026-11-15 09:19:54.035 UTC [39] LOG:  background worker "logical replication launcher" (PID 45) exited with exit code 1
+db-1  | 2026-11-15 09:19:54.035 UTC [40] LOG:  shutting down
+db-1  | 2026-11-15 09:19:54.036 UTC [40] LOG:  checkpoint starting: shutdown immediate
+db-1  | 2026-11-15 09:19:54.223 UTC [40] LOG:  checkpoint complete: wrote 935 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.022 s, sync=0.158 s, total=0.188 s; sync files=301, longest=0.138 s, average=0.001 s; distance=4355 kB, estimate=4355 kB; lsn=0/1949CE0, redo lsn=0/1949CE0
+db-1  | 2026-11-15 09:19:54.232 UTC [39] LOG:  database system is shut down
+db-1  |  done
+db-1  | server stopped
+db-1  | 
+db-1  | PostgreSQL init process complete; ready for start up.
+db-1  | 
+db-1  | 2026-11-15 09:19:54.354 UTC [1] LOG:  starting PostgreSQL 16.16 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+db-1  | 2026-11-15 09:19:54.354 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+db-1  | 2026-11-15 09:19:54.354 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+db-1  | 2026-11-15 09:19:54.358 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+db-1  | 2026-11-15 09:19:54.368 UTC [55] LOG:  database system was shut down at 2026-11-15 09:19:54 UTC
+db-1  | 2026-11-15 09:19:54.376 UTC [1] LOG:  database system is ready to accept connections
+db-1  | 2026-11-15 09:24:54.461 UTC [53] LOG:  checkpoint starting: time
+db-1  | 2026-11-15 09:25:13.930 UTC [53] LOG:  checkpoint complete: wrote 197 buffers (1.2%); 0 WAL file(s) added, 0 removed, 0 recycled; write=19.443 s, sync=0.019 s, total=19.470 s; sync files=134, longest=0.006 s, average=0.001 s; distance=993 kB, estimate=993 kB; lsn=0/1A42160, redo lsn=0/1A42128
+db-1  | 2026-11-15 09:33:00.116 UTC [1145] LOG:  could not receive data from client: Connection reset by peer
+db-1  | 2026-11-15 09:34:55.130 UTC [53] LOG:  checkpoint starting: time
+db-1  | 2026-11-15 09:35:06.643 UTC [53] LOG:  checkpoint complete: wrote 113 buffers (0.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=11.287 s, sync=0.213 s, total=11.513 s; sync files=54, longest=0.091 s, average=0.004 s; distance=542 kB, estimate=948 kB; lsn=0/1AE8E40, redo lsn=0/1AC9C38
+api-1  | 
+api-1  | > brewlite-api@0.1.0 start:migrate
+api-1  | > prisma migrate deploy && node dist/main
+api-1  | 
+api-1  | Prisma schema loaded from prisma/schema.prisma
+api-1  | Datasource "db": PostgreSQL database "brewlite", schema "public" at "db:5432"
+api-1  | 
+api-1  | 4 migrations found in prisma/migrations
+api-1  | 
+api-1  | 
+api-1  | No pending migrations to apply.
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +34ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTerminusModule dependencies initialized[39m[38;5;3m +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHealthModule dependencies initialized[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProductsModule dependencies initialized[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCartModule dependencies initialized[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOrderModule dependencies initialized[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPaymentModule dependencies initialized[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOrdersModule dependencies initialized[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAdminModule dependencies initialized[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/refresh, POST} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/me, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mProductsController {/products}:[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/products, GET} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/products/:id, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mCartController {/cart}:[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/cart, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/cart/items, POST} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/cart/items/:id, PATCH} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/cart/items/:id, DELETE} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/cart, DELETE} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mOrderController {/orders}:[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/orders, POST} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mOrdersController {/orders}:[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/orders, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/all, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/code/:code, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/:id, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/:id/cancel, POST} route[39m[38;5;3m +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/:id/confirm-cash, POST} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/:id/status, PATCH} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mPaymentController {/payments}:[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/payments, POST} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mHealthController {/health}:[39m[38;5;3m +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/health, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminController {/admin}:[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/products, GET} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/products, POST} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/products/:id, PATCH} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/products/:id/stock, POST} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/toppings, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/toppings, POST} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/toppings/:id, PATCH} route[39m[38;5;3m +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/reports/revenue, GET} route[39m[38;5;3m +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +79ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:01 AM [32m    LOG[39m [38;5;3m[Bootstrap] [39m[32mAPI đang chạy tại cổng 3001[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:19 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:23 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +151ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:23 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:23 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +4ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:23 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /auth/register lỗi 400 +3ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:23 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /auth/register lỗi 400 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +105ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /auth/register lỗi 409 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +87ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /auth/login lỗi 401 +85ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +84ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +206ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +210ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +30ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +130ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +21ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +13ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/bb30a6e4-79fc-4de5-a2c5-b659520c7c6e 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/bb30a6e4-79fc-4de5-a2c5-b659520c7c6e/confirm-cash 201 +24ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/bb30a6e4-79fc-4de5-a2c5-b659520c7c6e 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +104ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +11ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +4ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +84ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/7c741793-cbaf-4164-8edf-ed291c908f9a/confirm-cash 201 +19ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/7c741793-cbaf-4164-8edf-ed291c908f9a/confirm-cash lỗi 409 +18ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/7c741793-cbaf-4164-8edf-ed291c908f9a/confirm-cash lỗi 409 +23ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +89ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +16ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/7ed4ce12-09dd-4f8d-894f-be80bca7db69/confirm-cash lỗi 409 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/7ed4ce12-09dd-4f8d-894f-be80bca7db69 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +118ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/ee813dd0-99ad-40e2-9615-8eab88310d96 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +4ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/ee813dd0-99ad-40e2-9615-8eab88310d96/confirm-cash lỗi 409 +2ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +96ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/b4fab168-290e-492e-aa60-b912c6540a00/cancel 201 +16ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/b4fab168-290e-492e-aa60-b912c6540a00/cancel lỗi 409 +20ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/b4fab168-290e-492e-aa60-b912c6540a00/cancel lỗi 409 +18ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/b4fab168-290e-492e-aa60-b912c6540a00 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/65e822bb-e1da-4f2b-b126-43c48d9f13f0/cancel 201 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/65e822bb-e1da-4f2b-b126-43c48d9f13f0 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +88ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +84ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/a795e263-0638-4219-8aef-4c59f89de8a2/cancel lỗi 404 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/a795e263-0638-4219-8aef-4c59f89de8a2/status 200 +5ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/a795e263-0638-4219-8aef-4c59f89de8a2/cancel lỗi 409 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/a938759a-9c4e-4a58-92d2-bfe6a8a1c57d 200 +29ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/78e8c1af-fe2f-4e08-859d-89629c1f14c3 200 +27ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/8038682a-2db8-42b0-831e-736eb060703f 200 +26ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/bda1fdd9-09cc-420f-88de-4ee7971d6ed3 200 +28ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/f6da008a-df55-41be-a200-d3a26f4acc4d 200 +27ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/2d3aa812-e1a2-4b8b-9c9e-df5bf0aa24f9 200 +25ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/21d207ee-31e8-4ef7-b04e-a94a49b074df 200 +20ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/8c0bdebb-cb64-43a1-aa59-d7874603ddba 200 +21ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +84ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +99ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +91ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +1ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +3ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +99ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:26 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +99ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +23ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +424ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +682ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +682ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +682ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +682ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +786ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +784ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +784ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +790ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +459ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +43ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +48ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +60ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +56ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +56ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +54ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +61ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +58ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +63ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +67ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +71ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +81ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +99ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +122ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +116ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +108ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +120ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +131ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +138ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +157ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +153ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +157ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +157ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +159ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +160ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +160ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +164ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +165ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +175ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +177ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +182ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +185ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +186ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +194ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +190ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +198ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +202ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +209ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +213ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +217ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +219ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +224ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +230ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +235ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +233ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +240ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +243ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +246ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +249ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +253ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/9fba1300-3d77-4492-9605-3db2a14d03eb 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/23b351b2-a870-41b1-ad37-2fca26e164e0 200 +36ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/51f928a4-7a4c-4cc6-9da0-7153794dc81a 200 +35ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/41f54234-7d65-4b95-948f-4aab3bf2720f 200 +38ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/57697b30-f158-47eb-8346-6d3d36b9d04d 200 +35ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/042165f7-6075-4412-b053-da521dc3ff8c 200 +39ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/534be28f-f227-4061-825a-0f51f9bc389b 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/d5a81ce8-d749-4039-83a1-df7d88e9d0c2 200 +38ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/2283e435-072d-458c-a07a-ba079cdcfa8c 200 +39ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +81ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +100ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +15ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/8ecf5317-c41a-4524-88d9-d37bee238b4f 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +15ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +102ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +3ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +15ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/372524b5-6174-40c7-888c-2af65f926348 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +123ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:35 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:40 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:45 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:50 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:33:55 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +96ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +84ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /auth/register lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /auth/register lỗi 400 +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +123ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /auth/register lỗi 409 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +86ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /auth/login lỗi 401 +85ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +162ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +164ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +200ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/2e97b8af-6f59-4ce7-8f73-486a82f270cd 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/2e97b8af-6f59-4ce7-8f73-486a82f270cd/confirm-cash 201 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/2e97b8af-6f59-4ce7-8f73-486a82f270cd 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +105ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +16ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +8ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +4ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +96ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/089d260b-4464-4f1f-8320-5f618a480d91/confirm-cash 201 +10ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/089d260b-4464-4f1f-8320-5f618a480d91/confirm-cash lỗi 409 +10ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/089d260b-4464-4f1f-8320-5f618a480d91/confirm-cash lỗi 409 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +88ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +6ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/fedf673c-4664-4152-97a1-18e16b0d125b/confirm-cash lỗi 409 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/fedf673c-4664-4152-97a1-18e16b0d125b 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +90ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/09690bc3-d108-4ae2-9336-e170eca74169 200 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +6ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/09690bc3-d108-4ae2-9336-e170eca74169/confirm-cash lỗi 409 +4ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +89ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/edff5a44-2059-419d-9cae-60edd74201df/cancel 201 +22ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/edff5a44-2059-419d-9cae-60edd74201df/cancel lỗi 409 +20ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/edff5a44-2059-419d-9cae-60edd74201df/cancel lỗi 409 +23ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/edff5a44-2059-419d-9cae-60edd74201df 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +87ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/9437d800-8fa8-488f-b21a-746cb2000f10/cancel 201 +25ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/9437d800-8fa8-488f-b21a-746cb2000f10 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +155ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +23ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +21ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +132ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/6fc911f3-72c1-4984-9d45-5d7fcc683b02/cancel lỗi 404 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/6fc911f3-72c1-4984-9d45-5d7fcc683b02/status 200 +5ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders/6fc911f3-72c1-4984-9d45-5d7fcc683b02/cancel lỗi 409 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/507b1d0b-4baf-424e-8597-aa567bc03404 200 +30ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/8f0252b3-79da-423c-af96-b84d86c76f31 200 +29ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/7c251827-fba0-4dea-9e0a-b1bdef53b827 200 +32ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/95160d72-c49d-4cf9-8609-88fa0dfaafc9 200 +32ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/685ba25e-0cb4-4c67-99a9-c22875debc78 200 +39ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/1c6fe122-c340-45d4-8666-b19006779c20 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/d1e8fc04-908c-4bc5-8c39-da32a1bc95ca 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/28611c20-bfef-4201-925d-8667d8047584 200 +41ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +84ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +101ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +90ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +1ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +3ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +86ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +104ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +95ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +356ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +353ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +439ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +433ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +252ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +249ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +247ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +245ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +169ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +69ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +84ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +96ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +97ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +102ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +114ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +122ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +128ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +134ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +132ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +155ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +92ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +153ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +139ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +161ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +165ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +167ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +170ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +178ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +180ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +186ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +165ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +169ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +173ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +176ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +178ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +183ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +177ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +181ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +186ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +192ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +193ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +199ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +203ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +207ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +209ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +217ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +221ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +222ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +230ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +235ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +239ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +237ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +240ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +250ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +249ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +253ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +257ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +262ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +269ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +271ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/c7e3720f-0810-4d53-8731-964d6d286ef5 200 +48ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/8cb089cb-315a-4377-9856-a1b8b848f04d 200 +41ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/abbbc2e0-6e31-4bc6-bda6-9e82df012c8c 200 +35ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/e062e73a-cae7-4724-8b0d-774258a75899 200 +51ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/5fcd3e50-81e3-4fa5-972a-20bdb27d9c25 200 +47ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/758cc177-bd0b-4129-81db-4c625af7baf2 200 +42ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/63f17ec1-742b-4a08-a49e-af2b45a0e214 200 +49ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/e1f9f719-0f93-4ac6-b94f-28713a184e6b 200 +54ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/64b32555-cddc-4f4c-aed0-0e0b8fe664d0 200 +52ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +82ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +102ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +14ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/44ecc232-ea7b-4453-8d24-14e0145549c9 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +85ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +13ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +13ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/9f6a0810-7af6-4c51-9f59-da43b299093f 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +87ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/26c702dd-bee8-4359-82ce-f28049d9d5dd 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +85ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +9ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/f280b4cf-3f54-43f0-985d-4c458d6c27a8 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +6ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +85ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +6ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 400 +1ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 400 +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/898227b1-baf5-4a36-8b6c-e4c7043015e1 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +84ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 404 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +92ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +31ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +101ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +16ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +27ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +114ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +21ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +97ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +45ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +27ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +40ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +29ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +30ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +51ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +45ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +51ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +98ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +31ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +37ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +34ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +33ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +41ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +45ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +41ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 409 +36ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +87ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +32ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +40ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +41ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +39ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +39ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +47ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +43ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +41ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +85ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +15ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +12ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/43dadcb7-c801-4521-8a73-ca339c47a815 200 +31ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/ef89e9c1-c44c-42b8-8a72-51f23240e5c0 200 +38ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/cc8e9847-d315-43f4-9346-a394b3f53d5b 200 +32ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/e3cdb469-323b-45dc-aca6-c31e49f4dbe0 200 +42ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/c8b2bf1b-77e2-4789-b73b-278b93b7a04b 200 +40ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/6fc0ed59-d1f6-411e-96c1-15ebd178b992 200 +38ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/d798f9dc-7f14-4c95-a81c-bad03cef4baa 200 +42ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/4a3e218b-eeaf-4fb1-81d4-f9e70a681c46 200 +44ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/bf535122-467f-4294-bd87-955af4f3e5eb 200 +46ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/30c46ba4-8329-4ab4-86eb-1a75a08f3ce4 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/5f910386-8239-4e62-b513-fd543533538b 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/7de2a599-90d5-42d7-b153-081d0962a9b8 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/e9b526b4-9d52-4b09-9a02-dab0a378ef59 200 +36ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +166ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +167ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +96ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPATCH /orders/0199260f-b8ec-438f-9a86-811a00dc984f/status lỗi 409 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +7ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPATCH /orders/0199260f-b8ec-438f-9a86-811a00dc984f/status lỗi 409 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/0199260f-b8ec-438f-9a86-811a00dc984f/status 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/0199260f-b8ec-438f-9a86-811a00dc984f 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/0199260f-b8ec-438f-9a86-811a00dc984f/status 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/0199260f-b8ec-438f-9a86-811a00dc984f 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/0199260f-b8ec-438f-9a86-811a00dc984f/status 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/0199260f-b8ec-438f-9a86-811a00dc984f 200 +3ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPATCH /orders/0199260f-b8ec-438f-9a86-811a00dc984f/status lỗi 409 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +93ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/0ea74db5-a0d7-4c4b-8bdf-d9f52618a20c 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /cart 200 +28ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +84ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mGET /orders/29f2f0d0-a080-4b28-880b-44fc9dd0915e lỗi 404 +2ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mGET /orders/code/BL-A87DBE33 lỗi 404 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +25ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +108ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/toppings 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/667dcee0-6d96-441f-9236-a6e8571204a1 200 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/667dcee0-6d96-441f-9236-a6e8571204a1 200 +3ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPATCH /admin/products/667dcee0-6d96-441f-9236-a6e8571204a1 lỗi 400 +0ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPATCH /admin/products/667dcee0-6d96-441f-9236-a6e8571204a1 lỗi 400 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/667dcee0-6d96-441f-9236-a6e8571204a1 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +2ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mGET /products/667dcee0-6d96-441f-9236-a6e8571204a1 lỗi 404 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +4ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock lỗi 400 +2ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock lỗi 400 +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +27ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +36ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +36ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +34ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +32ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +58ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +56ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +52ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +48ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +48ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +49ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +47ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +54ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +52ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock lỗi 400 +46ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock lỗi 400 +44ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock 201 +55ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock lỗi 400 +43ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock lỗi 400 +46ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e/stock lỗi 400 +54ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +92ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/toppings 201 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/toppings/5c237571-e9f6-4800-9526-1324be81ffcf 200 +3ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +87ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mGET /admin/reports/revenue?days=5 lỗi 400 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue?days=7 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue?days=7 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue?days=7 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/159fddc7-cd15-4fec-8bcf-b3dc3a4d4d8a/cancel 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue?days=7 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/5fd64475-62b5-4ce1-bd8a-4a2953b2272a 200 +27ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/6c23865a-d845-48d3-bf58-a327f6edf733 200 +30ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/86311d62-50de-48ad-94e4-e96e2413e1d1 200 +28ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/3ee30481-7e67-4f91-a868-3ef99f939d35 200 +31ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/5da8d5db-3561-43c9-92c7-ea706c97844e 200 +32ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/667dcee0-6d96-441f-9236-a6e8571204a1 200 +30ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/5871c110-67a0-4b98-a8f1-e47f392f3946 200 +28ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:15 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +82ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:15 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:16 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:16 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:16 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:16 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:16 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:17 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:17 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:17 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/0c87298e-444f-4c53-b21d-b800236c013f/stock 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:17 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +10ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:18 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/0c87298e-444f-4c53-b21d-b800236c013f/stock lỗi 400 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:18 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/0c87298e-444f-4c53-b21d-b800236c013f 200 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:18 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:18 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue?days=7 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:19 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue?days=30 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:19 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +88ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:19 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/0c87298e-444f-4c53-b21d-b800236c013f 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:20 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +109ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:21 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +107ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:21 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +44ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:21 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:21 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/bb9a0f77-ca20-4079-96e2-ba80e379a023 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:22 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:22 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +83ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:22 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:22 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +87ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:23 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:23 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c908ecb3-9012-457c-938d-77cc3f874d88 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c908ecb3-9012-457c-938d-77cc3f874d88 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +95ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c908ecb3-9012-457c-938d-77cc3f874d88 200 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +20ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c908ecb3-9012-457c-938d-77cc3f874d88 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:24 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +16ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c908ecb3-9012-457c-938d-77cc3f874d88 200 +20ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/42ac0de9-82e4-4825-801a-bdc3c2ae7240 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/c908ecb3-9012-457c-938d-77cc3f874d88 200 +20ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:25 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +123ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +130ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c16fa5b8-373c-4117-bd7c-2a9a10405204 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c16fa5b8-373c-4117-bd7c-2a9a10405204 200 +14ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c16fa5b8-373c-4117-bd7c-2a9a10405204 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +18ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:27 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c16fa5b8-373c-4117-bd7c-2a9a10405204 200 +5ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +19ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c16fa5b8-373c-4117-bd7c-2a9a10405204 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +14ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c16fa5b8-373c-4117-bd7c-2a9a10405204 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c16fa5b8-373c-4117-bd7c-2a9a10405204 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/f393ca56-0eaa-4cae-afee-2756ec5e0f2b 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/c16fa5b8-373c-4117-bd7c-2a9a10405204 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:28 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +117ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +101ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:29 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/0fa91ea2-c205-41ae-bfb1-7dc2cbd94e06 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/0fa91ea2-c205-41ae-bfb1-7dc2cbd94e06 200 +11ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mGET /products/p-08 lỗi 400 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +15ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/0fa91ea2-c205-41ae-bfb1-7dc2cbd94e06 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/0fa91ea2-c205-41ae-bfb1-7dc2cbd94e06 200 +22ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:30 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/8626ecc9-fd8e-4a90-b2fd-44d7f2f459e4 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:31 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/0fa91ea2-c205-41ae-bfb1-7dc2cbd94e06 200 +315ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:31 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:31 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +91ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:32 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +158ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:32 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:32 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:32 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/e9107b74-b104-4d7e-b00f-1905cbe16b8d 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:32 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/e9107b74-b104-4d7e-b00f-1905cbe16b8d 200 +13ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/e9107b74-b104-4d7e-b00f-1905cbe16b8d 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/e9107b74-b104-4d7e-b00f-1905cbe16b8d 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/e9107b74-b104-4d7e-b00f-1905cbe16b8d 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/e9107b74-b104-4d7e-b00f-1905cbe16b8d 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:33 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +91ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:34 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +98ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:34 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:34 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:34 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/6911fded-a16b-4f87-8203-a48a1fc205f3 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:35 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/6911fded-a16b-4f87-8203-a48a1fc205f3/stock 201 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:35 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/6911fded-a16b-4f87-8203-a48a1fc205f3 200 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:35 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/6911fded-a16b-4f87-8203-a48a1fc205f3 200 +6ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:35 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:35 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/6911fded-a16b-4f87-8203-a48a1fc205f3 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:35 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/6911fded-a16b-4f87-8203-a48a1fc205f3 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:36 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +99ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:36 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:36 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +95ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:36 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +134ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:37 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +22ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:37 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:37 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/a164c9a3-9cac-409b-8761-1c072c0d2a2f 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:37 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/a164c9a3-9cac-409b-8761-1c072c0d2a2f 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:38 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/a164c9a3-9cac-409b-8761-1c072c0d2a2f 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:38 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +13ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:38 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:38 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/a164c9a3-9cac-409b-8761-1c072c0d2a2f 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:38 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/80b6f75e-50a2-48c7-8fd4-d2cda5474d6e 200 +16ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:38 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +129ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +20ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/80b6f75e-50a2-48c7-8fd4-d2cda5474d6e/confirm-cash 201 +16ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +28ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/80b6f75e-50a2-48c7-8fd4-d2cda5474d6e/status 200 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/80b6f75e-50a2-48c7-8fd4-d2cda5474d6e 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +33ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/80b6f75e-50a2-48c7-8fd4-d2cda5474d6e/status 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:39 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/80b6f75e-50a2-48c7-8fd4-d2cda5474d6e/status 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:40 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:40 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/80b6f75e-50a2-48c7-8fd4-d2cda5474d6e 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:40 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/a164c9a3-9cac-409b-8761-1c072c0d2a2f 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:41 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:41 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:41 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +91ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:41 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +98ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:41 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:42 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:42 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c5595575-8ba5-4afc-9f9f-7ba3f7f249ab 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:42 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c5595575-8ba5-4afc-9f9f-7ba3f7f249ab 200 +19ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:42 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c5595575-8ba5-4afc-9f9f-7ba3f7f249ab 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c5595575-8ba5-4afc-9f9f-7ba3f7f249ab 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c5595575-8ba5-4afc-9f9f-7ba3f7f249ab 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/cac99406-b41e-4248-8382-286f36728386 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/cac99406-b41e-4248-8382-286f36728386/cancel 201 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/cac99406-b41e-4248-8382-286f36728386 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:43 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:44 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/c5595575-8ba5-4afc-9f9f-7ba3f7f249ab 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:44 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:44 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/c5595575-8ba5-4afc-9f9f-7ba3f7f249ab 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:46 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +140ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:46 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:47 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:47 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +14ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:47 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +86ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:47 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:47 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:48 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +13ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:48 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/4dddb87e-5829-4344-b37d-108db7ab71ad/stock 201 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:48 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +15ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:48 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /admin/products/4dddb87e-5829-4344-b37d-108db7ab71ad/stock lỗi 400 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:48 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:49 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/4dddb87e-5829-4344-b37d-108db7ab71ad 200 +20ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:49 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/products 200 +22ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:49 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:49 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue?days=7 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:50 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /admin/reports/revenue?days=30 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:50 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +81ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:50 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/4dddb87e-5829-4344-b37d-108db7ab71ad 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:51 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +117ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:52 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +122ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:52 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:52 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:52 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/bb9a0f77-ca20-4079-96e2-ba80e379a023 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:53 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +105ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:53 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:53 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +90ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:54 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:54 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:54 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d911231d-bf64-4ae4-b3d1-e438c3f32fa6 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:55 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d911231d-bf64-4ae4-b3d1-e438c3f32fa6 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:55 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +123ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:55 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d911231d-bf64-4ae4-b3d1-e438c3f32fa6 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:55 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +19ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:55 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d911231d-bf64-4ae4-b3d1-e438c3f32fa6 200 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:55 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +14ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d911231d-bf64-4ae4-b3d1-e438c3f32fa6 200 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/fca1e803-308d-4f4a-b1d3-f37f8d870c5f 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/d911231d-bf64-4ae4-b3d1-e438c3f32fa6 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:56 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +94ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:57 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +112ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:57 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:57 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:58 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/2ef6ed27-0747-4f14-8292-3102c817f269 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:58 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/2ef6ed27-0747-4f14-8292-3102c817f269 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:58 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/2ef6ed27-0747-4f14-8292-3102c817f269 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:58 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +25ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:58 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/2ef6ed27-0747-4f14-8292-3102c817f269 200 +4ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /payments lỗi 402 +38ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/2ef6ed27-0747-4f14-8292-3102c817f269 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +14ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/2ef6ed27-0747-4f14-8292-3102c817f269 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +53ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/2ef6ed27-0747-4f14-8292-3102c817f269 200 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/4750254a-38ab-415b-a29e-d0a421eb958c 200 +16ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/2ef6ed27-0747-4f14-8292-3102c817f269 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:34:59 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:00 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +92ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:00 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +128ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:00 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:00 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/da634c85-94d0-4cb5-98a3-fa3291dea103 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/da634c85-94d0-4cb5-98a3-fa3291dea103 200 +5ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:35:01 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mGET /products/p-08 lỗi 400 +0ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +19ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/da634c85-94d0-4cb5-98a3-fa3291dea103 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +13ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/da634c85-94d0-4cb5-98a3-fa3291dea103 200 +15ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/b3a498bd-b17b-495f-8c57-6ae94d95ee35 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/da634c85-94d0-4cb5-98a3-fa3291dea103 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:02 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +119ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +108ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d40d281f-8065-4428-a2eb-7248faf0cbda 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:03 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/d40d281f-8065-4428-a2eb-7248faf0cbda 200 +8ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d40d281f-8065-4428-a2eb-7248faf0cbda 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d40d281f-8065-4428-a2eb-7248faf0cbda 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +13ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/d40d281f-8065-4428-a2eb-7248faf0cbda 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/d40d281f-8065-4428-a2eb-7248faf0cbda 200 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:04 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +92ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +118ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:05 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/42fcbf8a-b094-4bb4-a222-fa22f3d1326c 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products/42fcbf8a-b094-4bb4-a222-fa22f3d1326c/stock 201 +21ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/42fcbf8a-b094-4bb4-a222-fa22f3d1326c 200 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/42fcbf8a-b094-4bb4-a222-fa22f3d1326c 200 +5ms[39m
+api-1  | [33m[Nest] 19  - [39m11/15/2026, 9:35:06 AM [33m   WARN[39m [38;5;3m[HTTP] [39m[33mPOST /orders lỗi 400 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:06 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/42fcbf8a-b094-4bb4-a222-fa22f3d1326c 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/42fcbf8a-b094-4bb4-a222-fa22f3d1326c 200 +20ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +88ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:07 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +93ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +146ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/13949dae-af53-498a-9edd-930aa566396c 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:08 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/13949dae-af53-498a-9edd-930aa566396c 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +12ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/13949dae-af53-498a-9edd-930aa566396c 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:09 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/7ac5340f-5250-400b-b239-4e66651f42bd 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +127ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +23ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/7ac5340f-5250-400b-b239-4e66651f42bd/confirm-cash 201 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +82ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/7ac5340f-5250-400b-b239-4e66651f42bd/status 200 +24ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/7ac5340f-5250-400b-b239-4e66651f42bd 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:10 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/7ac5340f-5250-400b-b239-4e66651f42bd/status 200 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +17ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /orders/7ac5340f-5250-400b-b239-4e66651f42bd/status 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/all 200 +37ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:11 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/7ac5340f-5250-400b-b239-4e66651f42bd 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:12 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/13949dae-af53-498a-9edd-930aa566396c 200 +14ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:12 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +94ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:12 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /admin/products 201 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:12 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/register 201 +100ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:13 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /auth/login 200 +135ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:13 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +4ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:13 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:13 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/ececa19a-c4b8-4085-8b2e-1e531f6038c6 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/ececa19a-c4b8-4085-8b2e-1e531f6038c6 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/ececa19a-c4b8-4085-8b2e-1e531f6038c6 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders 201 +11ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/ececa19a-c4b8-4085-8b2e-1e531f6038c6 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +2ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /payments 201 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /auth/me 200 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/ececa19a-c4b8-4085-8b2e-1e531f6038c6 200 +10ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/f31d12a1-f503-4305-8849-5fa63c7d01b0 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPOST /orders/f31d12a1-f503-4305-8849-5fa63c7d01b0/cancel 201 +24ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:14 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /orders/f31d12a1-f503-4305-8849-5fa63c7d01b0 200 +7ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:15 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:15 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products/ececa19a-c4b8-4085-8b2e-1e531f6038c6 200 +5ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:15 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /products 200 +9ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:15 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:16 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mPATCH /admin/products/ececa19a-c4b8-4085-8b2e-1e531f6038c6 200 +6ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:21 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +3ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:26 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:31 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m
+api-1  | [32m[Nest] 19  - [39m11/15/2026, 9:35:36 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32mGET /health 200 +1ms[39m

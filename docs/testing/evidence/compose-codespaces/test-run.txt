@@ -1,0 +1,108 @@
+
+> brewlite-tests@0.1.0 test
+> npm run test:unit && npm run test:integration && npm run test:e2e
+
+
+> brewlite-tests@0.1.0 test:unit
+> node --test unit/*.test.mjs
+
+✔ Healthy old API must fail when an expected SHA is requested (42.922683ms)
+✔ Matching API with stale web must fail SHA verification (2.097551ms)
+✔ Matching SHA cannot hide a database outage (0.409534ms)
+✔ Matching API, web, database and menu succeed (1.232468ms)
+✔ A successful products HTTP response with an empty catalogue is not ready (0.663247ms)
+✔ HTTP 503 is not accepted as successful health (0.388565ms)
+✔ Legacy application can smoke without version endpoints and never claims a verified SHA (1.557844ms)
+✔ Polling stale SHA is bounded and fails instead of reporting deployment success (1.390252ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 152.230095
+
+> brewlite-tests@0.1.0 test:integration
+> node --test --test-concurrency=1 "integration/**/*.test.mjs"
+
+✔ INT-T01: đăng ký rồi đăng nhập nhận JWT, ví khởi tạo 200.000đ (264.24436ms)
+✔ INT-T01: đăng ký sai dữ liệu hoặc trùng email bị từ chối (152.889632ms)
+✔ INT-T01: sai mật khẩu và token không hợp lệ đều 401 (273.314061ms)
+✔ INT-T04: tiền mặt: đơn chờ thu, nhân viên xác nhận thì đơn PAID (491.566121ms)
+✔ INT-T04: đang chờ tiền mặt thì không trả thêm bằng ví, thẻ (175.376802ms)
+✔ INT-T04: xác nhận tiền mặt: nhiều nhân viên cùng lúc chỉ một lần được, đơn không chọn tiền mặt bị từ chối (260.242959ms)
+✔ INT-T04: đơn quá 15 phút chưa thanh toán tự huỷ, trả kho, không xác nhận được nữa (187.137791ms)
+✔ INT-T04: huỷ đơn đã trả bằng ví: hoàn số dư, trả kho, chỉ hoàn một lần (160.32594ms)
+✔ INT-T04: huỷ đơn đã trả bằng thẻ: giao dịch REFUNDED, số dư ví không đổi (172.434743ms)
+✔ INT-T04: không huỷ được đơn của người khác và đơn đã bắt đầu pha chế (383.970631ms)
+✔ INT-T02: tạo đơn cần đăng nhập (117.437691ms)
+✔ INT-T02: tạo đơn trong transaction: tính giá ở server, trừ kho, trạng thái chờ thanh toán (141.227871ms)
+✔ INT-T02: dữ liệu sai bị từ chối và không trừ kho (137.975076ms)
+✔ INT-T02: id sai định dạng từ giỏ cũ: báo tiếng Việt, không lộ lỗi kỹ thuật (92.341322ms)
+✔ INT-T02: hết hàng trả 400 OUT_OF_STOCK, rollback cả các món khác trong đơn (145.918369ms)
+✔ INT-T02: nhiều người đặt cùng lúc không làm âm kho (1047.571086ms)
+✔ INT-T02: đơn đồng thời có thứ tự món ngược nhau không bị deadlock (668.177435ms)
+✔ INT-T03: trả bằng ví thành công: trừ số dư, đơn PAID (262.150513ms)
+✔ INT-T03: ví không đủ tiền: 402, huỷ đơn, trả kho, không trừ số dư (154.48173ms)
+✔ INT-T03: trả bằng thẻ thành công, không đụng tới ví (123.898874ms)
+✔ INT-T03: thẻ bị từ chối: 402, huỷ đơn, trả kho; thử lại bằng đơn mới thì thành công (161.186153ms)
+✔ INT-T03: dữ liệu thanh toán sai bị từ chối, đơn vẫn chờ (121.813663ms)
+✔ INT-T03: không trả được đơn của người khác (200.617681ms)
+✔ INT-T03: gửi lại cùng Idempotency-Key trả kết quả cũ, không trừ tiền lần 2 (161.617611ms)
+✔ INT-T03: gửi lại key của lần thất bại vẫn trả 402 (161.224683ms)
+✔ INT-T03: cùng key cho đơn khác bị từ chối (206.894046ms)
+✔ INT-T03: 8 request song song cùng key: mọi request nhận kết quả cũ, trừ tiền một lần (224.493621ms)
+✔ INT-T03: 8 request song song khác key: chỉ một lần thành công (179.510592ms)
+✔ INT-T03: 8 request thất bại song song cùng key: chỉ trả kho một lần (168.333611ms)
+✔ INT-T03: ví chỉ đủ một đơn: hai đơn trả song song không làm âm số dư (140.883256ms)
+✔ INT-T05: nhân viên chuyển trạng thái đơn đúng thứ tự, khách không đổi được (381.388637ms)
+✔ INT-T05: chỉ khách hàng mới đặt được đơn và thanh toán (200.59053ms)
+✔ INT-T05: khách chỉ thấy đơn của mình; nhân viên thấy tất cả, kèm tên khách (250.08558ms)
+✔ INT-T05: trang quản lý chỉ dành cho quản lý (164.795553ms)
+✔ INT-T05: quản lý thêm, sửa, ẩn món; món cập nhật trên menu khách (53.266072ms)
+✔ INT-T05: chỉnh kho không làm âm và an toàn khi đồng thời (162.245292ms)
+✔ INT-T05: topping ẩn không còn chọn được khi đặt đơn (132.629476ms)
+✔ INT-T05: doanh thu chỉ tính đơn đã trả, không tính đơn chờ và đơn huỷ (156.136081ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9508.336448
+
+> brewlite-tests@0.1.0 test:e2e
+> playwright test
+
+
+Running 20 tests using 1 worker
+
+  ✓   1 [mobile-chromium] › e2e/admin.spec.mjs:5:1 › E2E-T05: quản lý thêm món, món lên menu, chỉnh kho, ẩn món và xem doanh thu (5.2s)
+  ✓   2 [mobile-chromium] › e2e/admin.spec.mjs:64:1 › E2E-T05: nhân viên không vào được trang quản lý (1.2s)
+  ✓   3 [mobile-chromium] › e2e/admin.spec.mjs:70:1 › E2E-T05: nhân viên chỉ xem món, không có giỏ hàng và không đặt đơn được (2.0s)
+  ✓   4 [mobile-chromium] › e2e/checkout.spec.mjs:25:1 › E2E-T01: từ menu đến xác nhận đơn bằng ví, gồm bước chưa đăng nhập (3.0s)
+  ✓   5 [mobile-chromium] › e2e/checkout.spec.mjs:77:1 › E2E-T02: thẻ bị từ chối báo lỗi, giữ giỏ, thử lại bằng thẻ khác thành công (2.9s)
+  ✓   6 [mobile-chromium] › e2e/checkout.spec.mjs:107:1 › E2E-T06: giỏ còn món cũ không có trên hệ thống: tự bỏ, báo khách, đặt được món còn lại (2.5s)
+  ✓   7 [mobile-chromium] › e2e/checkout.spec.mjs:142:1 › E2E-T06: quản lý đổi giá sau khi khách thêm vào giỏ: giỏ hiện giá mới, đúng số tiền bị trừ (2.3s)
+  ✓   8 [mobile-chromium] › e2e/checkout.spec.mjs:159:1 › E2E-T03: món vừa hết hàng khi đặt đơn thì báo lỗi và dẫn về giỏ (2.3s)
+  ✓   9 [mobile-chromium] › e2e/staff.spec.mjs:5:1 › E2E-T04: trả tiền mặt, quầy xác nhận và xử lý đơn, khách thấy trạng thái mới (4.9s)
+  ✓  10 [mobile-chromium] › e2e/staff.spec.mjs:51:1 › E2E-T04: khách hủy đơn đã trả, không vào được màn hình quầy (3.9s)
+  ✓  11 [desktop-chromium] › e2e/admin.spec.mjs:5:1 › E2E-T05: quản lý thêm món, món lên menu, chỉnh kho, ẩn món và xem doanh thu (4.6s)
+  ✓  12 [desktop-chromium] › e2e/admin.spec.mjs:64:1 › E2E-T05: nhân viên không vào được trang quản lý (1.1s)
+  ✓  13 [desktop-chromium] › e2e/admin.spec.mjs:70:1 › E2E-T05: nhân viên chỉ xem món, không có giỏ hàng và không đặt đơn được (2.0s)
+  ✓  14 [desktop-chromium] › e2e/checkout.spec.mjs:25:1 › E2E-T01: từ menu đến xác nhận đơn bằng ví, gồm bước chưa đăng nhập (3.2s)
+  ✓  15 [desktop-chromium] › e2e/checkout.spec.mjs:77:1 › E2E-T02: thẻ bị từ chối báo lỗi, giữ giỏ, thử lại bằng thẻ khác thành công (3.1s)
+  ✓  16 [desktop-chromium] › e2e/checkout.spec.mjs:107:1 › E2E-T06: giỏ còn món cũ không có trên hệ thống: tự bỏ, báo khách, đặt được món còn lại (2.3s)
+  ✓  17 [desktop-chromium] › e2e/checkout.spec.mjs:142:1 › E2E-T06: quản lý đổi giá sau khi khách thêm vào giỏ: giỏ hiện giá mới, đúng số tiền bị trừ (2.2s)
+  ✓  18 [desktop-chromium] › e2e/checkout.spec.mjs:159:1 › E2E-T03: món vừa hết hàng khi đặt đơn thì báo lỗi và dẫn về giỏ (2.6s)
+  ✓  19 [desktop-chromium] › e2e/staff.spec.mjs:5:1 › E2E-T04: trả tiền mặt, quầy xác nhận và xử lý đơn, khách thấy trạng thái mới (5.2s)
+  ✓  20 [desktop-chromium] › e2e/staff.spec.mjs:51:1 › E2E-T04: khách hủy đơn đã trả, không vào được màn hình quầy (4.2s)
+
+  20 passed (1.1m)
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m
