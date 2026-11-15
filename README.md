@@ -31,7 +31,7 @@ BrewLite-SWE-project/
 ├── docs/                        # Tài liệu thiết kế & quy chuẩn đồ án
 │   ├── architecture/            # Kiến trúc hệ thống C4 & ADRs
 │   │   ├── Architecture Document.md
-│   │   └── adr/                 # 6 Bản ghi Quyết định Kiến trúc (ADR 001 -> 006)
+│   │   └── adr/                 # 7 Bản ghi Quyết định Kiến trúc (ADR 001 -> 007)
 │   ├── diagrams/                # Sơ đồ UML: nguồn .puml và ảnh .svg (Use-case, Activity, Sequence, Class, Deployment)
 │   ├── requirements/            # SRS, phạm vi, đặc tả use-case UC-CHECKOUT
 │   ├── commit-and-dod.md        # Quy chuẩn Commit & Definition of Done (DoD)
@@ -189,21 +189,22 @@ Integration và end-to-end test cần hệ thống đang chạy, xem [`tests/REA
 
 | Thành phần | Nền tảng | URL |
 |---|---|---|
-| **Frontend (Next.js)** | Vercel | `[https://brewlite-swe-project-web.vercel.app](https://brewlite-swe-project-web.vercel.app)` |
-| **Backend API (NestJS)** | Render (Deploy Hook) | `[https://brewlite-swe-project.onrender.com](https://brewlite-swe-project.onrender.com)` |
-| **Health check** | | `[https://brewlite-swe-project.onrender.com/health](https://brewlite-swe-project.onrender.com/health)` |
+| **Frontend (Next.js)** | Vercel | [https://brewlite-swe-project-web.vercel.app](https://brewlite-swe-project-web.vercel.app) |
+| **Backend API (NestJS)** | Render (Deploy Hook) | [https://brewlite-swe-project.onrender.com](https://brewlite-swe-project.onrender.com) |
+| **Health check** | | [https://brewlite-swe-project.onrender.com/health](https://brewlite-swe-project.onrender.com/health) |
+| **Docker image API** | GitHub Container Registry | `ghcr.io/nashando/brewlite-api:<version>` và `:sha-<commit>` (tạo từ run CD của tag) |
 | **Database** | Render PostgreSQL (không public, chỉ kết nối nội bộ) | — |
 
 - **Phát hành (deploy):** merge code vào `main`, rồi gắn tag phiên bản trên `main`:
   ```bash
   git checkout main && git pull
   # Ví dụ: chọn tag mới chưa tồn tại sau khi review source, không ghi đè tag cũ
-  git tag -a v1.0.2 -m "BrewLite v1.0.2"
-  git push origin v1.0.2
+  git tag -a v1.0.3 -m "BrewLite v1.0.3"
+  git push origin v1.0.3
   ```
  - **CI/CD Pipeline:** GitHub Actions tự động hóa quy trình:
-  1. **CI Quality Gate:** Chạy Lint, Test và Build trên mọi Pull Request.
-  2. **CD Release Flow (khi push Git Tag):** Chạy Quality Gate ➔ Kích hoạt Render Deploy Hook (Render tự động build mã nguồn Node trực tiếp từ Git) ➔ Chạy tự động Smoke Test (`/health`, `/products`, `/menu`).
+  1. **CI Quality Gate:** Chạy Install, Lint, Unit test và Build trên mọi Pull Request ([minh chứng](docs/testing/ci-evidence.md)).
+  2. **CD Release Flow (khi push Git Tag):** Quality Gate ➔ Build Docker image API, gắn tag semver + commit SHA ➔ Push GHCR ➔ Kích hoạt Render Deploy Hook bằng secret của CI (Render build Node runtime từ đúng commit) ➔ Smoke Test (`/health` có database up, `/products`, web `/menu`) ➔ Nếu lỗi: pipeline dừng và in hướng dẫn rollback.
   *(Lưu ý: Ứng dụng Frontend trên Vercel tự động deploy thông qua Git Integration ngay khi merge code vào nhánh `main`).*
 - **Hướng dẫn đầy đủ** (cấu hình lần đầu, secrets, migration, xử lý sự cố): [docs/deployment.md](./docs/deployment.md). Ghi chú phát hành: [docs/release-notes.md](./docs/release-notes.md).
 
@@ -240,17 +241,20 @@ Dự án áp dụng quy chuẩn phát triển và kiểm soát chất lượng n
 Toàn bộ tài liệu kỹ thuật được lưu trữ trong thư mục `docs/`:
 
 - 🗓️ [Sprint Review hai Sprint](./docs/delivery/sprint-review.md) và [minh chứng demo/lịch sử](./docs/delivery/sprint-evidence.md)
+- 🗂️ [Product Backlog](./docs/delivery/product-backlog.md) và [Sprint Retrospective](./docs/delivery/sprint-retrospective.md)
+- ✅ [Minh chứng CI](./docs/testing/ci-evidence.md) và [Docker Compose chạy thật trên Codespaces](./docs/testing/evidence/compose-codespaces/README.md)
 - 📋 [Đặc tả Yêu cầu Phần mềm (SRS)](./docs/requirements/SRS.md) và [Ma trận truy vết](./docs/traceability-matrix.md)
 - 📜 [Đặc tả Use-case UC-CHECKOUT](./docs/requirements/use-case-checkout.md)
 - 🗺️ [Bộ sơ đồ UML: Use-case, Activity, Sequence, Class](./docs/diagrams/README.md)
 - 🏗️ [Tài liệu Thiết kế Kiến trúc Hệ thống (Architecture Document - C4 Model)](./docs/architecture/Architecture%20Document.md)
-- 📝 [Danh mục 6 Bản ghi Quyết định Kiến trúc (ADRs)](./docs/architecture/adr/)
+- 📝 [Danh mục 7 Bản ghi Quyết định Kiến trúc (ADRs)](./docs/architecture/adr/)
   - [ADR 001: Cấu trúc Monorepo](./docs/architecture/adr/001-monorepo.md)
   - [ADR 002: Quản lý CSDL & Database Migration](./docs/architecture/adr/002-database-migration.md)
   - [ADR 003: Xác thực Người dùng qua JWT Access/Refresh Token](./docs/architecture/adr/003-jwt-authentication.md)
   - [ADR 004: Dịch vụ Thanh toán Mô phỏng & Idempotency Key](./docs/architecture/adr/004-mock-payment-service.md)
   - [ADR 005: Ứng dụng Web PWA Mobile-first](./docs/architecture/adr/005-nextjs-pwa-mobile-first.md)
   - [ADR 006: Quản lý Cấu hình, Health Check & Logging](./docs/architecture/adr/006-healthcheck-logging-config.md)
+  - [ADR 007: Chiến lược CI/CD & Triển khai](./docs/architecture/adr/007-cicd-and-deployment-strategy.md)
 - 📊 [Sơ đồ Triển khai Hạ tầng (Deployment Diagram)](./docs/diagrams/deployment-diagram.svg)
 
 ---
