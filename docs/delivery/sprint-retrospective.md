@@ -4,8 +4,8 @@ Retrospective chung cho Sprint 1 (15/10–31/10/2026) và Sprint 2 (31/10–15/1
 
 | Mục | Nội dung |
 |---|---|
-| Ngày họp | `TODO` |
-| Thành phần | TV1–TV6 |
+| Ngày họp | 15/11/2026 |
+| Thành phần | Võ Nguyễn Đại Thành, Phạm Anh Khôi, Huỳnh Thiên Tường, Hồ Nguyễn Trung Hiếu, Nguyễn Võ Gia Bảo |
 | Kỹ thuật | Start / Stop / Continue |
 
 ## Dữ liệu từ repository (đầu vào thảo luận)
@@ -25,23 +25,10 @@ Retrospective chung cho Sprint 1 (15/10–31/10/2026) và Sprint 2 (31/10–15/1
 
 - Theo nhóm: các thành viên hoàn thành phần việc được giao đúng hạn và tích cực chỉnh sửa, review.
 - Kiểm thử chạy trên hệ thống thật (PostgreSQL, Docker Compose), có test đồng thời cho tồn kho và idempotency thanh toán.
-- `TODO` (nhóm bổ sung)
 
 ## Điều chưa tốt — Stop
 
 - Theo nhóm: khó khăn chính là giao tiếp và cập nhật tiến độ vì khó sắp lịch bàn bạc trực tiếp.
 - Đẩy thẳng tài liệu lên `main` bỏ qua PR và review; nhiều PR trùng nhánh rồi đóng hoặc revert.
-- `TODO` (nhóm bổ sung)
 
-## Điều cần thử — Start (đề xuất, chờ nhóm chốt)
 
-- Họp ngắn online cố định (ví dụ 15 phút, 2 lần/tuần) và cập nhật trạng thái trên GitHub Project thay cho trao đổi rời rạc.
-- Bật ruleset cho `main`: bắt buộc PR, 1 approve và check `ci (api -> web)`.
-- Chốt tích hợp web/API thật ngay trong Sprint đầu thay vì chỉ prototype MSW.
-
-## Hành động cải tiến
-
-| # | Hành động | Người phụ trách | Hạn | Trạng thái |
-|---|---|---|---|---|
-| 1 | `TODO` | `TODO` | `TODO` | `TODO` |
-| 2 | `TODO` | `TODO` | `TODO` | `TODO` |
