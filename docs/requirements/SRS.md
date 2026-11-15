@@ -54,4 +54,4 @@ MVP: menu → tùy chọn → giỏ → đăng nhập → tạo đơn → Ví/Th
 | UC-REVENUE | FR-11 |
 
 ## 6. Trạng thái minh chứng
-[Báo cáo QA 15/11](../testing/qa-report-2026-11-15.md), [summary](../testing/evidence/verification-summary.json), [measurement](../testing/evidence/menu-measurement.json). 285 test chức năng đạt không đồng nghĩa mọi NFR đạt: report còn finding tràn ngang chi tiết 375px; Compose bị BLOCKED vì thiếu Docker. Tài liệu được sửa để phản ánh đúng các kết quả đó.
+[Báo cáo QA 15/11](../testing/qa-report-2026-11-15.md), [summary](../testing/evidence/verification-summary.json), [measurement](../testing/evidence/menu-measurement.json). 285 test chức năng đạt không đồng nghĩa mọi NFR đạt: report còn finding tràn ngang chi tiết 375px. Compose từng BLOCKED vì máy QA thiếu Docker, sau đó đã chạy thật trên Codespaces ([minh chứng](../testing/evidence/compose-codespaces/README.md)). Tài liệu được sửa để phản ánh đúng các kết quả đó.

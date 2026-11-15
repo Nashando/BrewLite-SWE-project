@@ -2,6 +2,22 @@
 
 Ghi chú được cập nhật ngày **14/11/2026** theo main tại [f832448](https://github.com/Nashando/BrewLite-SWE-project/commit/f8324480454fb9e0f9dfbf8d2504a241c89428e3). Các mục có tag ghi đúng mốc Git tương ứng; phần **Chưa phát hành** không tự tạo một phiên bản semver hoặc GitHub Release mới.
 
+## v1.0.3 — bản nộp Assignment 2 (chuẩn bị, chưa gắn tag)
+
+Điền SHA và ngày khi gắn tag `v1.0.3` trên `main` sau khi merge PR TV6, rồi tạo GitHub Release từ mục này. Run CD của tag này là lần đầu job `image` chạy; lưu link run và digest image vào đây.
+
+- **CD đủ chuỗi của Task 5.3:** thêm job `image` build Docker image API, gắn tag `X.Y.Z` và `sha-<commit>`, push lên `ghcr.io/nashando/brewlite-api`; smoke test kiểm tra thêm database `up` và menu không rỗng; job `rollback-guide` chạy khi pipeline lỗi và ghi hướng dẫn rollback vào summary. Tuỳ chọn deploy Render từ image qua biến `RENDER_DEPLOY_FROM_IMAGE`.
+- **CI:** PR chỉ sửa tài liệu cũng chạy CI để status check bắt buộc không bị kẹt; hướng dẫn bật ruleset cho `main` trong `docs/deployment.md` mục 3.4.
+- **Docker Compose chạy thật (Task 5.2):** trên GitHub Codespaces ngày 15/11, 3 container healthy, migration + seed 21 món, `/health` database up; unit QA 8/8, integration 38/38, E2E 20/20 — [compose-codespaces](testing/evidence/compose-codespaces/README.md). Thay trạng thái BLOCKED trước đó.
+- **Tài liệu đồng bộ với CD mới:** ADR 007, Architecture Document, deployment diagram (thêm job `image`, GHCR, rollback-guide), deployment.md, ma trận truy vết NFR-04/NFR-05, đối chiếu Assignment.
+- **Bàn giao:** thêm Product Backlog và Sprint Retrospective trong `docs/delivery/`, minh chứng CI `docs/testing/ci-evidence.md`; README liệt kê đủ 7 ADR, URL production bấm được.
+- Không đổi code ứng dụng, migration hay test.
+
+## v1.0.2 — tag tại fe94ad7
+
+- Commit: `fe94ad7`, ngày 15/11/2026 — bản tài liệu "publish Sprint Review, traceability and updated diagrams"; code ứng dụng như `9808d37`.
+- [CD run 43701713777](https://github.com/Nashando/BrewLite-SWE-project/actions/runs/43701713777) thành công với pipeline cũ: quality → deploy-api → smoke-test. Tag này **chưa có** job build/push image GHCR.
+
 ## Chưa phát hành — mốc main f832448
 
 - **Commit làm mốc:** `f8324480454fb9e0f9dfbf8d2504a241c89428e3`.

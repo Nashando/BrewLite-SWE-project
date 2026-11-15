@@ -1,9 +1,17 @@
 name: CD
 
-# Push tag vX.Y.Z -> Lint & Test -> Build Docker image -> Push GHCR -> Deploy API (Render) -> Smoke test
-# - Web (Vercel) tự deploy khi merge vào main nhờ Git integration; pipeline này kiểm tra lại web sau khi deploy API.
-# - Rollback: xem docs/deployment.md (bấm Rollback trên Render/Vercel hoặc deploy lại tag cũ).
-# - Chỉ cần 1 secret: RENDER_DEPLOY_HOOK_URL (Settings -> Environments -> production -> Secrets).
+# Push tag vX.Y.Z
+#   -> quality: Lint, Unit test, Build (gọi lại ci.yml)
+#   -> image: Build Docker image API, gắn tag semver + commit SHA, push lên GHCR
+#   -> deploy-api: gọi Render Deploy Hook (secret của CI) đúng commit/image vừa build
+#   -> smoke-test: /health (API + DB), /products, web /menu
+#   -> rollback-guide: chỉ chạy khi có job thất bại, in hướng dẫn rollback
+# Web (Vercel) tự deploy khi merge vào main nhờ Git integration; smoke test kiểm tra lại web.
+# Migration: container API chạy `prisma migrate deploy` trước khi mở cổng (npm run start:migrate, ADR 002),
+#   chỉ áp dụng migration đã commit, không reset dữ liệu.
+# Secret: RENDER_DEPLOY_HOOK_URL (Settings -> Environments -> production -> Secrets).
+# Biến tuỳ chọn: RENDER_DEPLOY_FROM_IMAGE=true (Settings -> Variables) nếu service Render được cấu hình
+#   chạy từ image GHCR; khi đó Deploy Hook nhận imgURL thay vì ref.
 
 on:
   push:
@@ -12,8 +20,11 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: cd-production
+  cancel-in-progress: false
+
 env:
-  IMAGE_NAME: brewlite-api
   API_URL: https://brewlite-swe-project.onrender.com
   WEB_URL: https://brewlite-swe-project-web.vercel.app
 
@@ -22,22 +33,92 @@ jobs:
   quality:
     uses: ./.github/workflows/ci.yml
 
-  # 2) Deploy API: báo Render kéo đúng image vừa push (migration chạy khi container khởi động)
-  deploy-api:
+  # 2) Đóng gói image API, tag theo semver và commit SHA, push lên GitHub Container Registry
+  image:
     needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.name.outputs.image }}
+      sha_tag: ${{ steps.name.outputs.image }}:sha-${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Tên image (GHCR yêu cầu chữ thường)
+        id: name
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/brewlite-api" >> "$GITHUB_OUTPUT"
+
+      - name: Đăng nhập GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tạo tag image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.name.outputs.image }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=sha,format=long,prefix=sha-
+          labels: |
+            org.opencontainers.image.title=brewlite-api
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build và push image
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/api
+          file: apps/api/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Ghi tag vào summary
+        run: |
+          {
+            echo "### Image đã push"
+            echo '```'
+            echo "${{ steps.meta.outputs.tags }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # 3) Deploy API lên Render bằng secret của CI
+  deploy-api:
+    needs: image
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: production
     steps:
-      - name: Gọi Render Deploy Hook đúng commit
+      - name: Gọi Render Deploy Hook
         env:
           HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          FROM_IMAGE: ${{ vars.RENDER_DEPLOY_FROM_IMAGE }}
+          IMAGE_REF: ${{ needs.image.outputs.sha_tag }}
         run: |
           [ -n "$HOOK" ] || { echo "::error::Thiếu secret RENDER_DEPLOY_HOOK_URL"; exit 1; }
-          curl --fail-with-body --silent --show-error --max-time 30 -X POST "${HOOK}&ref=${GITHUB_SHA}"
-          echo "Đã yêu cầu Render deploy commit ${GITHUB_SHA}"
+          if [ "$FROM_IMAGE" = "true" ]; then
+            ENC=$(python3 -c 'import os,urllib.parse;print(urllib.parse.quote(os.environ["IMAGE_REF"],safe=""))')
+            URL="${HOOK}&imgURL=${ENC}"
+            echo "Render deploy image ${IMAGE_REF}"
+          else
+            URL="${HOOK}&ref=${GITHUB_SHA}"
+            echo "Render build từ Git commit ${GITHUB_SHA} (cùng commit với image ${IMAGE_REF})"
+          fi
+          # Không in URL hook ra log vì chứa khoá bí mật
+          curl --fail-with-body --silent --show-error --max-time 30 -X POST "$URL" -o /dev/null
 
-  # 3) Smoke test: chờ Render build xong rồi kiểm tra health, danh sách sản phẩm và trang menu
+  # 4) Smoke test sau triển khai
   smoke-test:
     needs: deploy-api
     runs-on: ubuntu-latest
@@ -46,11 +127,37 @@ jobs:
       - name: Chờ Render thay bản mới
         run: sleep 90
 
-      - name: API /health (200 nghĩa là API và PostgreSQL đều sống)
-        run: curl --fail --silent --show-error --retry 30 --retry-delay 10 --retry-all-errors --max-time 20 "$API_URL/health"
+      - name: API /health (200 và database up)
+        run: |
+          BODY=$(curl --fail --silent --show-error --retry 30 --retry-delay 10 --retry-all-errors --max-time 20 "$API_URL/health")
+          echo "$BODY"
+          echo "$BODY" | grep -q '"database":{"status":"up"}' || { echo "::error::Database không ở trạng thái up"; exit 1; }
 
-      - name: API /products
-        run: curl --fail --silent --show-error --retry 5 --retry-delay 10 --retry-all-errors --max-time 20 -o /dev/null "$API_URL/products"
+      - name: API /products (phải có ít nhất 1 món)
+        run: |
+          BODY=$(curl --fail --silent --show-error --retry 5 --retry-delay 10 --retry-all-errors --max-time 20 "$API_URL/products")
+          echo "$BODY" | grep -q '"id"' || { echo "::error::Menu production trống"; exit 1; }
 
       - name: Web /menu
         run: curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors --max-time 20 -o /dev/null "$WEB_URL/menu"
+
+  # 5) Khi bất kỳ bước nào thất bại: pipeline dừng, in hướng dẫn rollback
+  rollback-guide:
+    needs: [quality, image, deploy-api, smoke-test]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hướng dẫn rollback
+        run: |
+          {
+            echo "## Triển khai ${GITHUB_REF_NAME} thất bại"
+            echo ""
+            echo "Pipeline đã dừng. Nếu lỗi xảy ra sau bước deploy-api, rollback theo docs/deployment.md mục 5:"
+            echo "1. Render → service API → Deploys → chọn bản ổn định trước đó → Rollback."
+            echo "   Hoặc deploy lại image tag cũ trên GHCR (sha-<commit ổn định>)."
+            echo "2. Vercel → Deployments → bản ổn định → Promote to Production (nếu web lỗi)."
+            echo "3. Không dùng prisma migrate reset trên production; sửa schema bằng migration mới."
+            echo "4. Kiểm tra lại ${API_URL}/health, ${API_URL}/products và ${WEB_URL}/menu."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::Triển khai thất bại, xem summary để rollback."
+          exit 1
