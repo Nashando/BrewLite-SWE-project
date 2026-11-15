@@ -1,8 +1,10 @@
 name: CI (sequential)
- 
-# Phiên bản B: 1 job duy nhất, chạy TUẦN TỰ api rồi đến web.
-# Chỉ dùng MỘT trong hai: ci.yml (song song) HOẶC file này. Đừng commit cả hai cùng lúc.
- 
+
+# Quality gate chạy trên mọi pull request vào main: Install -> Lint -> Unit test -> Build (api rồi web).
+# PR không được merge khi job này fail: bật ruleset cho nhánh main, bắt buộc status check "ci (api -> web)".
+# pull_request không dùng paths-ignore để PR chỉ sửa tài liệu vẫn có status check, không bị kẹt khi merge.
+# Workflow cũng được cd.yml gọi lại qua workflow_call trước khi build image và deploy.
+
 on:
   push:
     branches: [main, CI]
@@ -13,11 +15,6 @@ on:
       - '.editorconfig'
   pull_request:
     branches: [main, CI]
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.editorconfig'
   workflow_call:
  
 concurrency:
