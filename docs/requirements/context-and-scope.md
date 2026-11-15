@@ -22,12 +22,11 @@ Khách hàng phải xếp hàng lâu để gọi đồ uống. Nhân viên quầ
 - Đăng ký, đăng nhập.
 - Đặt hàng, thanh toán mô phỏng (Ví/Thẻ + Tiền mặt).
 - Theo dõi trạng thái và lịch sử đơn hàng.
-- Quản lý trạng thái đơn (dành cho Staff/Admin).
+- Quản lý trạng thái đơn (STAFF/MANAGER); không có role enum ADMIN.
 - Hủy đơn hàng (khi chưa pha chế).
 
 ### Phạm vi mở rộng (Extended Scope)
-- Quản lý menu & tồn kho (Admin).
-- Áp dụng mã khuyến mãi.
+- Quản lý menu & tồn kho (MANAGER, đã có trong source).
 - Xem thống kê doanh thu.
 
 ### Ngoài phạm vi (Out-of-scope)
@@ -35,6 +34,7 @@ Khách hàng phải xếp hàng lâu để gọi đồ uống. Nhân viên quầ
 - Quản lý nhân sự.
 - Tích hợp thanh toán thật (MOMO, VNPAY).
 - Tích điểm thành viên (Loyalty).
+- Áp dụng mã khuyến mãi (Promotion). Promotion/LoyaltyTransaction vẫn có trong class diagram ở mức domain mở rộng theo Task 2.3, chưa có bảng/API.
 
 ## 1.4 Giả định
 - Người dùng có điện thoại hoặc trình duyệt web.
@@ -47,6 +47,7 @@ Khách hàng phải xếp hàng lâu để gọi đồ uống. Nhân viên quầ
 - Backend: NestJS.
 - Database: PostgreSQL.
 - Phải chạy được trên Docker.
+- PaymentService mô phỏng chạy nội bộ NestJS; không phải một cổng ngoài hoặc container triển khai riêng. UI giỏ dùng trình duyệt; Cart API/domain tồn tại nhưng chưa đồng bộ giỏ UI giữa thiết bị.
 
 ## 1.6 Rủi ro ban đầu
 - Tiến độ Task 1-2 chậm ảnh hưởng toàn bộ dự án.

@@ -1,0 +1,59 @@
+@startuml sequence-03-transaction
+title BrewLite - Sequence 3/4: Transaction payment
+hide footbox
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam maxMessageSize 250
+skinparam ParticipantPadding 20
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor white
+skinparam sequenceParticipantBackgroundColor white
+skinparam sequenceGroupBackgroundColor white
+
+control "__paymentService:__\n__PaymentService__" as Pay
+entity "__database:__\n__PostgreSQL__" as DB
+
+activate Pay
+      Pay -> DB : BEGIN transaction payment\npayment.findFirst(orderId, PENDING)
+      activate DB
+      DB --> Pay : waitingCash / null
+      alt Đã có CASH đang chờ
+        Pay -> DB : ROLLBACK
+        Pay -> Pay : ConflictException (409)
+      else Chưa có giao dịch chờ
+        alt method = CASH
+          Pay -> DB : payment.create(CASH, PENDING); COMMIT
+          DB --> Pay : Payment PENDING\nOrder vẫn PENDING_PAYMENT
+        else method = WALLET / CARD
+          Pay -> DB : order.updateMany(PENDING_PAYMENT → PAID)
+          DB --> Pay : claimedCount
+          alt claimedCount = 0
+            Pay -> DB : ROLLBACK; payment.findUnique(userId,key)
+            DB --> Pay : payment đã có / null
+            Pay -> Pay : replay nếu đã có, nếu không trả 409
+          else Claim được đơn
+            Pay -> Pay : charge(tx, userId, method, cardDigits, amount)
+            activate Pay
+            opt WALLET
+              Pay -> DB : user.updateMany(walletBalance >= amount, decrement)
+              DB --> Pay : updatedCount
+            end
+            Pay --> Pay : failureReason / null
+            deactivate Pay
+            alt Thu tiền thành công
+              Pay -> DB : payment.create(SUCCESS); COMMIT
+              DB --> Pay : Payment SUCCESS / Order PAID
+            else Ví thiếu / thẻ từ chối / timeout mô phỏng
+              Pay -> DB : order.update(CANCELLED); restockOrder()\npayment.create(FAILED); COMMIT
+              DB --> Pay : Payment FAILED / Order CANCELLED
+              Pay -> Pay : paymentFailed(payment) → 402 sau commit
+            end
+          end
+        end
+      end
+      deactivate DB
+deactivate Pay
+
+@enduml

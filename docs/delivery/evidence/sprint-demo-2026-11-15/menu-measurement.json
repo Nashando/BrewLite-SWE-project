@@ -1,0 +1,129 @@
+{
+  "measuredAt": "2026-11-15T05:15:35.505Z",
+  "base": "http://127.0.0.1:56364",
+  "browser": "156.0.8078.4",
+  "mode": "Next.js production",
+  "network": "unthrottled; no CPU throttling",
+  "samples": [
+    {
+      "run": 1,
+      "lcpMs": 56,
+      "viewport": "375x812",
+      "cache": "new browser context"
+    },
+    {
+      "run": 2,
+      "lcpMs": 48,
+      "viewport": "375x812",
+      "cache": "new browser context"
+    },
+    {
+      "run": 3,
+      "lcpMs": 40,
+      "viewport": "375x812",
+      "cache": "new browser context"
+    }
+  ],
+  "layouts": [
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "route": "/menu",
+      "widths": {
+        "document": 360,
+        "viewport": 375
+      },
+      "noHorizontalOverflow": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "route": "/products/303db86a-736d-4a1e-9f57-2dcf44744bef",
+      "widths": {
+        "document": 397,
+        "viewport": 375
+      },
+      "noHorizontalOverflow": false
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "route": "/cart",
+      "widths": {
+        "document": 360,
+        "viewport": 375
+      },
+      "noHorizontalOverflow": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "route": "/checkout",
+      "widths": {
+        "document": 360,
+        "viewport": 375
+      },
+      "noHorizontalOverflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "route": "/menu",
+      "widths": {
+        "document": 1425,
+        "viewport": 1440
+      },
+      "noHorizontalOverflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "route": "/products/303db86a-736d-4a1e-9f57-2dcf44744bef",
+      "widths": {
+        "document": 1425,
+        "viewport": 1440
+      },
+      "noHorizontalOverflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "route": "/cart",
+      "widths": {
+        "document": 1425,
+        "viewport": 1440
+      },
+      "noHorizontalOverflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "route": "/checkout",
+      "widths": {
+        "document": 1425,
+        "viewport": 1440
+      },
+      "noHorizontalOverflow": true
+    }
+  ],
+  "medianLcpMs": 48,
+  "performancePassed": true,
+  "manifestValid": true,
+  "layoutPassed": false
+}

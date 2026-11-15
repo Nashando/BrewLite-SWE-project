@@ -1,0 +1,71 @@
+@startuml sequence-02-checks
+title BrewLite - Sequence 2/4: Gửi thanh toán và kiểm tra idempotency
+hide footbox
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam maxMessageSize 250
+skinparam ParticipantPadding 20
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor white
+skinparam sequenceParticipantBackgroundColor white
+skinparam sequenceGroupBackgroundColor white
+
+actor Customer as C
+boundary "__checkoutPage:__\n__Next.js UI__" as UI
+control "__checkoutAPI:__\n__NestJS API__" as API
+control "__paymentService:__\n__PaymentService__" as Pay
+entity "__database:__\n__PostgreSQL__" as DB
+
+activate UI
+opt Tạo đơn thành công
+  UI -> C : showPayment(orderId, total, method)
+  C -> UI : confirmPayment(card?)
+  UI -> API : pay(user, key, dto)\nPOST /payments + JWT + Idempotency-Key
+  activate API
+  API -> API : authenticateCustomer(jwt); validate(PayDto)
+  API -> Pay : pay(user, key, dto)
+  activate Pay
+  note right of Pay
+    Key phải dài 8–100 ký tự.
+    JWT/DTO/key sai: 400/401/403, không thu tiền.
+  end note
+  Pay -> DB : payment.findUnique(userId, key)
+  activate DB
+  DB --> Pay : existingPayment / null
+  deactivate DB
+  alt Payment đã có cùng user/key
+    Pay -> Pay : replay(existingPayment, dto)
+    note right of Pay
+      Cùng orderId: kết quả cũ 201 hoặc 402.
+      Khác orderId: 409, không charge lại.
+    end note
+  else Yêu cầu thanh toán mới
+    Pay -> Pay : Kiểm số thẻ; isExpired(expiry) nếu CARD\nreleaseExpiredOrders()
+    Pay -> DB : Xử lý TTL; order.findFirst(id, userId)
+    activate DB
+    DB --> Pay : order
+    deactivate DB
+    note right of Pay
+      Thẻ sai/hết hạn: 400, có thể vẫn giữ đơn/kho.
+      Không sở hữu: 404; không còn chờ: 409.
+      Chỉ thực hiện transaction khi kiểm tra đạt.
+    end note
+    opt Dữ liệu và đơn hợp lệ
+      ref over Pay, DB
+        Transaction payment: xem phần 3
+      end ref
+    end
+  end
+  Pay --> API : PaymentView / HTTP exception
+  deactivate Pay
+  API --> UI : 201 / 400 / 402 / 404 / 409\n(401/403 nếu JWT hoặc role sai)
+  deactivate API
+  UI -> UI : handlePaymentResult(result)
+  UI --> C : 201: xóa giỏ, hiện mã đơn PAID/chờ CASH\n402: giữ giỏ; lần thử sau tạo đơn mới
+end
+deactivate UI
+
+
+@enduml

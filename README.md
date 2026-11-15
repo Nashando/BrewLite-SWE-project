@@ -239,6 +239,7 @@ Dự án áp dụng quy chuẩn phát triển và kiểm soát chất lượng n
 
 Toàn bộ tài liệu kỹ thuật được lưu trữ trong thư mục `docs/`:
 
+- 🗓️ [Sprint Review hai Sprint](./docs/delivery/sprint-review.md) và [minh chứng demo/lịch sử](./docs/delivery/sprint-evidence.md)
 - 📋 [Đặc tả Yêu cầu Phần mềm (SRS)](./docs/requirements/SRS.md) và [Ma trận truy vết](./docs/traceability-matrix.md)
 - 📜 [Đặc tả Use-case UC-CHECKOUT](./docs/requirements/use-case-checkout.md)
 - 🗺️ [Bộ sơ đồ UML: Use-case, Activity, Sequence, Class](./docs/diagrams/README.md)

@@ -13,7 +13,7 @@ Nghiệp vụ đặt cà phê BrewLite (theo mô hình Starbucks) hướng tới
 Xây dựng ứng dụng Frontend (`apps/web`) sử dụng **Next.js** kết hợp tính năng **Progressive Web App (PWA)** và tư duy thiết kế **Mobile-first**:
 
 * Tối ưu UI/UX ưu tiên cho màn hình điện thoại di động trước, sau đó mới mở rộng cho máy tính (Responsive Design).
-* Cấu hình PWA (Service Workers, Web App Manifest) cho phép người dùng "Thêm vào màn hình chính" (Add to Home Screen) trên smartphone và phản hồi nhanh khi mất mạng tạm thời.
+* Source hiện có Web App Manifest (apps/web/public/manifest.webmanifest). Service worker ở public/mockServiceWorker.js phục vụ MSW khi mock, không phải chứng minh đã triển khai offline production. Khả năng cài đặt/offline cần phép kiểm chứng riêng; không ghi nhận là chức năng đã hoàn tất.
 
 ## 3\. Các phương án đã cân nhắc (Considered Options)
 

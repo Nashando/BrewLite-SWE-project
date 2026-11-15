@@ -1,0 +1,60 @@
+@startuml activity-01-create
+title BrewLite - Activity 1/4: Menu, đăng nhập và tạo đơn
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ArrowColor #43566B
+skinparam activity {
+  BackgroundColor #EEF5FC
+  BorderColor #43566B
+  DiamondBackgroundColor #FFF4D8
+  DiamondBorderColor #957A3A
+  StartColor #245B83
+  EndColor #245B83
+}
+skinparam swimlaneTitleBackgroundColor #E3EBF3
+skinparam swimlaneBorderColor #9DAEC0
+
+|Khách hàng|
+start
+:Xem/tìm/lọc menu;
+:Chọn món, size/topping;\nthêm/sửa giỏ hàng;
+|Next.js UI|
+if (Có phiên đăng nhập?) then (chưa)
+  :Yêu cầu đăng nhập;\ngiữ giỏ trong trình duyệt;
+  |Khách hàng|
+  :Đăng nhập / đăng ký;
+  |NestJS API|
+  :Xác thực và cấp JWT;
+  note right
+    Sai thông tin: ở lại form để sửa.
+    Các request nghiệp vụ vẫn kiểm JWT/role.
+  end note
+else (có)
+endif
+|Next.js UI|
+:Đối chiếu giỏ với menu;\nbỏ món ẩn, cập nhật giá;
+|Khách hàng|
+:Chọn Ví / Thẻ / CASH;\nxác nhận đặt hàng;
+|NestJS API|
+:POST /orders\nKiểm JWT, CUSTOMER, DTO;
+if (Request hợp lệ?) then (không)
+  |Next.js UI|
+  :Báo lỗi 400 / 401 / 403;\ngiữ giỏ, không tạo đơn;
+  stop
+else (có)
+endif
+|NestJS API|
+:Transaction tạo đơn:\nkiểm món/tùy chọn, tính giá server,\ntrừ kho có điều kiện theo productId;
+if (Dữ liệu/kho hợp lệ?) then (không)
+  :ROLLBACK toàn bộ;\n400 / OUT_OF_STOCK;
+  |Next.js UI|
+  :Báo lỗi; về giỏ để sửa;
+  stop
+else (có)
+endif
+|NestJS API|
+:Lưu Order PENDING_PAYMENT\nvà snapshot OrderItem; COMMIT;
+stop
+
+@enduml

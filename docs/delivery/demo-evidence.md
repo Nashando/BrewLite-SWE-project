@@ -10,3 +10,7 @@
 - Đã giải mã MP4 không lỗi và kiểm tra 7 khung hình trong lượt tạo video. Không xem video là test toàn bộ hoặc footage cuộc họp.
 
 Video giữ nguyên nhãn source gốc; không gán video thành phiên bản của các commit tài liệu/QA tạo sau đó. File video và phụ đề nằm trong docs/delivery/demo để người nhận tải được trực tiếp từ repository. Minh chứng này thuộc Task 5.4 demo, không chứa Sprint Review/Retrospective hoặc checklist cuối kỳ.
+
+## Demo bổ sung cho Sprint Review — 15/11/2026
+
+[Sprint Review](sprint-review.md), [nguồn và mốc kiểm chứng](sprint-evidence.md), [ảnh và kết quả đối chiếu](evidence/sprint-demo-2026-11-15/README.md). Bộ ảnh mới giữ đúng source/môi trường riêng; video 14/11 giữ nguyên nhãn phiên bản gốc.

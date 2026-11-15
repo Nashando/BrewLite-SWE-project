@@ -1,0 +1,206 @@
+{
+  "confirmedByUser": {
+    "sprint1": {
+      "start": "2026-10-15",
+      "end": "2026-10-31",
+      "status": "phase ended; acceptance not finalised"
+    },
+    "sprint2": {
+      "start": "2026-10-31",
+      "asOf": "2026-11-15",
+      "status": "ended; acceptance not finalised",
+      "end": "2026-11-15"
+    },
+    "sprint1MainReviewer": "Trung Hiếu; exact historical feedback not supplied",
+    "lecturerFeedback": "not yet received",
+    "acceptance": "not finalised",
+    "teamSelfAssessment": "Assigned work completed on time; active revisions and good review of members work",
+    "mainDifficulty": "Communication and status updates because members could not align schedules for in-person discussions",
+    "sprint1SelfAssessment": "Complete according to the team; lecturer acceptance not finalised",
+    "retrospectiveProcessActions": "Specific communication measures and detailed technical plan are proposals unless explicitly confirmed by team",
+    "sprint2SelfAssessment": "Sprint ended on 2026-11-15 according to the team; technical findings retain their recorded results"
+  },
+  "feedbackAuthor": "Codex — technical feedback from rerun on 2026-11-15, not lecturer or Trung Hieu quotes",
+  "sprint1": {
+    "source": "fec6d5e2897696b67fbf6ad6fb3587e0cb2a149b",
+    "sourceDate": "2026-10-31",
+    "rerunAt": "2026-11-15T05:13:56.894Z",
+    "environment": "Historical frontend production build; original MSW mock data; no NestJS/database",
+    "checks": [
+      {
+        "name": "Menu with original 11 mock products",
+        "passed": true
+      },
+      {
+        "name": "Category filtering: Tra shows 3 products",
+        "passed": true
+      },
+      {
+        "name": "Mock out-of-stock product cannot be added",
+        "passed": true
+      },
+      {
+        "name": "Size/top-up/quantity total 114000; cart survives reload",
+        "passed": true
+      },
+      {
+        "name": "No checkout link in Sprint 1 source",
+        "passed": true,
+        "classification": "scope boundary, not a failed Sprint 1 demo"
+      }
+    ],
+    "layouts": [
+      {
+        "route": "product",
+        "viewport": 375,
+        "document": 375,
+        "innerWidth": 375
+      },
+      {
+        "route": "product",
+        "viewport": 1440,
+        "document": 1440,
+        "innerWidth": 1440
+      }
+    ],
+    "menuUnit": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "cases": [
+        {
+          "name": "MenuScreen hiển thị trạng thái loading khi đang tải",
+          "status": "passed"
+        },
+        {
+          "name": "MenuScreen hiển thị toàn bộ sản phẩm với giá VND",
+          "status": "passed"
+        },
+        {
+          "name": "MenuScreen hiển thị trạng thái empty khi menu không có món nào",
+          "status": "passed"
+        },
+        {
+          "name": "MenuScreen hiển thị lỗi máy chủ và cho phép thử lại",
+          "status": "passed"
+        },
+        {
+          "name": "MenuScreen hiển thị lỗi mạng khi không kết nối được API",
+          "status": "passed"
+        },
+        {
+          "name": "MenuScreen lọc sản phẩm theo danh mục",
+          "status": "passed"
+        },
+        {
+          "name": "MenuScreen đánh dấu món hết hàng",
+          "status": "passed"
+        },
+        {
+          "name": "MenuScreen mỗi món dẫn tới trang chi tiết",
+          "status": "passed"
+        },
+        {
+          "name": "MenuScreen có liên kết tới giỏ hàng trên header",
+          "status": "passed"
+        }
+      ]
+    },
+    "success": true,
+    "ownedServerStopped": true
+  },
+  "sprint2": {
+    "source": "9808d37f42fe9e1b9f747f5786286928327135ef",
+    "rerunAt": "2026-11-15T05:14:58.612Z",
+    "finishedAt": "2026-11-15T05:15:34.932Z",
+    "environment": "Local disposable PostgreSQL 16.15, API build, Next.js production build; no production writes",
+    "node": "v22.23.5",
+    "products": 21,
+    "health": {
+      "status": "ok",
+      "info": {
+        "database": {
+          "status": "up"
+        }
+      },
+      "error": {},
+      "details": {
+        "database": {
+          "status": "up"
+        }
+      }
+    },
+    "browserDemoPassed": true,
+    "orders": [
+      {
+        "id": "977a513a-79c0-4766-b1d7-5c9a76809af7",
+        "code": "BL-AEE06F64",
+        "status": "PAID",
+        "total": 39000,
+        "methods": [
+          {
+            "method": "CASH",
+            "status": "SUCCESS"
+          }
+        ]
+      },
+      {
+        "id": "dea3afd5-9ce2-45e4-b2f8-035141930955",
+        "code": "BL-B6C2060D",
+        "status": "PAID",
+        "total": 45000,
+        "methods": [
+          {
+            "method": "CARD",
+            "status": "SUCCESS"
+          }
+        ]
+      },
+      {
+        "id": "ab535474-0bd3-419f-9f26-09bc6b30d7e7",
+        "code": "BL-F83CB3AB",
+        "status": "CANCELLED",
+        "total": 45000,
+        "methods": [
+          {
+            "method": "CARD",
+            "status": "FAILED"
+          }
+        ]
+      },
+      {
+        "id": "fd0fc40b-8de5-43cd-808c-fc3db70f1316",
+        "code": "BL-0C086387",
+        "status": "COMPLETED",
+        "total": 96000,
+        "methods": [
+          {
+            "method": "WALLET",
+            "status": "SUCCESS"
+          }
+        ]
+      }
+    ],
+    "walletBalance": 104000,
+    "observations": [
+      "Wallet order 96000 completed through staff workflow; remaining balance 104000",
+      "Declined card order cancelled/failed; retry created a different paid order",
+      "CASH pending until staff confirmation, then paid/success"
+    ],
+    "measurementExitCode": 1,
+    "measurementPassed": false,
+    "databaseStopped": true,
+    "databaseDirectoryRemoved": true
+  },
+  "limits": [
+    "Historical rerun is not proof tests were run on 31 October",
+    "Sprint 1 demo uses original mock data, not backend/database",
+    "Sprint 2 browser demo is a targeted rerun, not a new 285-test suite",
+    "Layout diagnostic FAIL retained; performance measurement is local only",
+    "No production writes/deploy; no group meeting decisions invented"
+  ],
+  "initialHarnessAttempts": [
+    "Sprint 1 attempt-01 used an incorrect label for the out-of-stock button",
+    "Sprint 2 attempt-01 used an incorrect Playwright module path; both harness errors were corrected without editing app source"
+  ]
+}

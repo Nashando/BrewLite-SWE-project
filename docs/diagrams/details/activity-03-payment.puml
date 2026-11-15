@@ -1,0 +1,54 @@
+@startuml activity-03-payment
+title BrewLite - Activity 3/4: Transaction thanh toán
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ArrowColor #43566B
+skinparam activity {
+  BackgroundColor #EEF5FC
+  BorderColor #43566B
+  DiamondBackgroundColor #FFF4D8
+  DiamondBorderColor #957A3A
+  StartColor #245B83
+  EndColor #245B83
+}
+skinparam swimlaneTitleBackgroundColor #E3EBF3
+skinparam swimlaneBorderColor #9DAEC0
+
+|NestJS API|
+start
+|NestJS API|
+:Bắt đầu transaction payment;\ntừ chối 409 nếu CASH đang chờ;
+note right
+  PaymentService là module nội bộ NestJS.
+  TTL mặc định 15 phút: request kích hoạt
+  hủy đơn quá hạn/hoàn kho, không có timer nền.
+end note
+if (Phương thức Ví/Thẻ?) then (có)
+  :Claim PENDING_PAYMENT → PAID;\ntrừ ví có điều kiện / mô phỏng thẻ;
+  note right
+    Claim thất bại: rollback; đọc lại key để replay
+    nếu đã có, nếu không trả 409; không thu lần hai.
+  end note
+  if (Thu tiền thành công?) then (không)
+    :Order CANCELLED, Payment FAILED;\nhoàn kho; COMMIT rồi trả 402;
+    |Next.js UI|
+    :Giữ giỏ, báo thất bại;\nlần thử sau tạo đơn mới;
+    stop
+  else (có)
+    |NestJS API|
+    :Ghi Payment SUCCESS;\nCOMMIT; trả 201;
+  endif
+else (CASH)
+  |NestJS API|
+  :Ghi Payment PENDING; COMMIT;\ntrả 201; Order vẫn PENDING_PAYMENT;
+endif
+|Next.js UI|
+:Làm rỗng giỏ; hiện mã đơn\nPAID hoặc chờ thu CASH tại quầy;
+note left
+  Kết thúc UC-CHECKOUT của khách.
+  Phần sau thuộc xử lý quầy/theo dõi đơn.
+end note
+stop
+
+@enduml

@@ -1,81 +1,52 @@
-# Tài liệu Thiết kế Kiến trúc Hệ thống BrewLite (Architecture Document)
+# Kiến trúc BrewLite — Task 3.1
 
-1. ## Tổng quan & Phương pháp Kiến trúc
-- **Dự án**: BrewLite – Hệ thống đặt cà phê & đồ uống trực tuyến theo mô hình chuỗi cửa hàng.
-- **Mục tiêu**: Cung cấp kiến trúc hệ thống hiện đại, linh hoạt, đảm bảo tính mở rộng, bảo mật, khả năng bảo trì và hỗ trợ luồng nghiệp vụ end-to-end từ xem menu đến đặt đơn và thanh toán.
-- **Phương pháp thiết kế**: Áp dụng **Mô hình C4 (C4 Model)** (Level 1 & Level 2) kết hợp với **Kiến trúc Phân lớp theo Domain/Module (Modular Layered Architecture)** cho Backend.
-- **Bộ công nghệ cốt lõi**:
-  - **Frontend**: Next.js (phát triển theo hướng Mobile-first / PWA).
-  - **Backend**: NestJS (Node.js framework chia theo module/domain).
-  - **Database**: PostgreSQL quản lý qua cơ chế Migration với Prisma ORM.
+Đối chiếu source main 9808d37 ngày 15/11/2026. Đây là mô tả C4 Level 1/2 kết hợp backend phân lớp; hình UML triển khai ở [deployment](../diagrams/deployment-diagram.svg). Các quyết định liên quan nằm trong [ADR](adr/).
 
----
+## 1. C4 Level 1 — Bối cảnh
+Khách vãng lai xem menu/chi tiết và giỏ trình duyệt; CUSTOMER tạo/thanh toán/theo dõi/hủy đơn; STAFF xử lý quầy; MANAGER thêm quản trị catalog/doanh thu. BrewLite là hệ thống order-ahead/pickup, không giao hàng và không thu tiền thật. PaymentService mô phỏng nằm trong NestJS, không phải một hệ thống/HTTP gateway bên ngoài.
 
-## 2. Mô hình Kiến trúc C4 (C4 Model)
+## 2. C4 Level 2 — Container/dịch vụ
+“Container” C4 là đơn vị ứng dụng/dữ liệu, không mặc định phải là Docker container production.
+| Thành phần | Vai trò/source | Local | Production theo cấu hình repo |
+|---|---|---|---|
+| Next.js | apps/web; UI React, state giỏ/JWT, gọi REST | Dockerfile web/Compose hoặc Node dev/start | Vercel Git Integration, HTTPS/SSR/static assets |
+| NestJS | apps/api; REST, phân quyền, order/payment | Dockerfile API/Compose hoặc Node | Render Web Service Node runtime build từ Git |
+| PostgreSQL | apps/api/prisma, dữ liệu quan hệ và migration | postgres:16-alpine, volume pgdata | Render PostgreSQL/persistent storage, Internal URL phải được cấu hình |
+| GitHub Actions | .github/workflows/ci.yml và cd.yml | Không giả lập thành dịch vụ ứng dụng | Runner CI quality; CD quality → deploy-api hook → smoke-test |
+| Container registry | Docker Hub cho FROM node:22-alpine và postgres:16-alpine | Nguồn base image trong Dockerfiles/Compose | Không có job push/pull app image GHCR trong cd.yml main 9808d37 |
 
-### 2.1 Level 1: System Context Diagram (Bối cảnh hệ thống)
-Sơ đồ bối cảnh mô tả tương tác giữa các tác nhân người dùng với hệ thống BrewLite:
+Sơ đồ hiện trạng không vẽ mũi tên Actions build/push GHCR hoặc Render pull image vì source hiện không có job đó. Đóng gói/tag/push app image theo Task 5.3 vẫn là phần cần hoàn thành; không thể chứng minh bằng cách thêm một node lý thuyết vào production diagram.
 
-- **Tác nhân (Actors)**:
-  - **Khách hàng (Customer)**: Xem menu, chọn đồ uống với các tùy chọn linh hoạt (Size S/M/L, Toppings), quản lý giỏ hàng, đặt đơn hàng "Order Ahead & Pickup", lựa chọn hình thức thanh toán (CASH, Ví, Thẻ mô phỏng nội bộ) và theo dõi trạng thái đơn hàng.
-  - **Nhân viên / Quản lý quầy (Store Staff / Manager)**: Xem danh sách đơn hàng qua giao diện quản lý, tiếp nhận và cập nhật trạng thái đơn qua API (`PAID` ➔ `PREPARING` ➔ `READY` ➔ `COMPLETED`).
-- **Hệ thống BrewLite (BrewLite System)**: Tiếp nhận yêu cầu từ người dùng, xử lý logic đặt đồ uống, quản lý tồn kho, xử lý giao dịch thanh toán mô phỏng nội bộ và lưu trữ lịch sử giao dịch.
-- **Hệ thống bên ngoài (External Systems)**: 
-  - *Không có hệ thống thanh toán bên ngoài (hệ thống vận hành hoàn toàn độc lập với cổng thanh toán thực tế, sử dụng cơ chế mô phỏng nội bộ tích hợp sẵn trong Backend).*
+## 3. Backend phân lớp/module
+Controller/guard/DTO → service domain → PrismaService/transaction → PostgreSQL.
+- Auth: bcrypt, access/refresh JWT; RolesGuard và kiểm sở hữu đơn. Backend có refresh, frontend hiện logout khi 401.
+- Products: menu/chi tiết; server hỗ trợ search/category; UI hiện lọc client.
+- Cart: API/domain giỏ tồn tại; UI dùng Zustand/localStorage, chưa đồng bộ giỏ UI với server/thiết bị.
+- Order: tính giá từ DB, snapshot đơn, trừ kho có điều kiện và thứ tự productId; lỗi rollback transaction.
+- Orders: mine/all/detail, hủy trước PREPARING, confirm-cash và chuyển trạng thái đúng thứ tự.
+- Payment: Wallet/Card/CASH mô phỏng, unique user/key, atomic claim đơn/trừ ví; 402 commit CANCELLED/FAILED/hoàn kho, 400 có thể giữ đơn/kho; mạng/5xx không suy ra kết quả.
+- Expiry: helper kiểm TTL khi request liên quan, không có cron/timer nền.
+- Admin: MANAGER quản lý catalog, kho, doanh thu; ẩn isActive=false, không DELETE món có snapshot đơn.
+- Health: Terminus GET /health kiểm DB; logging interceptor/filter và cấu hình env.
+- Promotion/LoyaltyTransaction: domain mở rộng bắt buộc vẽ theo Task 2.3, chưa có model Prisma/API.
 
-### 2.2 Level 2: Container Diagram (Các thành phần Container)
-Hệ thống được chia thành 3 container chính hoạt động độc lập:
+## 4. Migration, env, health/log
+API build gồm Prisma generate và seed compilation; start:migrate chạy prisma migrate deploy trước node dist/main. Migration lỗi thì không mở server. Seed runtime là npm run seed, chỉ chủ động nạp demo, không tự seed production.
 
-1. **Frontend Application Container (`apps/web`)**:
-   - **Công nghệ**: Next.js (React Framework, PWA support).
-   - **Nhiệm vụ**: Render giao diện người dùng di động, quản lý client state (Giỏ hàng, JWT Auth Token), thực hiện validate dữ liệu phía client và giao tiếp với Backend API qua giao thức HTTPS.
-2. **Backend Application Container (`apps/api`)**:
-   - **Công nghệ**: NestJS (TypeScript Framework).
-   - **Nhiệm vụ**: Cung cấp RESTful API, thực thi nghiệp vụ đặt hàng (Database Transactions), xác thực người dùng bằng JWT Guard, tích hợp cơ chế Idempotency cho thanh toán và cung cấp endpoint Health Check.
-3. **Database Container (`PostgreSQL Container`)**:
-   - **Công nghệ**: PostgreSQL (chạy trên persistent storage).
-   - **Nhiệm vụ**: Lưu trữ toàn bộ dữ liệu quan hệ (User, Product, ProductSize, Topping, Cart, CartItem, Order, OrderItem, Payment) và thực thi script migration tự động qua Prisma.
+DATABASE_URL/JWT_* là secret runtime; CORS_ORIGIN/PORT/API_PREFIX là config API. NEXT_PUBLIC_API_URL và chế độ mock là giá trị public nhúng lúc build web; không đưa secret backend vào NEXT_PUBLIC_*. Repo hiện kiểm DATABASE_URL/JWT_SECRET có giá trị, không tự coi đã enforce độ dài secret.
 
----
+Vercel/Render log phục vụ vận hành. /health DB up không xác nhận DB đã chặn external access; URL HTTP 200 không xác nhận SHA deploy mới, backup hoặc tất cả giao dịch production.
 
-## 3. Kiến trúc Chi tiết Backend NestJS (`apps/api`)
-Backend NestJS được thiết kế theo dạng **Module-based** tương ứng với từng miền nghiệp vụ (Domain-Driven Modules):
+## 5. Lý do, ưu/nhược và trade-off
+| Quyết định | Lợi ích | Hạn chế/đánh đổi | ADR |
+|---|---|---|---|
+| Monorepo web/API/docs | Thống nhất contract và truy vết | Phối hợp branch/PR, build hai ứng dụng | [001](adr/001-monorepo.md) |
+| Prisma/migration | Schema/transaction/version DB rõ | Cần backup và migration tương thích khi rollback | [002](adr/002-database-migration.md) |
+| JWT và role | Stateless REST, phân quyền | Token ở client, UI chưa tự refresh; cần bảo vệ secret | [003](adr/003-jwt-authentication.md) |
+| Payment nội bộ | Demo/test không cần gateway thật | Không xử lý tiền thật | [004](adr/004-mock-payment-service.md) |
+| Mobile-first/manifest | Một web cho điện thoại/desktop | Offline/service worker production chưa triển khai, layout 375 còn finding | [005](adr/005-nextjs-pwa-mobile-first.md) |
+| Env/health/log | Cấu hình tách code, quan sát DB | Phải kiểm Dashboard/log thật, không suy từ tài liệu | [006](adr/006-healthcheck-logging-config.md) |
+| Vercel + Render Git hook | Giữ hosting hiện có, đơn giản | Web/API deploy độc lập; CD chưa build/push app image hoặc xác nhận SHA qua endpoint | [007](adr/007-cicd-and-deployment-strategy.md) |
 
-- **Auth Module**: Đăng ký, đăng nhập, mã hóa mật khẩu (bcrypt), phát hành và kiểm tra **JWT Access Token & Refresh Token**, phân quyền khách / nhân viên / quản lý.
-- **Products Module**: Cung cấp danh mục đồ uống theo phân loại, danh mục Size (`S`, `M`, `L`) và danh sách Topping bổ sung theo mô hình chuỗi cửa hàng.
-- **Cart Module**: Quản lý giỏ hàng của người dùng, tính toán tổng tiền dựa trên size và topping đã chọn.
-- **Order Module**: Tiếp nhận đơn hàng, thực thi **Database Transaction** để đảm bảo tính toàn vẹn khi kiểm tra/trừ số lượng tồn kho, báo hết hàng, cập nhật trạng thái đơn và cơ chế tự động huỷ/hoàn tồn kho khi đơn quá hạn thanh toán (TTL 15 phút).
-- **Payment Module**: Xử lý giao dịch qua cổng thanh toán mô phỏng nội bộ (Hỗ trợ **CASH, Ví, Thẻ**), áp dụng cơ chế **Idempotency-Key** để tránh trừ tiền trùng lặp; trường hợp thanh toán thất bại sẽ tự động hủy đơn và hoàn trả tồn kho.
-- **Health Module**: Cung cấp đường dẫn `GET /health` kiểm tra tình trạng sống của API và kết nối Database qua NestJS Terminus.
-- **Định hướng mở rộng (Future Scope - Loyalty & Promotion)**: Quản lý tích điểm thưởng và danh mục mã ưu đãi / voucher giảm giá trong các giai đoạn phát triển tiếp theo.
-
----
-
-## 4. Quản lý Cơ sở Dữ liệu & Cơ chế Migration
-- **ORM / Query Builder**: Sử dụng **Prisma ORM** để định nghĩa Schema type-safe và tương tác với cơ sở dữ liệu PostgreSQL.
-- **Cơ chế Migration (Database Migration)**:
-  - Mọi thay đổi về cấu trúc bảng/cột phải được ghi lại dưới dạng các tệp migration có đánh số phiên bản trong thư mục `apps/api/prisma/migrations`.
-  - Pipeline CI/CD sẽ tự động kích hoạt lệnh migration (`prisma migrate deploy`) trong quá trình khởi chạy ứng dụng Production để đảm bảo dữ liệu luôn đồng bộ.
-- **Dữ liệu khởi tạo (Data Seeding)**: Cung cấp tệp `seed.ts` để nạp sẵn dữ liệu mẫu về thực đơn đồ uống (giá, biến thể size S/M/L, toppings) phục vụ quá trình phát triển local và kiểm thử.
-
----
-
-## 5. Quản lý Cấu hình, Health Check & Logging
-- **Quản lý Cấu hình (Environment Variables)**:
-  - Tất cả cấu hình hệ thống và thông tin nhạy cảm (`DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`, `PORT`) được quản lý bảo mật qua biến môi trường của nền tảng Cloud khi triển khai Production.
-- **Health Check Endpoint**:
-  - Tích hợp NestJS Terminus tại endpoint `GET /health` phản hồi trạng thái hoạt động của dịch vụ API và khả năng kết nối tới PostgreSQL Database.
-- **Logging & Monitoring**:
-  - Sử dụng cấu trúc Logger chuẩn của NestJS để ghi vết toàn bộ API request, thời gian xử lý và các lỗi ngoại lệ (Exceptions) phục vụ công tác truy vết.
-
----
-
-## 6. Đánh giá Đánh đổi Kiến trúc (Trade-offs & Decisions)
-- **Cấu trúc Monorepo**:
-  - *Lý do lựa chọn*: Quản lý cả `apps/web`, `apps/api` và `docs` trong cùng một repository giúp đồng bộ quy trình phát triển, quy ước commit và dễ chia sẻ cấu hình CI/CD.
-  - *Đánh đổi (Trade-off)*: Dung lượng repo lớn hơn, đòi hỏi cấu hình CI pipeline nhận biết thay đổi theo từng ứng dụng để tối ưu thời gian build.
-- **Dịch vụ Thanh toán Mô phỏng (Mock Payment Service)**:
-  - *Lý do lựa chọn*: Giúp nhóm chủ động phát triển và kiểm thử toàn bộ luồng thanh toán mà không bị phụ thuộc vào thủ tục đăng ký cổng thanh toán thật.
-  - *Đánh đổi (Trade-off)*: Không xử lý tiền thật, nhưng vẫn đảm bảo áp dụng đầy đủ các chuẩn kỹ thuật như Idempotency, mã giao dịch ngẫu nhiên và quản lý trạng thái đơn hàng chặt chẽ.
-- **Ứng dụng Web PWA (Mobile-first)**:
-  - *Lý do lựa chọn*: Giúp khách hàng có trải nghiệm đặt cà phê mượt mà trên thiết bị di động như app native mà không cần cài đặt từ App Store.
+## 6. Đối chiếu thiết kế → source
+[Traceability matrix](../traceability-matrix.md) liên kết FR/NFR tới UML/API/test; [diagram README](../diagrams/README.md) ánh xạ node deployment đến source cụ thể. [Assignment conformance](../requirements/assignment-conformance.md) ghi riêng nội dung tài liệu đã sửa và các điều kiện vận hành chưa có minh chứng.

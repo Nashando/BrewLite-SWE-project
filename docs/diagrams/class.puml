@@ -1,11 +1,149 @@
 @startuml class
-title Class - Domain model BrewLite
-hide empty methods
+title BrewLite — Class diagram mức domain\nTask 2.3 | Thuộc tính, hành vi nghiệp vụ và quan hệ
+hide circle
+skinparam shadowing false
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
 skinparam classAttributeIconSize 0
-skinparam class {
-  BackgroundColor<<mở rộng>> #F5F5F5
-  BorderColor<<mở rộng>> #9E9E9E
-  FontColor<<mở rộng>> #616161
+skinparam classFontStyle bold
+skinparam classFontSize 14
+skinparam classFontColor white
+skinparam classAttributeFontStyle plain
+skinparam classAttributeFontColor #27303C
+skinparam classAttributeFontName Consolas
+skinparam classHeaderBackgroundColor #4B525C
+skinparam classBackgroundColor #F3F4F6
+skinparam classBorderColor #303740
+skinparam ArrowColor #303740
+skinparam linetype polyline
+skinparam nodesep 65
+skinparam ranksep 75
+
+class User {
+  +id: UUID
+  +email: String {unique}
+  +password: String {bcrypt hash}
+  +name: String
+  +role: Role
+  +walletBalance: Integer
+  +createdAt: DateTime
+  --
+  +register(dto): AuthResponse
+  +login(dto): AuthResponse
+  +refresh(token): AuthResponse
+}
+
+class Order {
+  +id: UUID
+  +code: String {unique}
+  +status: OrderStatus
+  +totalAmount: Integer
+  +note: String?
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  --
+  +create(user, dto): OrderView
+  +cancel(user, id): OrderView
+  +confirmCash(id): OrderView
+  +updateStatus(id, status): OrderView
+}
+
+class Payment {
+  +id: UUID
+  +userId: UUID
+  +method: PaymentMethod
+  +status: PaymentStatus
+  +amount: Integer
+  +idempotencyKey: String
+  +transactionRef: String {unique}
+  +cardLast4: String?
+  +failureReason: String?
+  +createdAt: DateTime
+  --
+  +pay(user, key, dto): PaymentView
+  -replay(payment, dto): PaymentView
+}
+
+class Cart {
+  +id: UUID
+  +updatedAt: DateTime
+  --
+  +getCart(userId): CartView
+  +addItem(userId, dto): CartView
+  +updateQuantity(userId, itemId, qty): CartView
+  +removeItem(userId, itemId): CartView
+  +clear(userId): CartView
+}
+
+class CartItem {
+  +id: UUID
+  +quantity: Integer
+  +createdAt: DateTime
+  --
+}
+
+class OrderItem {
+  +id: UUID
+  +productName: String {snapshot}
+  +sizeName: String? {snapshot}
+  +toppings: JSON {snapshot}
+  +unitPrice: Integer
+  +quantity: Integer
+  --
+  +calcUnitPrice(...): Integer
+}
+
+class Product {
+  +id: UUID
+  +name: String {unique}
+  +description: String?
+  +category: String
+  +basePrice: Integer
+  +stock: Integer
+  +isActive: Boolean
+  +imageUrl: String?
+  +createdAt: DateTime
+  --
+  +findAll(query): ProductView[]
+  +findOne(id): ProductDetail
+  +updateProduct(id, dto): ProductView
+  +adjustStock(id, delta): ProductView
+}
+
+class ProductSize {
+  +id: UUID
+  +name: String
+  +extraPrice: Integer
+  --
+}
+
+class Topping {
+  +id: UUID
+  +name: String {unique}
+  +price: Integer
+  +isActive: Boolean
+  --
+  +createTopping(dto): Topping
+  +updateTopping(id, dto): Topping
+}
+
+class Promotion <<mở rộng>> {
+  +id: UUID
+  +code: String {unique}
+  +discountPercent: Integer
+  +maxDiscount: Integer
+  +validFrom: DateTime
+  +validTo: DateTime
+  +isActive: Boolean
+  --
+}
+
+class LoyaltyTransaction <<mở rộng>> {
+  +id: UUID
+  +points: Integer
+  +type: LoyaltyTxType
+  +createdAt: DateTime
+  --
 }
 
 enum Role {
@@ -13,7 +151,6 @@ enum Role {
   STAFF
   MANAGER
 }
-
 enum OrderStatus {
   PENDING_PAYMENT
   PAID
@@ -22,166 +159,53 @@ enum OrderStatus {
   COMPLETED
   CANCELLED
 }
-
 enum PaymentMethod {
   WALLET
   CARD
   CASH
 }
-
 enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
   REFUNDED
 }
-
 enum LoyaltyTxType <<mở rộng>> {
   EARN
   REDEEM
 }
 
-class User {
-  + id: UUID
-  + email: String {unique}
-  {field} + password: String (bcrypt)
-  + name: String
-  + role: Role
-  {field} + walletBalance: Integer (VND)
-  + createdAt: DateTime
-}
-
-class Product {
-  + id: UUID
-  + name: String {unique}
-  + description: String
-  + category: String
-  {field} + basePrice: Integer (VND)
-  + stock: Integer
-  + isActive: Boolean
-  + imageUrl: String
-  + createdAt: DateTime
-}
-
-class ProductSize {
-  + id: UUID
-  + name: String
-  {field} + extraPrice: Integer (VND)
-}
-
-class Topping {
-  + id: UUID
-  + name: String {unique}
-  {field} + price: Integer (VND)
-  + isActive: Boolean
-}
-
-class Cart {
-  + id: UUID
-  + updatedAt: DateTime
-}
-
-class CartItem {
-  + id: UUID
-  + quantity: Integer
-}
-
-class Order {
-  + id: UUID
-  + code: String {unique}
-  + status: OrderStatus
-  {field} + totalAmount: Integer (VND)
-  + note: String
-  + createdAt: DateTime
-  + updatedAt: DateTime
-  + isPayable(): Boolean
-  + canCancel(): Boolean
-}
-
-class OrderItem {
-  + id: UUID
-  + productName: String
-  + sizeName: String
-  {field} + toppings: JSON (tên, giá)
-  {field} + unitPrice: Integer (VND)
-  + quantity: Integer
-}
-
-class Payment {
-  + id: UUID
-  + userId: UUID
-  + method: PaymentMethod
-  + status: PaymentStatus
-  {field} + amount: Integer (VND)
-  + idempotencyKey: String
-  + transactionRef: String {unique}
-  + cardLast4: String
-  + failureReason: String
-  + createdAt: DateTime
-}
-
-class Promotion <<mở rộng>> {
-  + id: UUID
-  + code: String {unique}
-  + discountPercent: Integer
-  {field} + maxDiscount: Integer (VND)
-  + validFrom: DateTime
-  + validTo: DateTime
-  + isActive: Boolean
-}
-
-class LoyaltyTransaction <<mở rộng>> {
-  + id: UUID
-  + points: Integer
-  + type: LoyaltyTxType
-  + createdAt: DateTime
-}
-
-User "1" -- "0..1" Cart : sở hữu >
-Cart "1" *-- "0..*" CartItem : chứa >
-CartItem "0..*" --> "1" Product : món >
-CartItem "0..*" --> "0..1" ProductSize : size >
-CartItem "0..*" --> "0..*" Topping : topping >
-Product "1" *-- "0..*" ProductSize : có >
-
-User "1" -- "0..*" Order : đặt >
-Order "1" *-- "1..*" OrderItem : gồm >
-OrderItem "0..*" --> "1" Product : món >
-Order "1" -- "0..*" Payment : thanh toán qua >
-
-Promotion "0..1" -- "0..*" Order : áp dụng cho >
-User "1" -- "0..*" LoyaltyTransaction : có >
-Order "0..1" -- "0..*" LoyaltyTransaction : tạo ra >
-
+User "1" -right- "0..*" Order : đặt
+Order "1" -right- "0..*" Payment : thanh toán
+User "1" -down- "0..1" Cart : sở hữu
+Cart "1" *-down- "0..*" CartItem : chứa
+Order "1" *-down- "1..*" OrderItem : gồm
+OrderItem "0..*" -down-> "1" Product : món
+CartItem "0..*" -right-> "1" Product : món
+Product "1" *-down- "0..*" ProductSize : size
+CartItem "0..*" --> "0..1" ProductSize : chọn size
+CartItem "0..*" -- "0..*" Topping : chọn topping
+Order "0..*" -down- "0..1" Promotion
+User "1" -- "0..*" LoyaltyTransaction
+Order "0..1" -- "0..*" LoyaltyTransaction
 User ..> Role
 Order ..> OrderStatus
 Payment ..> PaymentMethod
 Payment ..> PaymentStatus
 LoyaltyTransaction ..> LoyaltyTxType
 
-note right of OrderItem
-  Lưu bản chụp tên và giá lúc đặt,
-  để đơn cũ không đổi khi giá món đổi.
-end note
-
-note bottom of Payment
-  Một đơn có thể có nhiều lần thanh toán (thử lại).
-  Duy nhất theo (userId, idempotencyKey).
-  Thẻ chỉ lưu 4 số cuối.
-end note
-
-note left of Product
-  imageUrl có trong cơ sở dữ liệu nhưng hiện không dùng:
-  menu hiển thị ảnh minh họa chung.
-end note
-
-note bottom of Promotion
-  Phần mở rộng: có trong mô hình domain,
-  chưa có bảng trong cơ sở dữ liệu.
-end note
-
-note bottom of Cart
-  Bảng giỏ hàng có trong cơ sở dữ liệu,
-  giao diện hiện lưu giỏ trong trình duyệt.
-end note
+legend bottom left
+  <b>Phạm vi mô hình</b>: Lớp domain ba ngăn: tên / thuộc tính / hành vi. Không thêm phân cấp kế thừa không có trong BrewLite.
+  Hành vi nghiệp vụ được gom theo domain; code thực thi tại service/helper, không phải method của Prisma entity.
+  User → AuthService; Product/Topping → ProductsService/AdminCatalogService; Cart → CartService;
+  Order → OrderService/OrdersService; Payment → PaymentService; OrderItem.calcUnitPrice → common/pricing.ts.
+  View/Response là tên mô tả cấu trúc response trong sơ đồ; tham số rút gọn, không khẳng định các tên này đều là type export.
+  FK được thể hiện bằng quan hệ. UUID là String UUID; ? là nullable; tiền là Integer VND; + public, - private.
+  ProductSize unique(productId,name); Payment unique(userId,idempotencyKey). OrderItem giữ snapshot giá/tùy chọn.
+  Giỏ UI dùng localStorage; Cart API có trong code nhưng chưa đồng bộ UI giữa thiết bị.
+  Promotion/LoyaltyTransaction là domain mở rộng theo đề, chưa có bảng/API/hành vi hiện thực (ngăn phương thức để trống).
+  Order có 1..* item theo nghiệp vụ. 0..* Payment là quan hệ lưu trữ, không cho thu lại đơn CANCELLED.
+  402 → CANCELLED/FAILED và hoàn kho; CASH → PENDING_PAYMENT/PENDING đến khi quầy xác nhận.
+  Nguồn: main 9808d37, Prisma schema và các service; SRS/use-case/ma trận 5 cột.
+endlegend
 @enduml

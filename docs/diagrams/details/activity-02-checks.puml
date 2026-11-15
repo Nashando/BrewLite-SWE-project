@@ -1,0 +1,57 @@
+@startuml activity-02-checks
+title BrewLite - Activity 2/4: Kiểm tra yêu cầu thanh toán
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ArrowColor #43566B
+skinparam activity {
+  BackgroundColor #EEF5FC
+  BorderColor #43566B
+  DiamondBackgroundColor #FFF4D8
+  DiamondBorderColor #957A3A
+  StartColor #245B83
+  EndColor #245B83
+}
+skinparam swimlaneTitleBackgroundColor #E3EBF3
+skinparam swimlaneBorderColor #9DAEC0
+
+|Next.js UI|
+start
+|Next.js UI|
+:Nhận 201, giữ orderId/key;\nhiện thanh toán mô phỏng;
+|Khách hàng|
+:Xác nhận thanh toán;\nnhập thẻ nếu chọn CARD;
+|NestJS API|
+:POST /payments\nKiểm JWT, CUSTOMER, DTO và key;
+if (Request hợp lệ?) then (không)
+  |Next.js UI|
+  :Báo 400 / 401 / 403; giữ giỏ;\nkhông mặc định hủy đơn/hoàn kho;
+  stop
+else (có)
+endif
+|NestJS API|
+:PaymentService tìm (userId, key);
+if (Đã có payment?) then (có)
+  if (Cùng orderId?) then (có)
+    :Replay kết quả 201 / 402;\nkhông thu tiền/hoàn kho lần hai;
+  else (không)
+    :Trả 409 xung đột key;
+  endif
+  |Next.js UI|
+  :Hiện kết quả cũ hoặc báo xung đột;
+  stop
+else (chưa)
+endif
+|NestJS API|
+:Kiểm thẻ (nếu CARD),\nTTL, sở hữu và trạng thái đơn;
+if (Yêu cầu mới còn hợp lệ?) then (không)
+  |Next.js UI|
+  :400: sửa dữ liệu; có thể còn giữ kho;\n404/409: đọc lại trạng thái đơn;
+  stop
+else (có)
+endif
+|NestJS API|
+:Đủ điều kiện: chuyển transaction payment (phần 3);
+stop
+
+@enduml

@@ -1,98 +1,166 @@
 @startuml sequence
-title Sequence - Đặt và thanh toán đơn hàng bằng Ví / Thẻ (UC-CHECKOUT)
-autonumber
-skinparam responseMessageBelowArrow true
+title BrewLite — Sequence: Đặt và thanh toán đơn hàng\nTask 2.2 | UC-CHECKOUT | FR-03/04/05/07, NFR-02
+hide footbox
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam maxMessageSize 250
+skinparam ParticipantPadding 20
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor white
+skinparam sequenceParticipantBackgroundColor white
+skinparam sequenceGroupBackgroundColor white
 
-actor "Customer" as Customer
-participant "Next.js UI" as UI
-participant "NestJS API" as API
-database "Database\n(PostgreSQL)" as DB
-participant "Payment Service\n(mô phỏng)" as Pay
+actor Customer as C
+boundary "__checkoutPage:__\n__Next.js UI__" as UI
+control "__checkoutAPI:__\n__NestJS API__" as API
+entity "__database:__\n__PostgreSQL__" as DB
+control "__paymentService:__\n__PaymentService__" as Pay
+actor "STAFF / MANAGER" as Staff
 
-== Tạo đơn và giữ tồn kho ==
-Customer -> UI : Chọn Ví hoặc Thẻ, nhấn "Xác nhận đặt hàng"
+C -> UI : checkout(items, method)
 activate UI
-UI -> API : POST /orders\nAuthorization: Bearer <JWT>\n{ items: [productId, sizeId, toppingIds, quantity] }
+note over C, UI
+  Giỏ có món; khách chưa đăng nhập đi luồng A1.
+  UI giữ giỏ trong trình duyệt và đối chiếu lại menu.
+end note
+UI -> API : create(user, dto)\nPOST /orders + Bearer JWT
 activate API
-API -> API : Kiểm tra JWT, vai trò CUSTOMER\nvà validate DTO
+API -> API : authenticateCustomer(jwt)\nvalidate(CreateOrderDto)
+note right of API
+  JWT/role/DTO sai: 401/403/400,
+  dừng request, không mở transaction.
+end note
+API -> API : releaseExpiredOrders()
+API -> DB : Kiểm TTL, hủy/hoàn kho đơn quá hạn;\nBEGIN transaction tạo đơn
+activate DB
+API -> DB : product.findMany(include: sizes)\ntopping.findMany(isActive: true)
+DB --> API : products, sizes, toppings
+API -> API : calcUnitPrice(...); tạo snapshot\ngộp số lượng theo productId
+loop mỗi productId (đã sắp xếp)
+  API -> DB : product.updateMany(stock >= quantity, decrement)
+  DB --> API : updatedCount
+end
+alt Catalog không hợp lệ / thiếu tồn kho
+  API -> DB : ROLLBACK
+  API --> UI : 400 / OUT_OF_STOCK
+  UI --> C : Báo lỗi; giữ giỏ; không có đơn mới
+else Tạo đơn thành công
+  API -> DB : order.create(PENDING_PAYMENT, items); COMMIT
+  DB --> API : order
+  API --> UI : 201 OrderView
+end
+deactivate DB
+deactivate API
 
-alt JWT không hợp lệ hoặc hết hạn
-  API --> UI : 401 Unauthorized
-  UI --> Customer : Yêu cầu đăng nhập lại
-else Dữ liệu sai định dạng
-  API --> UI : 400 Bad Request
-  UI --> Customer : Báo lỗi dữ liệu
-else Hợp lệ
-  API -> DB : BEGIN TRANSACTION
+opt Tạo đơn thành công
+  UI -> C : showPayment(orderId, total, method)
+  C -> UI : confirmPayment(card?)
+  UI -> API : pay(user, key, dto)\nPOST /payments + JWT + Idempotency-Key
+  activate API
+  API -> API : authenticateCustomer(jwt); validate(PayDto)
+  API -> Pay : pay(user, key, dto)
+  activate Pay
+  note right of Pay
+    Key phải dài 8–100 ký tự.
+    JWT/DTO/key sai: 400/401/403, không thu tiền.
+  end note
+  Pay -> DB : payment.findUnique(userId, key)
   activate DB
-  API -> DB : Đọc món, size, topping; tính lại giá ở server
-  API -> DB : UPDATE Product SET stock = stock - qty\nWHERE stock >= qty (theo thứ tự id)
-  alt Không đủ tồn kho
-    API -> DB : ROLLBACK
-    API --> UI : 400 OUT_OF_STOCK
-    UI --> Customer : "Sản phẩm ... không đủ số lượng tồn kho"\nvà dẫn về giỏ hàng
-  else Đủ tồn kho
-    API -> DB : INSERT Order (PENDING_PAYMENT), OrderItem
-    API -> DB : COMMIT
-    deactivate DB
-    API --> UI : 201 Created (id, mã đơn, tổng tiền)
-    deactivate API
-    UI --> Customer : Hiện cổng thanh toán mô phỏng
-
-    == Thanh toán ==
-    Customer -> UI : Nhấn "Xác nhận thanh toán"
-    UI -> API : POST /payments\nIdempotency-Key: <UUID>\n{ orderId, method, card? }
-    activate API
-    API -> DB : Tìm Payment theo (userId, Idempotency-Key)
+  DB --> Pay : existingPayment / null
+  deactivate DB
+  alt Payment đã có cùng user/key
+    Pay -> Pay : replay(existingPayment, dto)
+    note right of Pay
+      Cùng orderId: kết quả cũ 201 hoặc 402.
+      Khác orderId: 409, không charge lại.
+    end note
+  else Yêu cầu thanh toán mới
+    Pay -> Pay : Kiểm số thẻ; isExpired(expiry) nếu CARD\nreleaseExpiredOrders()
+    Pay -> DB : Xử lý TTL; order.findFirst(id, userId)
     activate DB
-    DB --> API : Kết quả
+    DB --> Pay : order
     deactivate DB
-
-    alt Khóa đã được xử lý (client gửi lại)
-      API --> UI : Trả lại kết quả cũ\n(201 hoặc 402), không trừ tiền lần 2
-      UI --> Customer : Hiện kết quả của lần trước
-    else Yêu cầu mới
-      API -> DB : BEGIN TRANSACTION
+    note right of Pay
+      Thẻ sai/hết hạn: 400, có thể vẫn giữ đơn/kho.
+      Không sở hữu: 404; không còn chờ: 409.
+      Chỉ thực hiện transaction khi kiểm tra đạt.
+    end note
+    opt Dữ liệu và đơn hợp lệ
+      Pay -> DB : BEGIN transaction payment\npayment.findFirst(orderId, PENDING)
       activate DB
-      API -> DB : UPDATE Order SET status = PAID\nWHERE id = ? AND status = PENDING_PAYMENT
-      note right : Chỉ một request "giành" được đơn,\nrequest song song nhận 409
-      API -> Pay : Xử lý thanh toán (method, amount, card)
-      activate Pay
-      opt Phương thức Ví
-        Pay -> DB : UPDATE User SET walletBalance -= amount\nWHERE walletBalance >= amount
+      DB --> Pay : waitingCash / null
+      alt Đã có CASH đang chờ
+        Pay -> DB : ROLLBACK
+        Pay -> Pay : ConflictException (409)
+      else Chưa có giao dịch chờ
+        alt method = CASH
+          Pay -> DB : payment.create(CASH, PENDING); COMMIT
+          DB --> Pay : Payment PENDING\nOrder vẫn PENDING_PAYMENT
+        else method = WALLET / CARD
+          Pay -> DB : order.updateMany(PENDING_PAYMENT → PAID)
+          DB --> Pay : claimedCount
+          alt claimedCount = 0
+            Pay -> DB : ROLLBACK; payment.findUnique(userId,key)
+            DB --> Pay : payment đã có / null
+            Pay -> Pay : replay nếu đã có, nếu không trả 409
+          else Claim được đơn
+            Pay -> Pay : charge(tx, userId, method, cardDigits, amount)
+            activate Pay
+            opt WALLET
+              Pay -> DB : user.updateMany(walletBalance >= amount, decrement)
+              DB --> Pay : updatedCount
+            end
+            Pay --> Pay : failureReason / null
+            deactivate Pay
+            alt Thu tiền thành công
+              Pay -> DB : payment.create(SUCCESS); COMMIT
+              DB --> Pay : Payment SUCCESS / Order PAID
+            else Ví thiếu / thẻ từ chối / timeout mô phỏng
+              Pay -> DB : order.update(CANCELLED); restockOrder()\npayment.create(FAILED); COMMIT
+              DB --> Pay : Payment FAILED / Order CANCELLED
+              Pay -> Pay : paymentFailed(payment) → 402 sau commit
+            end
+          end
+        end
       end
-      alt Thanh toán thành công
-        Pay --> API : Thành công
-        deactivate Pay
-        API -> DB : INSERT Payment (SUCCESS, transactionRef)
-        API -> DB : COMMIT
-        deactivate DB
-        API --> UI : 201 Created (status SUCCESS)
-        UI -> UI : Làm rỗng giỏ hàng
-        UI --> Customer : "Đặt hàng thành công" kèm mã đơn
-      else Thanh toán thất bại (ví không đủ, thẻ bị từ chối)
-        activate Pay
-        Pay --> API : Lý do thất bại
-        deactivate Pay
-        activate DB
-        API -> DB : UPDATE Order SET status = CANCELLED
-        API -> DB : UPDATE Product SET stock = stock + qty (trả kho)
-        API -> DB : INSERT Payment (FAILED, failureReason)
-        API -> DB : COMMIT
-        deactivate DB
-        API --> UI : 402 PAYMENT_FAILED
-        UI --> Customer : "Thanh toán thất bại, vui lòng thử lại"\n(giỏ hàng còn nguyên, thử lại sẽ tạo đơn mới)
-      end
+      deactivate DB
     end
-    deactivate API
   end
+  Pay --> API : PaymentView / HTTP exception
+  deactivate Pay
+  API --> UI : 201 / 400 / 402 / 404 / 409\n(401/403 nếu JWT hoặc role sai)
+  deactivate API
+  UI -> UI : handlePaymentResult(result)
+  UI --> C : 201: xóa giỏ, hiện mã đơn PAID/chờ CASH\n402: giữ giỏ; lần thử sau tạo đơn mới
 end
 deactivate UI
 
-note over UI, API
-  Lỗi mạng hoặc 5xx: UI gửi lại cùng Idempotency-Key, nên không bị trừ tiền hai lần.
-  Đơn đã thanh toán, đã hủy hoặc quá 15 phút giữ hàng: API trả 409, UI đọc lại trạng thái đơn.
-  Thẻ sai định dạng hoặc hết hạn: API trả 400 trước khi xử lý thanh toán.
-  Tiền mặt (phần mở rộng): API ghi giao dịch PENDING, nhân viên xác nhận thì đơn PAID.
-end note
+opt UC-COUNTER — CASH đang chờ, nhân viên thu tiền sau checkout
+  Staff -> API : confirmCash(orderId)\nPOST /orders/:id/confirm-cash + JWT
+  activate API
+  API -> API : authenticateStaffOrManager(jwt)\nreleaseExpiredOrders()
+  API -> DB : Xử lý TTL; BEGIN\nclaim Order PENDING_PAYMENT → PAID\nupdate Payment CASH/PENDING → SUCCESS
+  activate DB
+  alt Không claim được đơn hoặc payment CASH
+    API -> DB : ROLLBACK
+    API --> Staff : 409
+  else Xác nhận thành công
+    API -> DB : COMMIT
+    API --> Staff : 201 OrderView (PAID)
+  end
+  deactivate DB
+  deactivate API
+end
+
+legend bottom left
+  Cấu trúc đối tượng: actor → boundary (UI) → control (API) → entity (Database); PaymentService là control nội bộ API.
+  Lời gọi guard/validate/hiển thị là tên trách nhiệm; Database biểu diễn truy cập dữ liệu Prisma/PostgreSQL.
+  Kiểm số thẻ và isExpired(expiry) nằm trong payment.service.ts; các tên guard/UI biểu diễn trách nhiệm của đối tượng.
+  Unique-key race P2002: transaction rollback; đọc lại user/key để replay nếu đã có, không thu lần hai.
+  TTL mặc định 15 phút được kiểm theo request, không có timer nền. CARD charge chỉ mô phỏng, không gọi gateway thật.
+  Mạng/5xx chưa rõ kết quả: UI giữ orderId/key, đọc lại/gửi cùng key; không tự kết luận đã hủy/hoàn tiền.
+  Nguồn main 9808d37; SRS, UC-CHECKOUT và ma trận 5 cột; INT-T02/03/04, E2E-T01/02/03/04.
+endlegend
 @enduml

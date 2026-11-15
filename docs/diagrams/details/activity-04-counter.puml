@@ -1,0 +1,43 @@
+@startuml activity-04-counter
+title BrewLite - Activity 4/4: Thu CASH và xử lý tại quầy
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ArrowColor #43566B
+skinparam activity {
+  BackgroundColor #EEF5FC
+  BorderColor #43566B
+  DiamondBackgroundColor #FFF4D8
+  DiamondBorderColor #957A3A
+  StartColor #245B83
+  EndColor #245B83
+}
+skinparam swimlaneTitleBackgroundColor #E3EBF3
+skinparam swimlaneBorderColor #9DAEC0
+
+|Next.js UI|
+start
+:Đã hiện mã đơn PAID hoặc chờ CASH;
+if (Đơn chờ CASH?) then (có)
+  |Nhân viên quầy|
+  :STAFF/MANAGER xem đơn;\nthu tiền và xác nhận CASH;
+  |NestJS API|
+  :POST /orders/:id/confirm-cash\nKiểm JWT/role, TTL;
+  if (Claim đơn và CASH/PENDING được?) then (không)
+    :ROLLBACK xác nhận; trả 409;\nđơn quá hạn được helper hủy/hoàn kho;
+    stop
+  else (có)
+    :COMMIT Order PAID,\nPayment SUCCESS;
+  endif
+else (đã PAID)
+endif
+|Nhân viên quầy|
+:Xử lý đơn theo thứ tự\nPAID → PREPARING → READY → COMPLETED;
+|NestJS API|
+:PATCH /orders/:id/status\nKiểm quyền/thứ tự, cập nhật có điều kiện;
+|Khách hàng|
+:Xem trạng thái đơn; nhận đồ tại quầy;
+stop
+
+
+@enduml

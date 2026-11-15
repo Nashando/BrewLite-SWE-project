@@ -1,0 +1,57 @@
+@startuml sequence-01-create
+title BrewLite - Sequence 1/4: Tạo đơn và giữ kho
+hide footbox
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam maxMessageSize 250
+skinparam ParticipantPadding 20
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor white
+skinparam sequenceParticipantBackgroundColor white
+skinparam sequenceGroupBackgroundColor white
+
+actor Customer as C
+boundary "__checkoutPage:__\n__Next.js UI__" as UI
+control "__checkoutAPI:__\n__NestJS API__" as API
+entity "__database:__\n__PostgreSQL__" as DB
+
+C -> UI : checkout(items, method)
+activate UI
+note over C, UI
+  Giỏ có món; khách chưa đăng nhập đi luồng A1.
+  UI giữ giỏ trong trình duyệt và đối chiếu lại menu.
+end note
+UI -> API : create(user, dto)\nPOST /orders + Bearer JWT
+activate API
+API -> API : authenticateCustomer(jwt)\nvalidate(CreateOrderDto)
+note right of API
+  JWT/role/DTO sai: 401/403/400,
+  dừng request, không mở transaction.
+end note
+API -> API : releaseExpiredOrders()
+API -> DB : Kiểm TTL, hủy/hoàn kho đơn quá hạn;\nBEGIN transaction tạo đơn
+activate DB
+API -> DB : product.findMany(include: sizes)\ntopping.findMany(isActive: true)
+DB --> API : products, sizes, toppings
+API -> API : calcUnitPrice(...); tạo snapshot\ngộp số lượng theo productId
+loop mỗi productId (đã sắp xếp)
+  API -> DB : product.updateMany(stock >= quantity, decrement)
+  DB --> API : updatedCount
+end
+alt Catalog không hợp lệ / thiếu tồn kho
+  API -> DB : ROLLBACK
+  API --> UI : 400 / OUT_OF_STOCK
+  UI --> C : Báo lỗi; giữ giỏ; không có đơn mới
+else Tạo đơn thành công
+  API -> DB : order.create(PENDING_PAYMENT, items); COMMIT
+  DB --> API : order
+  API --> UI : 201 OrderView
+end
+deactivate DB
+deactivate API
+
+deactivate UI
+
+@enduml

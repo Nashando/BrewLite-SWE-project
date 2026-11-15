@@ -1,74 +1,151 @@
 @startuml activity
-title Activity - Luồng đặt và thanh toán đơn hàng (end-to-end)
+title BrewLite — Activity đặt, thanh toán và nhận đơn\nTask 2.1 | UC-CHECKOUT → UC-COUNTER → UC-HISTORY
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ArrowColor #43566B
+skinparam activity {
+  BackgroundColor #EEF5FC
+  BorderColor #43566B
+  DiamondBackgroundColor #FFF4D8
+  DiamondBorderColor #957A3A
+  StartColor #245B83
+  EndColor #245B83
+}
+skinparam swimlaneTitleBackgroundColor #E3EBF3
+skinparam swimlaneBorderColor #9DAEC0
 
 |Khách hàng|
 start
-:Xem menu, tìm món;
-:Chọn món, size, topping;
-:Thêm vào giỏ hàng\n(lưu trong trình duyệt);
-:Nhấn "Thanh toán";
-
+:Xem/tìm/lọc menu;
+:Chọn món, size/topping;\nthêm/sửa giỏ hàng;
 |Next.js UI|
-if (Đã đăng nhập?) then (Chưa)
-  :Hiện "Bạn cần đăng nhập" kèm nút Đăng nhập;
+if (Có phiên đăng nhập?) then (chưa)
+  :Yêu cầu đăng nhập;\ngiữ giỏ trong trình duyệt;
   |Khách hàng|
-  :Đăng nhập hoặc đăng ký;
+  :Đăng nhập / đăng ký;
   |NestJS API|
-  :Xác thực, cấp JWT;
-  |Next.js UI|
-else (Rồi)
+  :Xác thực và cấp JWT;
+  note right
+    Sai thông tin: ở lại form để sửa.
+    Các request nghiệp vụ vẫn kiểm JWT/role.
+  end note
+else (có)
 endif
-:Đối chiếu giỏ với menu:\nbỏ món không còn bán, cập nhật giá mới;
-
-|Khách hàng|
-:Chọn phương thức thanh toán (Ví hoặc Thẻ);
-:Nhấn "Xác nhận đặt hàng";
-
-|NestJS API|
-:Kiểm tra JWT, vai trò CUSTOMER, dữ liệu;
-:Transaction: tính lại giá,\ntrừ tồn kho có điều kiện (stock >= số lượng);
-if (Đủ tồn kho?) then (Không)
-  :Rollback, trả 400 OUT_OF_STOCK;
-  |Next.js UI|
-  :Báo "Sản phẩm ... không đủ số lượng tồn kho",\ndẫn về giỏ hàng để điều chỉnh;
-  stop
-else (Đủ)
-endif
-:Tạo đơn PENDING_PAYMENT,\ngiữ hàng tối đa 15 phút;
-
 |Next.js UI|
-:Hiện cổng thanh toán mô phỏng\n(số dư ví hoặc form thẻ);
-
+:Đối chiếu giỏ với menu;\nbỏ món ẩn, cập nhật giá;
 |Khách hàng|
-:Nhập thẻ nếu cần, nhấn "Xác nhận thanh toán";
-
+:Chọn Ví / Thẻ / CASH;\nxác nhận đặt hàng;
 |NestJS API|
-:Kiểm tra Idempotency-Key\n(gửi lại cùng khóa thì trả kết quả cũ);
-
-|Payment Service|
-:Trừ số dư ví hoặc xử lý thẻ mô phỏng;
-
-|NestJS API|
-if (Thanh toán thành công?) then (Không)
-  :Hủy đơn, trả lại tồn kho,\nlưu giao dịch FAILED, trả 402;
+:POST /orders\nKiểm JWT, CUSTOMER, DTO;
+if (Request hợp lệ?) then (không)
   |Next.js UI|
-  :Báo "Thanh toán thất bại, vui lòng thử lại",\ngiữ giỏ hàng, lần thử sau tạo đơn mới;
+  :Báo lỗi 400 / 401 / 403;\ngiữ giỏ, không tạo đơn;
   stop
-else (Có)
+else (có)
 endif
-:Lưu giao dịch SUCCESS, đơn PAID;
-
+|NestJS API|
+:Transaction tạo đơn:\nkiểm món/tùy chọn, tính giá server,\ntrừ kho có điều kiện theo productId;
+if (Dữ liệu/kho hợp lệ?) then (không)
+  :ROLLBACK toàn bộ;\n400 / OUT_OF_STOCK;
+  |Next.js UI|
+  :Báo lỗi; về giỏ để sửa;
+  stop
+else (có)
+endif
+|NestJS API|
+:Lưu Order PENDING_PAYMENT\nvà snapshot OrderItem; COMMIT;
 |Next.js UI|
-:Làm rỗng giỏ, hiện "Đặt hàng thành công"\nkèm mã đơn;
-
+:Nhận 201, giữ orderId/key;\nhiện thanh toán mô phỏng;
 |Khách hàng|
-:Theo dõi trạng thái đơn:\nđã thanh toán → đang pha chế → sẵn sàng → hoàn tất;
+:Xác nhận thanh toán;\nnhập thẻ nếu chọn CARD;
+|NestJS API|
+:POST /payments\nKiểm JWT, CUSTOMER, DTO và key;
+if (Request hợp lệ?) then (không)
+  |Next.js UI|
+  :Báo 400 / 401 / 403; giữ giỏ;\nkhông mặc định hủy đơn/hoàn kho;
+  stop
+else (có)
+endif
+|NestJS API|
+:PaymentService tìm (userId, key);
+if (Đã có payment?) then (có)
+  if (Cùng orderId?) then (có)
+    :Replay kết quả 201 / 402;\nkhông thu tiền/hoàn kho lần hai;
+  else (không)
+    :Trả 409 xung đột key;
+  endif
+  |Next.js UI|
+  :Hiện kết quả cũ hoặc báo xung đột;
+  stop
+else (chưa)
+endif
+|NestJS API|
+:Kiểm thẻ (nếu CARD),\nTTL, sở hữu và trạng thái đơn;
+if (Yêu cầu mới còn hợp lệ?) then (không)
+  |Next.js UI|
+  :400: sửa dữ liệu; có thể còn giữ kho;\n404/409: đọc lại trạng thái đơn;
+  stop
+else (có)
+endif
+|NestJS API|
+:Bắt đầu transaction payment;\ntừ chối 409 nếu CASH đang chờ;
+note right
+  PaymentService là module nội bộ NestJS.
+  TTL mặc định 15 phút: request kích hoạt
+  hủy đơn quá hạn/hoàn kho, không có timer nền.
+end note
+if (Phương thức Ví/Thẻ?) then (có)
+  :Claim PENDING_PAYMENT → PAID;\ntrừ ví có điều kiện / mô phỏng thẻ;
+  note right
+    Claim thất bại: rollback; đọc lại key để replay
+    nếu đã có, nếu không trả 409; không thu lần hai.
+  end note
+  if (Thu tiền thành công?) then (không)
+    :Order CANCELLED, Payment FAILED;\nhoàn kho; COMMIT rồi trả 402;
+    |Next.js UI|
+    :Giữ giỏ, báo thất bại;\nlần thử sau tạo đơn mới;
+    stop
+  else (có)
+    |NestJS API|
+    :Ghi Payment SUCCESS;\nCOMMIT; trả 201;
+  endif
+else (CASH)
+  |NestJS API|
+  :Ghi Payment PENDING; COMMIT;\ntrả 201; Order vẫn PENDING_PAYMENT;
+endif
+|Next.js UI|
+:Làm rỗng giỏ; hiện mã đơn\nPAID hoặc chờ thu CASH tại quầy;
+note left
+  Kết thúc UC-CHECKOUT của khách.
+  Phần sau thuộc xử lý quầy/theo dõi đơn.
+end note
+if (Đơn chờ CASH?) then (có)
+  |Nhân viên quầy|
+  :STAFF/MANAGER xem đơn;\nthu tiền và xác nhận CASH;
+  |NestJS API|
+  :POST /orders/:id/confirm-cash\nKiểm JWT/role, TTL;
+  if (Claim đơn và CASH/PENDING được?) then (không)
+    :ROLLBACK xác nhận; trả 409;\nđơn quá hạn được helper hủy/hoàn kho;
+    stop
+  else (có)
+    :COMMIT Order PAID,\nPayment SUCCESS;
+  endif
+else (đã PAID)
+endif
+|Nhân viên quầy|
+:Xử lý đơn theo thứ tự\nPAID → PREPARING → READY → COMPLETED;
+|NestJS API|
+:PATCH /orders/:id/status\nKiểm quyền/thứ tự, cập nhật có điều kiện;
+|Khách hàng|
+:Xem trạng thái đơn; nhận đồ tại quầy;
 stop
 
-floating note right
-  <b>Tiền mặt tại quầy (phần mở rộng)</b>
-  Đơn vẫn PENDING_PAYMENT, giao dịch CASH ở trạng thái PENDING.
-  Nhân viên bấm "Đã thu tiền mặt" thì đơn PAID.
-  Quá 15 phút chưa thu thì đơn tự hủy, trả lại tồn kho.
-end note
+legend bottom left
+  <b>Truy vết</b>: FR-01–05, FR-06–07, FR-09; NFR-02.
+  Hủy trước pha chế (FR-08) là UC-CANCEL riêng, xem SRS/class diagram.
+  Mất mạng/5xx khi thanh toán: giữ orderId/key, đọc lại/gửi cùng key;
+  không kết luận đã hủy hoặc chưa thu tiền chỉ từ việc mất phản hồi.
+  Nguồn đối chiếu: main 9808d37; tests/integration và tests/e2e theo matrix.
+endlegend
 @enduml

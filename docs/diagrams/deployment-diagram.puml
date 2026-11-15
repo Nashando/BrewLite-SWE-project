@@ -1,78 +1,67 @@
-@startuml Deployment Diagram - BrewLite Production Environment (Vertical)
+@startuml deployment-diagram
+title BrewLite - Deployment hiện trạng source 9808d37 (Task 3.2)
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
 
-skinparam BackgroundColor #FFFFFF
-skinparam Shadowing false
-skinparam DefaultFontName "Arial"
-skinparam DefaultFontSize 12
-skinparam DefaultFontColor #202124
-skinparam ranksep 40
-skinparam nodesep 40
-
-skinparam componentStyle uml2 
-skinparam frameStyle rectangle 
-
-top to bottom direction
-
-title Sơ đồ Triển khai Hạ tầng BrewLite (Vertical Deployment Diagram) 
-
-cloud "Internet Public Network" as internet 
-
-' --- 1. MÔI TRƯỜNG LOCAL & CI/CD ---
-rectangle "Development & CI/CD Environments" {
-    node "Local Development Environment" as local_env {
-        artifact "Docker Compose\n(Local Web, API & DB)" as local_docker
-    }
-
-    node "Hạ tầng CI/CD (GitHub Actions)" as github_env { 
-        frame "GitHub Actions Runner\n(CI/CD Pipeline: lint, test, build)" as gh_actions 
-        database "GitHub Container Registry (GHCR)" as ghcr { 
-            artifact "BrewLite API Docker Image\n(Tagged SHA / Semver)" as docker_img 
-        } 
-    }
+cloud "Container registry: Docker Hub\nBase images khai báo trong source" as registry {
+  artifact "node:22-alpine\npostgres:16-alpine" as baseimages
 }
-
-' --- 2. MÔI TRƯỜNG PRODUCTION ---
-rectangle "Production Environment (Cloud Hosting)" {
-    node "Thiết bị Khách hàng (Client Device)" as user_device { 
-        node "Mobile / Desktop Browser" as browser { 
-            artifact "Next.js Web Client App\n(apps/web - Order Ahead)" as next_client 
-        } 
-    } 
-
-    node "Frontend Hosting Node (Vercel)" as fe_node { 
-        component "Next.js Production Build\n(Static / SSR)" as fe_app 
-    } 
-    
-    node "Backend API Node (Render Web Service)" as be_node { 
-        component "NestJS REST API App\n(apps/api - Port 3001/3000)" as be_api 
-        interface "GET /health" as health_endpoint 
-        be_api - health_endpoint 
-    } 
-    
-    node "Database Server Node (Render Managed PostgreSQL)" as db_node { 
-        database "PostgreSQL Database\n(Persistent Storage Volume)" as postgres_db 
-    }
-
-    node "Logging & Monitoring Services" as log_node {
-        component "Vercel Logs & Render Logs" as cloud_logs
-    }
+node "Local (cấu hình Compose, chưa chạy Docker trên máy QA)" {
+  artifact "Web :3000 / API :3001 / DB :5432\nHost bind 127.0.0.1; cổng thay qua env" as localapps
+  database "pgdata\nPersistent local volume" as localdata
 }
-
-' --- KẾT NỐI MẠNG & GIAO THỨC ---
-user_device -- internet : HTTPS (443) 
-internet --> fe_node : HTTPS (Web Client) 
-internet --> be_node : HTTPS (API Requests) 
-
-' Internal Service Connections 
-fe_node --> be_node : Client-side API Calls (CORS) 
-be_node --> db_node : Internal TCP (Port 5432) 
-
-' CI/CD Pipeline Flow 
-gh_actions --> ghcr : Build & Push Docker Image
-github_env --> be_node : Trigger Render Deploy Hook
-
-' Log Collection Connections
-fe_node ..> cloud_logs : Logs
-be_node ..> cloud_logs : Logs
-
+node "GitHub Actions - CI/CD" as ci {
+  component "quality\nInstall / Lint / Unit / Build API + web" as quality
+  component "deploy-api\nPOST Render Hook + ref SHA" as deploy
+  component "smoke-test\nGET health / products / menu" as smoke
+  quality -right-> deploy
+  deploy -right-> smoke
+}
+node "Production theo cấu hình repo" {
+  node "Thiết bị người dùng" {
+    component "Mobile / Desktop Browser\nweb app manifest" as browser
+  }
+  node "Vercel\nGit Integration main" {
+    artifact "Next.js SSR / static assets\napps/web" as web
+  }
+  node "Render Web Service\nNode runtime từ Git" {
+    artifact "NestJS API + PaymentService nội bộ\napps/api; HTTP PORT (default 3001)" as api
+    artifact "start:migrate\nprisma migrate deploy → API start" as migrate
+  }
+  database "Render PostgreSQL\nInternal TCP 5432\nPersistent storage" as db
+  browser -down-> web : HTTPS 443
+  browser -down-> api : HTTPS 443 / CORS
+  api -right-> db : DATABASE_URL nội bộ
+  migrate --> db : migration trước server
+  note right of web
+    Build env public: NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_API_MOCKING=disabled.
+    Logs: Vercel Dashboard.
+  end note
+  note right of api
+    Runtime env: DATABASE_URL, JWT_*,
+    CORS_ORIGIN, PORT; health path /health.
+    Logs: Render Dashboard.
+  end note
+}
+baseimages --> localapps : Dockerfiles / Compose
+localapps --> localdata
+deploy --> api : HTTPS secret Deploy Hook
+smoke ..> api : /health + /products
+smoke ..> web : /menu
+note left of deploy
+  Secret: RENDER_DEPLOY_HOOK_URL
+  GitHub environment production.
+end note
+note bottom of ci
+  Trigger CD: tag vX.Y.Z. Vercel deploy web độc lập.
+  Không có executable job build/push app image GHCR.
+  Task 5.3 app-image/tag/registry vẫn còn mở.
+end note
+note bottom of db
+  DB private, backup và cấu hình runtime cần bằng chứng Dashboard.
+  Internal URL / health up không tự xác nhận external access bị khóa.
+end note
 @enduml

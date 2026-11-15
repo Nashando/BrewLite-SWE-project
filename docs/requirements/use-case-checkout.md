@@ -1,89 +1,71 @@
-# Đặc tả use-case: Đặt và thanh toán đơn hàng (UC-CHECKOUT)
+# UC-CHECKOUT — Đặt và thanh toán đơn hàng
 
-Sơ đồ: [use-case](../diagrams/usecase-checkout.svg), [activity](../diagrams/activity.svg), [sequence](../diagrams/sequence.svg).
-
-## 1. Thông tin chung
-
-| Mục | Nội dung |
+## 1. Thông tin
+| Thuộc tính | Nội dung |
 |---|---|
-| Mã | UC-CHECKOUT |
-| Tên | Đặt và thanh toán đơn hàng |
-| Tác nhân chính | Khách hàng (vai trò `CUSTOMER`) |
-| Tác nhân phụ | Dịch vụ thanh toán mô phỏng; Nhân viên quầy (chỉ với tiền mặt) |
-| Yêu cầu liên quan | FR-03 Giỏ hàng, FR-04 Đăng nhập, FR-05 Đặt đơn và thanh toán, FR-07 Quản lý trạng thái đơn, NFR-02 Bảo mật |
-| Trigger | Khách nhấn **"Thanh toán"** ở trang giỏ hàng |
+| Tác nhân chính | CUSTOMER |
+| Tác nhân hỗ trợ | STAFF/MANAGER xác nhận CASH ở quầy; PaymentService là module nội bộ NestJS, không phải cổng ngoài |
+| Trigger | Khách chọn Thanh toán ở giỏ |
+| Liên kết | FR-03, FR-04, FR-05, FR-07; NFR-02; hủy theo FR-08 |
+| Sơ đồ | [Use-case](../diagrams/usecase-checkout.svg), [Activity](../diagrams/activity.svg), [Sequence](../diagrams/sequence.svg), nguồn .puml cùng tên |
 
-## 2. Mô tả ngắn
+## 2. Tiền điều kiện
+Có ít nhất một món trong giỏ và người dùng là CUSTOMER. JWT còn hạn trước khi gọi API; khách chưa đăng nhập đi theo luồng A1. Món/tùy chọn/kho vẫn phải được server xác minh, không được giả định giỏ trình duyệt luôn còn hợp lệ.
 
-Khách đặt các món trong giỏ và thanh toán bằng ví hoặc thẻ mô phỏng. Hệ thống tính lại giá ở server, giữ tồn kho trong lúc chờ thanh toán và không bao giờ trừ tiền hai lần cho cùng một yêu cầu. Không có giao hàng: khách nhận đồ tại quầy.
-
-## 3. Tiền điều kiện
-
-1. Giỏ hàng có ít nhất một món.
-2. Khách đã đăng nhập bằng tài khoản `CUSTOMER` với JWT còn hạn. Nếu chưa, hệ thống chuyển sang luồng 6.1 trước.
-
-## 4. Hậu điều kiện
-
-| Kết quả | Trạng thái |
+## 3. Hậu điều kiện
+| Kết quả | Đơn/kho/tiền/giỏ |
 |---|---|
-| Thành công (Ví, Thẻ) | Đơn `PAID`, giao dịch `SUCCESS`, tồn kho đã trừ, giỏ hàng trống |
-| Thành công (Tiền mặt) | Đơn `PENDING_PAYMENT` chờ thu tiền tại quầy, giao dịch `PENDING`, giỏ hàng trống |
-| Thất bại | Không bị trừ tiền; đơn vừa tạo `CANCELLED`, tồn kho được trả lại, giỏ hàng còn nguyên |
+| Ví/Thẻ thành công | PAID, Payment SUCCESS, kho đã giữ/trừ, thu một lần, giỏ UI rỗng |
+| Chọn CASH thành công | PENDING_PAYMENT, Payment CASH/PENDING, kho giữ, giỏ UI rỗng, chờ nhân viên thu tiền; không giả định đã PAID |
+| Lỗi tạo đơn | Transaction rollback, không có đơn mới hoặc trừ kho một phần |
+| Payment validate 400 | Chưa thu tiền; có thể giữ PENDING_PAYMENT và kho đã giữ từ lúc tạo đơn; giỏ UI còn |
+| Nghiệp vụ 402 | CANCELLED, Payment FAILED, hoàn kho, không thu ví; giỏ còn, lần thử sau tạo đơn mới |
+| Mạng/5xx chưa biết kết quả | Chưa kết luận đã thu/hủy; giữ đơn và key, đọc lại/gửi lại để lấy kết quả |
+| Đơn quá hạn | Khi request kích hoạt kiểm tra TTL: CANCELLED, hoàn kho, vô hiệu giao dịch chờ, không thể thanh toán/thu CASH tiếp |
 
-## 5. Luồng chính (Ví hoặc Thẻ)
+## 4. Luồng chính Ví/Thẻ
+1. Khách vào checkout. UI đối chiếu giỏ với menu, bỏ món ngừng bán/cập nhật giá, hiện tổng tiền.
+2. Khách chọn Ví hoặc Thẻ và xác nhận đặt hàng.
+3. UI POST /orders kèm JWT và items; API kiểm JWT, role CUSTOMER, DTO.
+4. OrderService kiểm tra món/size/topping và tính giá server; trong transaction, trừ kho có điều kiện theo thứ tự productId, tạo Order PENDING_PAYMENT và snapshot OrderItem; lỗi rollback toàn bộ.
+5. API trả 201; UI giữ orderId và key, hiện form cổng mô phỏng.
+6. Khách xác nhận thanh toán; UI POST /payments kèm JWT, Idempotency-Key, orderId/method/card nếu cần.
+7. PaymentService kiểm khóa; nếu đã xử lý thì trả kết quả cũ. Yêu cầu mới kiểm thẻ, TTL, sở hữu/trạng thái đơn và giao dịch CASH đang chờ.
+8. Trong transaction, chuyển có điều kiện PENDING_PAYMENT → PAID để chỉ một request xử lý; trừ ví có điều kiện hoặc mô phỏng thẻ, ghi Payment SUCCESS rồi commit.
+9. Trả 201; UI làm rỗng giỏ, hiện xác nhận/mã đơn; khách theo dõi PAID → PREPARING → READY → COMPLETED.
 
-1. Khách nhấn **"Thanh toán"** trong giỏ hàng.
-2. Hệ thống đối chiếu giỏ với menu: bỏ món không còn bán, cập nhật giá mới, rồi hiện tóm tắt đơn và tổng tiền.
-3. Khách chọn **Ví BrewLite** hoặc **Thẻ ngân hàng**, nhấn **"Xác nhận đặt hàng"**.
-4. API kiểm tra JWT, vai trò và dữ liệu; trong một transaction: tính lại giá ở server, trừ tồn kho có điều kiện, tạo đơn `PENDING_PAYMENT` (giữ hàng tối đa 15 phút).
-5. Hệ thống hiện cổng thanh toán mô phỏng: số dư ví, hoặc form thẻ.
-6. Khách nhấn **"Xác nhận thanh toán"**; UI gửi kèm `Idempotency-Key`.
-7. Dịch vụ thanh toán mô phỏng trừ số dư ví hoặc xử lý thẻ.
-8. Hệ thống ghi giao dịch `SUCCESS`, chuyển đơn sang `PAID`, làm rỗng giỏ và hiện **"Đặt hàng thành công"** kèm mã đơn.
-9. Khách theo dõi đơn: đã thanh toán → đang pha chế → sẵn sàng → hoàn tất.
+## 5. Luồng thay thế
+- A1 — Chưa đăng nhập: hiện yêu cầu đăng nhập; đăng nhập/đăng ký, trở lại checkout và giữ giỏ, tiếp tục bước 1.
+- A2 — CASH: sau bước 4, POST /payments method CASH tạo giao dịch PENDING và giữ đơn PENDING_PAYMENT. UI làm rỗng giỏ và nhắc ra quầy. Thu tiền là use-case UC-COUNTER riêng: STAFF/MANAGER POST /orders/:id/confirm-cash chuyển PAID/SUCCESS. Không bắt buộc thu CASH xong mới kết thúc checkout của khách.
+- A3 — Đổi phương thức trước kết quả thanh toán: UI dùng lại đơn đang giữ; không tạo đơn mới chỉ vì đổi màn hình. Khi đã có CASH/PENDING, API từ chối thanh toán thêm bằng phương thức khác (409).
+- A4 — Quá hạn: TTL mặc định 15 phút qua ORDER_PAYMENT_TTL_MINUTES. Kiểm tra được gọi khi tạo đơn/thanh toán/xem đơn liên quan; không có cron/timer hủy đúng phút thứ 15. Giao dịch thẻ mô phỏng timeout là lỗi nghiệp vụ đã biết (402), khác timeout mạng chưa biết kết quả.
 
-## 6. Luồng thay thế
-
-### 6.1. Chưa đăng nhập (tại bước 1)
-1. Hệ thống hiện "Bạn cần đăng nhập" kèm nút **Đăng nhập**.
-2. Khách nhấn nút, đăng nhập hoặc đăng ký; hệ thống cấp JWT.
-3. Hệ thống quay lại trang thanh toán, giỏ hàng còn nguyên; tiếp tục bước 2.
-
-### 6.2. Trả tiền mặt tại quầy (tại bước 3, phần mở rộng)
-1. Khách chọn **Tiền mặt tại quầy**.
-2. Sau bước 4, hệ thống ghi giao dịch `CASH` ở trạng thái `PENDING`, làm rỗng giỏ và nhắc khách ra quầy trong 15 phút.
-3. Nhân viên thu tiền, nhấn **"Đã thu tiền mặt"**; đơn chuyển sang `PAID`.
-4. Quá 15 phút chưa thu: đơn tự hủy và trả lại tồn kho.
-
-### 6.3. Đổi phương thức (tại bước 5)
-1. Khách nhấn **"Chọn phương thức khác"**; hệ thống dùng lại đơn đang giữ, không tạo đơn mới.
-
-## 7. Luồng ngoại lệ
-
-| Mã | Tại bước | Tình huống | Hệ thống xử lý |
-|---|---|---|---|
-| 7.1 | 4 | Không đủ tồn kho | Rollback, trả `400 OUT_OF_STOCK`; báo *"Sản phẩm [tên] không đủ số lượng tồn kho."* và dẫn về giỏ hàng |
-| 7.2 | 7 | Ví không đủ tiền, thẻ bị từ chối hoặc hết thời gian chờ | Hủy đơn, trả lại tồn kho, lưu giao dịch `FAILED`, trả `402`; báo *"Thanh toán thất bại, vui lòng thử lại."*; giỏ còn nguyên, lần thử sau tạo đơn mới |
-| 7.3 | 5 | Thẻ sai định dạng hoặc hết hạn | Báo lỗi ngay tại form, không gửi yêu cầu thanh toán |
-| 7.4 | 6 | Gửi lại cùng `Idempotency-Key` (bấm đúp, mất mạng rồi thử lại) | Trả lại kết quả lần trước, không trừ tiền lần hai |
-| 7.5 | 6 | Đơn đã quá 15 phút giữ hàng | Báo đơn không còn hiệu lực; lần thử sau tạo đơn mới |
-| 7.6 | 4, 6 | JWT hết hạn hoặc không hợp lệ | Trả `401`; đăng xuất, yêu cầu đăng nhập lại; giỏ hàng còn nguyên |
-| 7.7 | 3 | Tài khoản nhân viên hoặc quản lý | Không cho đặt đơn; API trả `403` |
-
-## 8. Quy tắc nghiệp vụ
-
-- Giá do server tính lại từ dữ liệu sản phẩm, không tin giá client gửi lên.
-- Tồn kho chỉ bị trừ khi còn đủ (`stock >= số lượng`), nên không bao giờ âm kể cả khi nhiều người đặt cùng lúc.
-- Mỗi tài khoản mới có sẵn 200.000 ₫ trong ví mô phỏng; thẻ chỉ lưu 4 số cuối.
-- Thẻ bắt đầu bằng `4000` hoặc kết thúc bằng `0002` bị từ chối, kết thúc bằng `0003` mô phỏng hết thời gian chờ.
-
-## 9. Tiêu chí chấp nhận
-
-| Mã | Tiêu chí | Test |
+## 6. Ngoại lệ
+| Mã | Tại bước | Xử lý |
 |---|---|---|
-| AC-01 | Đặt và trả bằng ví thành công: đơn `PAID`, số dư giảm đúng tổng tiền | INT-T03, E2E-T01 |
-| AC-02 | Thẻ bị từ chối: không trừ tiền, giỏ còn nguyên, thử lại thành công | INT-T03, E2E-T02 |
-| AC-03 | Hết hàng: không tạo đơn, tồn kho không âm | INT-T02, E2E-T03 |
-| AC-04 | Gửi lại cùng `Idempotency-Key`: chỉ một giao dịch, trừ tiền một lần | INT-T03 |
-| AC-05 | Chưa đăng nhập: được yêu cầu đăng nhập, giỏ hàng còn nguyên | E2E-T01 |
-| AC-06 | Tiền mặt: nhân viên xác nhận thì đơn `PAID`; quá 15 phút thì tự hủy | INT-T04, E2E-T04 |
+| E1 | 3 hoặc 6: JWT sai/hết hạn | 401, UI đăng xuất/yêu cầu đăng nhập, giữ giỏ |
+| E2 | 3 hoặc 6: không phải CUSTOMER | 403, không tạo/thu đơn từ tài khoản quầy/quản lý |
+| E3 | 3–4: DTO/món/size/topping sai | 400, rollback, báo lỗi; không giả định có đơn để hủy |
+| E4 | 4: hết kho | 400 OUT_OF_STOCK, rollback toàn bộ, UI dẫn về giỏ |
+| E5 | 6–7: dữ liệu thẻ/header sai | UI validate hoặc API 400 trước khi thu; đơn có thể tiếp tục giữ kho |
+| E6 | 8: ví thiếu, thẻ từ chối/timeout mô phỏng | Transaction ghi CANCELLED/FAILED và hoàn kho, commit rồi trả 402; UI giữ giỏ, thử lại bằng đơn mới |
+| E7 | 7: key đã dùng | Cùng user/key/order trả payment cũ (201 hoặc 402); key cho order khác trả 409; không trừ/hoàn kho lần hai |
+| E8 | 7–8: đơn không còn payable/đã xử lý song song | 409; race cùng key được đọc lại để replay, không tự thu lần hai |
+| E9 | 6–9: mất mạng/5xx | Không suy ra thất bại nghiệp vụ; giữ đơn/key, đọc lại/gửi lại để xác định kết quả |
+
+## 7. Quy tắc nghiệp vụ
+Giá và tiền VND là integer; giá server quyết định. Mỗi CUSTOMER mới có ví mô phỏng 200.000đ. Thẻ đầu 4000/cuối 0002 bị từ chối, cuối 0003 mô phỏng timeout; chỉ lưu cardLast4, không lưu số/CVV. Unique (userId,idempotencyKey) bảo vệ gửi trùng. Hủy trước pha chế theo UC-CANCEL/FR-08 hoàn kho và hoàn ví đã thu; không thanh toán lại đơn CANCELLED.
+
+## 8. Acceptance criteria và test
+Mã INT/E2E theo [tests/README](../../tests/README.md); [matrix](../traceability-matrix.md) dẫn tới file thật.
+| AC | Mong đợi | Kiểm chứng |
+|---|---|---|
+| AC-01 | Ví thành công PAID, trừ đúng một lần | INT-T03, E2E-T01 |
+| AC-02 | Thẻ từ chối 402, CANCELLED/hoàn kho, giỏ còn; thử lại bằng đơn mới thành công | INT-T03, E2E-T02 |
+| AC-03 | Hết kho không tạo đơn, không âm/trừ một phần | INT-T02, E2E-T03 |
+| AC-04 | Cùng user/key replay, request song song không thu lần hai | INT-T03 |
+| AC-05 | Chưa đăng nhập được yêu cầu đăng nhập và giữ giỏ | E2E-T01 |
+| AC-06 | CASH/PENDING; nhân viên xác nhận PAID; request kiểm TTL sau quá hạn hủy/hoàn kho | INT-T04 kiểm TTL, E2E-T04 kiểm quầy; E2E không thay test TTL |
+| AC-07 | Payment 400 giữ đơn chờ/kho đã giữ khi phù hợp | INT-T03 |
+| AC-08 | Mạng/5xx giữ đơn/key để xác định kết quả | [CheckoutScreen test](../../apps/web/src/features/checkout/__tests__/CheckoutScreen.test.tsx) |
+| AC-09 | Hủy PENDING_PAYMENT/PAID trước pha chế; hoàn ví/kho một lần, từ chối PREPARING | INT-T04, E2E-T04 |

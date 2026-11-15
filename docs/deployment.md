@@ -7,10 +7,10 @@
 ## 1. Truy vết Thành phần & Kiến trúc
 | Thành phần | Nền tảng | Đường dẫn mã nguồn | Mục đích (theo ADR) |
 |---|---|---|---|
-| **Web Client (PWA)** | Vercel | `apps/web` | Frontend Next.js (ADR 005)[cite: 5] |
-| **Backend API** | Render Web Service | `apps/api` | NestJS REST API + Mock Payment (ADR 004, 006)[cite: 5] |
-| **Database** | Render PostgreSQL | `apps/api/prisma` | PostgreSQL + Prisma Migration (ADR 002)[cite: 5] |
-| **CI/CD Pipeline** | GitHub Actions / GHCR | `.github/workflows/` | Tự động hóa Lint, Test, Đóng gói Image & Deploy[cite: 6, 7] |
+| **Web Client (PWA)** | Vercel | `apps/web` | Frontend Next.js (ADR 005) |
+| **Backend API** | Render Web Service | `apps/api` | NestJS REST API + Mock Payment (ADR 004, 006) |
+| **Database** | Render PostgreSQL | `apps/api/prisma` | PostgreSQL + Prisma Migration (ADR 002) |
+| **CI/CD Pipeline** | GitHub Actions | `.github/workflows/` | Source hiện có quality → deploy-api → smoke-test; chưa có job build/push app image GHCR |
 
 *Sơ đồ chi tiết:* `docs/diagrams/deployment-diagram.svg` (hoặc `.puml`).
 
@@ -21,8 +21,8 @@
 |---|---|---|
 | **Khởi chạy** | `docker compose up --build` | GitHub Actions Tag Push (`vX.Y.Z`) + Render Deploy Hook |
 | **Database** | Container Docker local (`5432`) | Render PostgreSQL (Private Network) |
-| **Biến môi trường** | File `.env` | GitHub Secrets & Cloud Environment Variables[cite: 6] |
-| **Dữ liệu** | Dữ liệu Seed demo[cite: 6] | Dữ liệu thực tế / Demo tuỳ chọn |
+| **Biến môi trường** | File `.env` | GitHub Secrets & Cloud Environment Variables |
+| **Dữ liệu** | Dữ liệu Seed demo | Dữ liệu thực tế / Demo tuỳ chọn |
 
 ---
 
@@ -39,7 +39,7 @@
 4. Vào mục **Settings > Deploy Hook** để tạo và lưu lại **Deploy Hook URL**.
 
 ### 3.2. Vercel (Frontend)
-1. Import repository lên Vercel, chọn **Root Directory** là `apps/web`[cite: 6].
+1. Import repository lên Vercel, chọn **Root Directory** là `apps/web`.
 2. Cài đặt Environment Variables:
    - `NEXT_PUBLIC_API_URL`: URL API Render (`https://brewlite-swe-project.onrender.com`).
    - `NEXT_PUBLIC_API_MOCKING`: `disabled`.
@@ -49,7 +49,7 @@
 Vào **Settings > Environments > production** và cấu hình Secret:
 - **Secrets:** `RENDER_DEPLOY_HOOK_URL` (URL deploy hook lấy từ Render ở bước 3.1).
 
-*(Lưu ý: Pipeline GitHub Actions tự động sử dụng `GITHUB_TOKEN` có sẵn để xác thực. Nếu có cấu hình đóng gói image lên GitHub Container Registry (GHCR), đó là minh chứng kỹ thuật bổ sung chứ không tham gia trực tiếp vào tiến trình deploy Runtime của Render).*
+CD main 9808d37 không có executable job Docker build/tag/push GHCR; comment hoặc IMAGE_NAME trong YAML không chứng minh job đó tồn tại. Xem ADR007 để phân biệt hiện trạng Git runtime với phần image/registry Task 5.3 còn phải triển khai.
 
 ---
 

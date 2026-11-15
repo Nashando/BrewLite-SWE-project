@@ -1,25 +1,24 @@
-# ADR 007: Lựa chọn Chiến lược CI/CD và Triển khai Production (Hướng A)
+# ADR 007 — Render Node runtime từ Git và CD hiện trạng
 
 ## Trạng thái
-- **Đã duyệt và áp dụng** (Accepted)
+Làm rõ tài liệu ngày 15/11/2026 theo source 9808d37. Không xác nhận lại Dashboard hoặc ghi nhận đã triển khai thay đổi mới chỉ vì sửa ADR.
 
-## Bối cảnh & Vấn đề
-Hệ thống **BrewLite** cần một quy trình phát hành (Release & Deployment Pipeline) tự động hóa cao từ mã nguồn đến môi trường production nhằm đảm bảo:
-1. Chất lượng mã nguồn được kiểm soát chặt chẽ qua CI (Lint, Test, Build).
-2. Môi trường Production vận hành ổn định, không bị gián đoạn hay thay đổi URL đột ngột.
-3. Tối ưu hóa chi phí và tài nguyên hạ tầng cho đồ án tốt nghiệp.
+## Bối cảnh/phương án
+Có thể triển khai API từ image registry hoặc build trực tiếp từ Git. Cấu hình tài liệu repo đang chọn Render Node runtime + Deploy Hook, Vercel Git Integration và PostgreSQL Render. Dockerfiles/Compose phục vụ local; payment chạy nội bộ API.
 
-## Các phương án đã cân nhắc
-- **Hướng B (Existing Image):** Build Docker image của Backend trong GitHub Actions, push lên GHCR và dùng image đó trực tiếp trên Render. 
-  - *Nhược điểm:* Phát sinh độ trễ kéo image lớn trên Render Free Tier, dễ gặp lỗi cấu hình network/port rườm rà và tốn thời gian cấu hình token xác thực.
-- **Hướng A (Node Runtime qua Deploy Hook - Đã chọn):** CI/CD thực hiện kiểm thử, đóng gói image lên GHCR làm minh chứng kỹ thuật, sau đó kích hoạt Render Deploy Hook để Render tự động build ứng dụng Node trực tiếp từ mã nguồn sạch trên nhánh `main`.
+## Quyết định đang phản ánh trong source
+- Web: Vercel build main qua Git Integration.
+- API: CD gọi Render Deploy Hook với ref=GITHUB_SHA; Render Node runtime build Git source. Start command là npm run start:migrate.
+- CD main chỉ có quality → deploy-api → smoke-test. quality tái sử dụng CI lint/test/build.
+- CD không có job Docker build/tag/push GHCR. IMAGE_NAME hoặc comment về image còn trong YAML không phải executable job. Không khẳng định image SHA/semver đã được tạo hoặc Render đang pull GHCR.
+- Registry base image trong repo là Docker Hub (node:22-alpine, postgres:16-alpine). Yêu cầu app-image/registry Task 5.3 còn cần triển khai và run thật, không được hợp thức hóa bằng sơ đồ.
+- Hook HTTP thành công nghĩa là đã yêu cầu deploy. Smoke hiện kiểm health/products/menu; chưa xác nhận API/web đang phục vụ SHA yêu cầu. Required checks main cũng là thiết lập GitHub phải kiểm riêng.
 
-## Quyết định
-Chúng ta chọn **Hướng A**:
-- **Frontend (Vercel):** Liên kết trực tiếp qua Git Integration với nhánh `main` để tự động build và phân phối qua Edge CDN.
-- **Backend (Render Web Service):** Sử dụng Node runtime build trực tiếp từ Git, kích hoạt tự động thông qua **Render Deploy Hook** sau khi CI/CD qua vòng kiểm duyệt (Quality Gate).
-- **Minh chứng kỹ thuật (GHCR):** GitHub Actions vẫn thực hiện build Docker image và đẩy lên GitHub Container Registry (GHCR) như một artifact minh chứng cho năng lực tự động hóa của nhóm.
+## Hệ quả/trade-off
+Git runtime đơn giản và giữ URL; web/API deploy độc lập, phải xác minh phiên bản và migration trên nền tảng. Quy trình hiện chưa đáp ứng trọn chuỗi image/tag/registry của Task 5.3. Khi thực sự bổ sung pipeline đó cần đồng bộ ADR/diagram và lưu digest/run; không mô tả kế hoạch thành hiện trạng.
 
-## Hệ quả & Đánh giá
-- **Ưu điểm:** Loại bỏ rủi ro lệch cấu hình container trên Render, deployment mượt mà, giữ nguyên cấu trúc URL ổn định và tận dụng tối đa cơ chế tự động migration của Prisma.
-- **Nhược điểm:** Phụ thuộc vào tốc độ build trực tiếp trên Render (đã được khắc phục bằng cách tối ưu hóa file `package.json` và caching).
+## Migration/rollback
+Migration chạy trước API start; rollback ứng dụng không tự hoàn tác schema/dữ liệu. Xem [deployment mục 5](../../deployment.md). Không dùng migrate reset production.
+
+## Nguồn sở hữu
+[cd.yml](../../../.github/workflows/cd.yml), [CI](../../../.github/workflows/ci.yml), [Docker API](../../../apps/api/Dockerfile), [Compose](../../../docker-compose.yml).

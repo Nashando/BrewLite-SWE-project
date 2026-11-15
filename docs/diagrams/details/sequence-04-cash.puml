@@ -1,0 +1,37 @@
+@startuml sequence-04-cash
+title BrewLite - Sequence 4/4: Xác nhận tiền mặt tại quầy
+hide footbox
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam maxMessageSize 250
+skinparam ParticipantPadding 20
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor white
+skinparam sequenceParticipantBackgroundColor white
+skinparam sequenceGroupBackgroundColor white
+
+actor "STAFF / MANAGER" as Staff
+control "__checkoutAPI:__\n__NestJS API__" as API
+entity "__database:__\n__PostgreSQL__" as DB
+
+opt UC-COUNTER — CASH đang chờ, nhân viên thu tiền sau checkout
+  Staff -> API : confirmCash(orderId)\nPOST /orders/:id/confirm-cash + JWT
+  activate API
+  API -> API : authenticateStaffOrManager(jwt)\nreleaseExpiredOrders()
+  API -> DB : Xử lý TTL; BEGIN\nclaim Order PENDING_PAYMENT → PAID\nupdate Payment CASH/PENDING → SUCCESS
+  activate DB
+  alt Không claim được đơn hoặc payment CASH
+    API -> DB : ROLLBACK
+    API --> Staff : 409
+  else Xác nhận thành công
+    API -> DB : COMMIT
+    API --> Staff : 201 OrderView (PAID)
+  end
+  deactivate DB
+  deactivate API
+end
+
+
+@enduml
